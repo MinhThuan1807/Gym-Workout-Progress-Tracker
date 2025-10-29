@@ -1,28 +1,24 @@
 'use client'
-import { useState } from 'react'
+
 import { Toaster } from '@/components/ui/sonner'
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter } from '@/components/ui/sidebar'
 import { LayoutDashboard, Dumbbell, TrendingUp, BookOpen, User, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-
-
-
-type Page = 'landing' | 'dashboard' | 'workouts' | 'progress' | 'exercises' | 'profile'
+import { useParams, useRouter } from 'next/navigation'
 
 const menuItems = [
-  { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'workouts' as const, label: 'Workouts', icon: Dumbbell },
-  { id: 'progress' as const, label: 'Progress', icon: TrendingUp },
-  { id: 'exercises' as const, label: 'Exercises', icon: BookOpen },
-  { id: 'profile' as const, label: 'Profile', icon: User },
+  { href: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: 'workouts', label: 'Workouts', icon: Dumbbell },
+  { href: 'progress', label: 'Progress', icon: TrendingUp },
+  { href: 'exercises', label: 'Exercises', icon: BookOpen },
+  { href: 'profile', label: 'Profile', icon: User },
 ]
 
-const DashboardLayout = ({ children, currentPage, setCurrentPage }: { 
-  children: React.ReactNode
-  currentPage: Page
-  setCurrentPage: (page: Page) => void 
-}) => {
+export default function DashboardLayout({children}: {children: React.ReactNode}) {
+    const router = useRouter();
+    const params = useParams<{ tag: string }>();
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-muted/30">
@@ -43,10 +39,10 @@ const DashboardLayout = ({ children, currentPage, setCurrentPage }: {
           <SidebarContent className="p-4">
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.id}>
+                <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
-                    onClick={() => setCurrentPage(item.id)}
-                    isActive={currentPage === item.id}
+                    onClick={() => router.push(`/${item.href}`)}
+                    isActive={params.tag === item.href}
                     className="w-full rounded-xl"
                   >
                     <item.icon className="w-5 h-5 " />
@@ -71,7 +67,7 @@ const DashboardLayout = ({ children, currentPage, setCurrentPage }: {
             <Button 
               variant="ghost" 
               className="w-full justify-start rounded-xl"
-              onClick={() => setCurrentPage('landing')}
+              onClick={() => router.push('/')}
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
@@ -90,4 +86,3 @@ const DashboardLayout = ({ children, currentPage, setCurrentPage }: {
     </SidebarProvider>
   )
 }
-export default DashboardLayout;
