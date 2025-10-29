@@ -1,65 +1,132 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { Dumbbell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+const LandingPage =() => {
+    const router = useRouter();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-gradient-to-br from-white via-emerald-50/30 to-white">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Dumbbell className="w-8 h-8 text-primary" />
+            <span className="text-xl font-semibold">FitTrack</span>
+          </div>
+          <Link 
+            href="/"
+            className="p-1 inline-flex items-center justify-center w-16 rounded-2xl border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
           >
+            Login
+          </Link>
+          
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span className="text-sm">Your Personal Fitness Companion</span>
+            </div>
+            
+            <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
+              Track Your Workout,<br />
+              <span className="text-primary">Reach Your Goal</span>
+            </h1>
+            
+            <p className="text-xl text-muted-foreground max-w-lg">
+              Transform your fitness journey with smart tracking, detailed analytics, 
+              and personalized insights. Every rep counts, every goal matters.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button 
+                size="lg"
+                onClick={()=> (router.push('/dashboard'))}
+                className="text-lg h-14 px-8 rounded-2xl shadow-lg shadow-primary/20 cursor-pointer"
+              >
+                Get Started
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="text-lg h-14 px-8 rounded-2xl cursor-pointer"
+              >
+                Learn More
+              </Button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-8 pt-8">
+              <div>
+                <div className="text-3xl font-bold text-primary">50K+</div>
+                <div className="text-sm text-muted-foreground">Active Users</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-primary">1M+</div>
+                <div className="text-sm text-muted-foreground">Workouts Logged</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-primary">95%</div>
+                <div className="text-sm text-muted-foreground">Goal Success</div>
+              </div>
+            </div>
+          </div>
+          {/* Right Image */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-3xl blur-3xl"></div>
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="/a1.jpg"
+              alt="Person working out"
+              className="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover"
+              width={500}
+              height={500}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Features */}
+      <section className="container mx-auto px-4 py-16 lg:py-24">
+        <h2 className="text-3xl lg:text-4xl font-bold text-center mb-12">
+          Everything You Need to Succeed
+        </h2>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              title: "Track Workouts",
+              description: "Log exercises, sets, reps, and weights with ease. Never forget a workout again.",
+              icon: "📊"
+            },
+            {
+              title: "Monitor Progress",
+              description: "Visualize your strength gains and body composition changes over time.",
+              icon: "📈"
+            },
+            {
+              title: "Exercise Library",
+              description: "Access hundreds of exercises with detailed instructions and muscle groups.",
+              icon: "💪"
+            }
+          ].map((feature, i) => (
+            <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border hover:shadow-md transition-shadow">
+              <div className="text-4xl mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+              <p className="text-muted-foreground">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
+export default LandingPage;
