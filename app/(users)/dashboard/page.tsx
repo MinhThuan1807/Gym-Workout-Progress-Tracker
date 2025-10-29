@@ -3,7 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { TrendingUp, Zap, Dumbbell, Calendar } from "lucide-react";
-
+import { Suspense } from "react";
+import { SkeletonDashboard } from "@/components/skeleton/SkeletonDashboard";
 const weightData = [
   { date: "Oct 1", weight: 82 },
   { date: "Oct 8", weight: 81.5 },
@@ -26,7 +27,7 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">Welcome back! Here's your fitness overview.</p>
       </div>
-
+    <Suspense fallback={<SkeletonDashboard />}>
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="rounded-2xl border shadow-sm">
@@ -157,6 +158,7 @@ const Dashboard = () => {
           </div>
         </CardContent>
       </Card>
+    </Suspense>
     </div>
   );
 }
