@@ -4,8 +4,11 @@ import { Toaster } from '@/components/ui/sonner'
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter } from '@/components/ui/sidebar'
 import { LayoutDashboard, Dumbbell, TrendingUp, BookOpen, User, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { redirect, useParams, useRouter } from 'next/navigation'
+import { getCurrentUserAPI, logoutUserAPI, selectCurrentUser } from '@/store/slices/authSlice'
+import { useAppDispatch, useAppSelector } from '@/store/hook'
+import { useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useParams, useRouter } from 'next/navigation'
 
 const menuItems = [
   { href: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -18,6 +21,19 @@ const menuItems = [
 export default function DashboardLayout({children}: {children: React.ReactNode}) {
     const router = useRouter();
     const params = useParams<{ tag: string }>();
+    const user = useAppSelector(selectCurrentUser);
+    const dispatch = useAppDispatch();
+
+    // Fetch user data khi component mount
+    useEffect(() => {
+      dispatch(getCurrentUserAPI());
+    }, [dispatch]);
+    console.log("Current User in Layout:", user);
+
+    const handleLogout = () => {
+      dispatch(logoutUserAPI());
+      redirect('/user/login');
+    };
 
   return (
     <SidebarProvider>
@@ -56,18 +72,18 @@ export default function DashboardLayout({children}: {children: React.ReactNode})
           <SidebarFooter className="border-t p-4">
             <div className="flex items-center gap-3 mb-3">
               <Avatar className="w-10 h-10">
-                <AvatarImage src="https://images.unsplash.com/photo-1711006366881-5076ba350008?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxneW0lMjB3b3Jrb3V0JTIwcGVyc29ufGVufDF8fHx8MTc1OTQ5Mjk1NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold truncate">John Doe</div>
-                <div className="text-xs text-muted-foreground">Pro Member</div>
+                <div className="text-sm font-semibold truncate">{user?.displayName}</div>
+                <div className="text-xs text-muted-foreground">{user?.role}</div>
               </div>
             </div>
             <Button 
               variant="ghost" 
               className="w-full justify-start rounded-xl"
-              onClick={() => router.push('/')}
+              onClick={handleLogout}
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
