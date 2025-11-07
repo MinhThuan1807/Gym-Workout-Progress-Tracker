@@ -4,8 +4,8 @@ import { Toaster } from '@/components/ui/sonner'
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter } from '@/components/ui/sidebar'
 import { LayoutDashboard, Dumbbell, TrendingUp, BookOpen, User, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { redirect, useParams, useRouter } from 'next/navigation'
-import { getCurrentUserAPI, logoutUserAPI, selectCurrentUser } from '@/store/slices/authSlice'
+import { useParams, useRouter } from 'next/navigation'
+import { getCurrentUserAPI, logoutUserAPI, selectCurrentUser, selectIsLoading } from '@/store/slices/authSlice'
 import { useAppDispatch, useAppSelector } from '@/store/hook'
 import { useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -23,16 +23,27 @@ export default function DashboardLayout({children}: {children: React.ReactNode})
     const params = useParams<{ tag: string }>();
     const user = useAppSelector(selectCurrentUser);
     const dispatch = useAppDispatch();
+    const isLoading = useAppSelector(selectIsLoading);
 
-    // Fetch user data khi component mount
+    // ✅ Fetch user data khi mount (nếu chưa có user)
     useEffect(() => {
-      dispatch(getCurrentUserAPI());
-    }, [dispatch]);
-    console.log("Current User in Layout:", user);
+      if (!user) {
+        dispatch(getCurrentUserAPI());
+      }
+    }, [dispatch, user]);
 
-    const handleLogout = () => {
-      dispatch(logoutUserAPI());
-      redirect('/user/login');
+    // Handle logout
+    const handleLogout = async () => {
+      try {
+        // Đợi logout API complete
+        await dispatch(logoutUserAPI()).unwrap();
+        // Redirect về login page
+        router.push('/user/login');
+      } catch (error) {
+        console.error('Logout failed:', error);
+        // Vẫn redirect về login dù có lỗi
+        router.push('/user/login');
+      }
     };
 
   return (

@@ -1,6 +1,5 @@
 import { authAPI } from "@/api/auth";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -53,6 +52,7 @@ export const logoutUserAPI = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await authAPI.logout();
+
             return response;
         } catch (error: any) {
             return rejectWithValue("Logout failed");
@@ -61,7 +61,7 @@ export const logoutUserAPI = createAsyncThunk(
 )
 export const getCurrentUserAPI = createAsyncThunk(
     "users/getCurrentUser",
-    async (_, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => { 
         try {
             const response = await authAPI.getCurrentUser();
             return response;
@@ -105,8 +105,22 @@ const userSlice = createSlice({
             .addCase(loginUserAPI.fulfilled, (state, action) => {
                 state.isLoading = false;
                 // Lưu user info (không cần lưu tokens vì đã có trong cookies)
-                const { accessToken, refreshToken, ...userData } = action.payload.data;
-                state.user = userData;
+                const userData = action.payload.data;
+                 state.user = {
+                    _id: userData._id,
+                    email: userData.email,
+                    displayName: userData.displayName,
+                    role: userData.role,
+                    avatar: userData.avatar,
+                    gender: userData.gender,
+                    dob: userData.dob,
+                    heightCm: userData.heightCm,
+                    weightKg: userData.weightKg,
+                    verifyToken: null,
+                    token: '', // Không cần
+                    createAt: userData.createdAt,
+                    updateAt: userData.updatedAt
+                };
                 state.isAuthenticated = true;
                 state.error = null;
         })
@@ -126,7 +140,7 @@ const userSlice = createSlice({
                 state.isAuthenticated = false;
                 state.error = null;
             })
-              .addCase(logoutUserAPI.rejected, (state, action) => {
+              .addCase(logoutUserAPI.rejected, (state) => {
                 state.isLoading = false;
                 state.user = null;
                 state.isAuthenticated = false;
@@ -166,15 +180,20 @@ const userSlice = createSlice({
             .addCase(getCurrentUserAPI.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.user = action.payload.data;
+                state.isAuthenticated = true;
                 state.error = null;
         })
            .addCase(getCurrentUserAPI.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
+                state.isAuthenticated = false;
+                state.user = null;
         });
     }
 });
 export const { resetAuth, clearError, checkAuth } = userSlice.actions;
 export const selectCurrentUser = (state: { user: AuthState }) => state.user.user;
+export const selectIsAuthenticated = (state: { user: AuthState }) => state.user.isAuthenticated;
+export const selectIsLoading = (state: { user: AuthState }) => state.user.isLoading;
 
 export const userReducer = userSlice.reducer;

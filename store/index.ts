@@ -1,16 +1,25 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
-import storageSession from "redux-persist/lib/storage/session";
+import { 
+  persistStore, 
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
+import storage from "redux-persist/lib/storage"; // ✅ Đổi sang localStorage
 import { userReducer } from "./slices/authSlice";
 
 const rootPersistConfig = {
   key: "root", // The key for the root reducer
-  storage: storageSession, // Use session storage for persisting user data
+  storage: storage, // Use local storage for persisting user data
   whitelist: ["user"], // user data can store in redux when press f5
 };
 
-// Combine all reducers
+// Combine all reducers 
 const reducers = combineReducers({
   user: userReducer,
 });
@@ -18,22 +27,20 @@ const reducers = combineReducers({
 // Process persist Reducer
 const persistedReducer = persistReducer(rootPersistConfig, reducers);
 
-export const makeStore = () => {
-  const store = configureStore({
+
+export const store = configureStore({
     reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
-          ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
       }),
+       devTools: process.env.NODE_ENV !== 'production',
   });
 
-  return store;
-};
 
-export const persistor = persistStore(makeStore());
+export const persistor = persistStore(store);
 
-export type AppStore = ReturnType<typeof makeStore>;
-export type RootState = ReturnType<AppStore["getState"]>;
-export type AppDispatch = AppStore["dispatch"];
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
