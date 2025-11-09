@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
 import { Dumbbell } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/admin/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const LandingPage =() => {
-    const router = useRouter();
+const LandingPage = () => {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-emerald-50/30 to-white">
       {/* Header */}
@@ -17,13 +17,12 @@ const LandingPage =() => {
             <Dumbbell className="w-8 h-8 text-primary" />
             <span className="text-xl font-semibold">FitTrack</span>
           </div>
-          <Link 
+          <Link
             href="/"
             className="p-1 inline-flex items-center justify-center w-16 rounded-2xl border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
           >
             Login
           </Link>
-          
         </div>
       </header>
 
@@ -36,27 +35,29 @@ const LandingPage =() => {
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
               <span className="text-sm">Your Personal Fitness Companion</span>
             </div>
-            
+
             <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
-              Track Your Workout,<br />
+              Track Your Workout,
+              <br />
               <span className="text-primary">Reach Your Goal</span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground max-w-lg">
-              Transform your fitness journey with smart tracking, detailed analytics, 
-              and personalized insights. Every rep counts, every goal matters.
+              Transform your fitness journey with smart tracking, detailed
+              analytics, and personalized insights. Every rep counts, every goal
+              matters.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
+              <Button
                 size="lg"
-                onClick={()=> (router.push('/dashboard'))}
+                onClick={() => router.push("/dashboard")}
                 className="text-lg h-14 px-8 rounded-2xl shadow-lg shadow-primary/20 cursor-pointer"
               >
                 Get Started
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="lg"
                 className="text-lg h-14 px-8 rounded-2xl cursor-pointer"
               >
@@ -68,15 +69,21 @@ const LandingPage =() => {
             <div className="grid grid-cols-3 gap-8 pt-8">
               <div>
                 <div className="text-3xl font-bold text-primary">50K+</div>
-                <div className="text-sm text-muted-foreground">Active Users</div>
+                <div className="text-sm text-muted-foreground">
+                  Active Users
+                </div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary">1M+</div>
-                <div className="text-sm text-muted-foreground">Workouts Logged</div>
+                <div className="text-sm text-muted-foreground">
+                  Workouts Logged
+                </div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-primary">95%</div>
-                <div className="text-sm text-muted-foreground">Goal Success</div>
+                <div className="text-sm text-muted-foreground">
+                  Goal Success
+                </div>
               </div>
             </div>
           </div>
@@ -99,26 +106,32 @@ const LandingPage =() => {
         <h2 className="text-3xl lg:text-4xl font-bold text-center mb-12">
           Everything You Need to Succeed
         </h2>
-        
+
         <div className="grid md:grid-cols-3 gap-8">
           {[
             {
               title: "Track Workouts",
-              description: "Log exercises, sets, reps, and weights with ease. Never forget a workout again.",
-              icon: "📊"
+              description:
+                "Log exercises, sets, reps, and weights with ease. Never forget a workout again.",
+              icon: "📊",
             },
             {
               title: "Monitor Progress",
-              description: "Visualize your strength gains and body composition changes over time.",
-              icon: "📈"
+              description:
+                "Visualize your strength gains and body composition changes over time.",
+              icon: "📈",
             },
             {
               title: "Exercise Library",
-              description: "Access hundreds of exercises with detailed instructions and muscle groups.",
-              icon: "💪"
-            }
+              description:
+                "Access hundreds of exercises with detailed instructions and muscle groups.",
+              icon: "💪",
+            },
           ].map((feature, i) => (
-            <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border hover:shadow-md transition-shadow">
+            <div
+              key={i}
+              className="bg-white p-8 rounded-2xl shadow-sm border hover:shadow-md transition-shadow"
+            >
               <div className="text-4xl mb-4">{feature.icon}</div>
               <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
               <p className="text-muted-foreground">{feature.description}</p>
@@ -128,5 +141,5 @@ const LandingPage =() => {
       </section>
     </div>
   );
-}
+};
 export default LandingPage;
