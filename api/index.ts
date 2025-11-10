@@ -8,20 +8,18 @@ interface RegisterAdminParams {
   password: string
 }
 
-/* Register Admin API */
-export const registerAdminAPI = async ({
-  secretKey,
-  email,
-  password
-}: RegisterAdminParams) => {
-  try {
-    const response = await axios.post('admins/register', {
-      secretKey,
-      email,
-      password
-    })
-    return response.data
-  } catch (error) {
-    throw error
-  }
+interface VerifyEmailParams {
+  email: string
+  token: string
+}
+
+export const verifyEmailAPI = async (data: VerifyEmailParams) => {
+  const response = await axios.post('auth/verify', data)
+  return response.data
+}
+
+/* Admin API */
+export const registerAdminAPI = async (data: RegisterAdminParams) => {
+  const response = await axios.post('admins/register', data)
+  return response.data
 }
