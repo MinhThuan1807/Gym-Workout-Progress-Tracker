@@ -1,23 +1,21 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import InputField from "@/components/forms/InputField";
-import { useForm } from "react-hook-form";
-import FooterLink from "@/components/forms/FooterLink";
-import { toast } from "sonner";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { registerUserAPI } from "@/store/slices/authSlice";
-import { useAppDispatch } from "@/store/hook";
+'use client'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import InputField from '@/components/forms/InputField'
+import { useForm } from 'react-hook-form'
+import FooterLink from '@/components/forms/FooterLink'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { registerUserAPI } from '@/api'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
   FIELD_REQUIRED_MESSAGE,
   PASSWORD_RULE,
-  PASSWORD_RULE_MESSAGE,
-} from "@/utils/validators";
+  PASSWORD_RULE_MESSAGE
+} from '@/utils/validators'
 
 const registerSchema = z
   .object({
@@ -30,38 +28,37 @@ const registerSchema = z
       .string()
       .nonempty(FIELD_REQUIRED_MESSAGE)
       .regex(PASSWORD_RULE, PASSWORD_RULE_MESSAGE),
-    confirmPassword: z.string().nonempty(FIELD_REQUIRED_MESSAGE),
+    confirmPassword: z.string().nonempty(FIELD_REQUIRED_MESSAGE)
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+    message: 'Passwords do not match',
+    path: ['confirmPassword']
+  })
 
 const Register = () => {
-  const dispatch = useAppDispatch();
-  const router = useRouter();
+  const router = useRouter()
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting }
   } = useForm<SignUpFormData>({
-    resolver: zodResolver(registerSchema),
-  });
+    resolver: zodResolver(registerSchema)
+  })
 
-  const onSubmit = async (data: SignInFormData) => {
+  const onSubmit = async (data: SignUpFormData) => {
     try {
-      const { email, password } = data;
+      const { email, password } = data
 
-      await dispatch(registerUserAPI({ email, password })).unwrap();
+      await registerUserAPI({ email, password })
 
-      toast.success("Registration successful!");
-      toast.success("Please check your email to verify your account.");
-      router.push("/user/login");
+      toast.success('Registration successful!')
+      toast.success('Please check your email to verify your account.')
+      router.push('/user/login')
     } catch (error) {
-      toast.error(error as string);
-      console.error(error);
+      toast.error(error as string)
+      console.error(error)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -102,7 +99,7 @@ const Register = () => {
                 disabled={isSubmitting}
                 className="w-full text-white font-poppins"
               >
-                {isSubmitting ? "Processing..." : "Register"}
+                {isSubmitting ? 'Processing...' : 'Register'}
               </Button>
             </form>
 
@@ -115,7 +112,7 @@ const Register = () => {
         </Card>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register

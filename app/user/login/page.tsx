@@ -1,46 +1,46 @@
-"use client";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import InputField from "@/components/forms/InputField";
-import FooterLink from "@/components/forms/FooterLink";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
-import { loginUserAPI } from "@/store/slices/authSlice";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
+'use client'
+import { useForm } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import InputField from '@/components/forms/InputField'
+import FooterLink from '@/components/forms/FooterLink'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { toast } from 'sonner'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { loginUserAPI } from '@/store/slices/authSlice'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '@/store'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
   FIELD_REQUIRED_MESSAGE,
   PASSWORD_RULE,
-  PASSWORD_RULE_MESSAGE,
-} from "@/utils/validators";
+  PASSWORD_RULE_MESSAGE
+} from '@/utils/validators'
 
 const SignIn = () => {
-  const searchParams = useSearchParams();
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
+  const searchParams = useSearchParams()
+  const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<SignInFormData>();
+    formState: { errors, isSubmitting }
+  } = useForm<SignInFormData>()
 
-  if (searchParams.get("verified") === "true") {
-    toast.success("Email verified successfully! You can now log in.");
+  if (searchParams.get('verified') === 'true') {
+    toast.success('Email verified successfully! You can now log in.')
   }
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      await dispatch(loginUserAPI(data)).unwrap();
+      await dispatch(loginUserAPI(data)).unwrap()
 
-      router.push("/dashboard");
+      router.push('/dashboard')
     } catch (error) {
-      toast.error(error as string);
-      console.error(error);
+      toast.error(error as string)
+      console.error(error)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -61,7 +61,7 @@ const SignIn = () => {
                 error={errors.email}
                 validation={{
                   required: FIELD_REQUIRED_MESSAGE,
-                  pattern: { value: EMAIL_RULE, message: EMAIL_RULE_MESSAGE },
+                  pattern: { value: EMAIL_RULE, message: EMAIL_RULE_MESSAGE }
                 }}
               />
 
@@ -76,8 +76,8 @@ const SignIn = () => {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
                     value: PASSWORD_RULE,
-                    message: PASSWORD_RULE_MESSAGE,
-                  },
+                    message: PASSWORD_RULE_MESSAGE
+                  }
                 }}
               />
 
@@ -86,7 +86,7 @@ const SignIn = () => {
                 disabled={isSubmitting}
                 className="w-full text-foreground font-poppins"
               >
-                {isSubmitting ? "Signing in..." : "Sign In"}
+                {isSubmitting ? 'Signing in...' : 'Sign In'}
               </Button>
 
               <FooterLink
@@ -99,7 +99,7 @@ const SignIn = () => {
         </Card>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SignIn;
+export default SignIn

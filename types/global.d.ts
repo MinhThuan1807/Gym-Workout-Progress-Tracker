@@ -1,4 +1,20 @@
 declare global {
+  interface RegisterAdminParams {
+    secretKey: string
+    email: string
+    password: string
+  }
+
+  interface RegisterUserParams {
+    email: string
+    password: string
+  }
+
+  interface VerifyEmailParams {
+    email: string
+    token: string
+  }
+
   type SignInFormData = {
     email: string
     password: string
@@ -53,8 +69,6 @@ declare global {
     heightCm?: number
     weightKg?: number
     avatar?: string
-    verifyToken: string | null
-    token: string
     createAt: Date
     updateAt: Date
   }
