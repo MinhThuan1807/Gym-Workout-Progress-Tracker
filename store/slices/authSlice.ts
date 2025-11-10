@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { authAPI } from '@/api/auth'
+import axiosInstance from '@/api/axios'
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface AuthState {
@@ -21,8 +21,9 @@ export const loginUserAPI = createAsyncThunk(
   'users/login',
   async (data: SignInFormData, { rejectWithValue }) => {
     try {
-      const response = await authAPI.login(data)
-      return response
+      const response = await axiosInstance.post('/auth/login', data)
+      console.log('response', response)
+      return response.data
     } catch (error: any) {
       const message =
         error.response?.data?.message || error?.message || 'Login failed'
@@ -30,50 +31,26 @@ export const loginUserAPI = createAsyncThunk(
     }
   }
 )
-export const registerUserAPI = createAsyncThunk(
-  'users/register',
-  async (data: SignInFormData, { rejectWithValue }) => {
-    try {
-      const response = await authAPI.register(data)
-      return response
-    } catch (error: any) {
-      const message =
-        error.response?.data?.message || error?.message || 'Register failed'
-      return rejectWithValue(message)
-    }
-  }
-)
-export const verifyEmailAPI = createAsyncThunk(
-  'users/verifyEmail',
-  async (data: { email: string; token: string }, { rejectWithValue }) => {
-    try {
-      const response = await authAPI.verifyEmail(data.email, data.token)
-      return response
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || 'Email verification failed'
-      )
-    }
-  }
-)
+
 export const logoutUserAPI = createAsyncThunk(
   'users/logout',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await authAPI.logout()
+      const response = await axiosInstance.post('/auth/logout')
 
-      return response
+      return response.data
     } catch (error: any) {
       return rejectWithValue('Logout failed')
     }
   }
 )
+
 export const getCurrentUserAPI = createAsyncThunk(
   'users/getCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await authAPI.getCurrentUser()
-      return response
+      const response = await axiosInstance.get('/users/profile')
+      return response.data
     } catch (error: any) {
       return rejectWithValue('Failed to fetch current user')
     }
@@ -114,7 +91,7 @@ const userSlice = createSlice({
       })
       .addCase(loginUserAPI.fulfilled, (state, action) => {
         state.isLoading = false
-        // Lưu user info (không cần lưu tokens vì đã có trong cookies)
+
         const userData = action.payload.data
         state.user = {
           _id: userData._id,
@@ -126,8 +103,6 @@ const userSlice = createSlice({
           dob: userData.dob,
           heightCm: userData.heightCm,
           weightKg: userData.weightKg,
-          verifyToken: null,
-          token: '', // Không cần
           createAt: userData.createdAt,
           updateAt: userData.updatedAt
         }
@@ -153,34 +128,6 @@ const userSlice = createSlice({
         state.isLoading = false
         state.user = null
         state.isAuthenticated = false
-      })
-      // Register
-      .addCase(registerUserAPI.pending, (state) => {
-        state.isLoading = false
-
-        state.error = null
-      })
-      .addCase(registerUserAPI.fulfilled, (state) => {
-        state.isLoading = false
-        state.error = null
-      })
-      .addCase(registerUserAPI.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload as string
-      })
-      // Verify Email
-      .addCase(verifyEmailAPI.pending, (state) => {
-        state.isLoading = true
-        state.error = null
-      })
-      .addCase(verifyEmailAPI.fulfilled, (state, action) => {
-        state.isLoading = false
-        state.user = action.payload.data
-        state.error = null
-      })
-      .addCase(verifyEmailAPI.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload as string
       })
       // Get Current User
       .addCase(getCurrentUserAPI.pending, (state) => {
