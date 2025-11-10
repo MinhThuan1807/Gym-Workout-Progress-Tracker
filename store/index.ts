@@ -1,46 +1,44 @@
-import { configureStore } from "@reduxjs/toolkit";
-import { combineReducers } from "@reduxjs/toolkit";
-import { 
-  persistStore, 
+import { configureStore } from '@reduxjs/toolkit'
+import { combineReducers } from '@reduxjs/toolkit'
+import {
+  persistStore,
   persistReducer,
   FLUSH,
   REHYDRATE,
   PAUSE,
   PERSIST,
   PURGE,
-  REGISTER,
-} from "redux-persist";
-import storage from "redux-persist/lib/storage"; // ✅ Đổi sang localStorage
-import { userReducer } from "./slices/authSlice";
+  REGISTER
+} from 'redux-persist'
+import storage from 'redux-persist/lib/storage' // ✅ Đổi sang localStorage
+import { userReducer } from './slices/authSlice'
 
 const rootPersistConfig = {
-  key: "root", // The key for the root reducer
+  key: 'root', // The key for the root reducer
   storage: storage, // Use local storage for persisting user data
-  whitelist: ["user"], // user data can store in redux when press f5
-};
+  whitelist: ['user'] // user data can store in redux when press f5
+}
 
-// Combine all reducers 
+// Combine all reducers
 const reducers = combineReducers({
-  user: userReducer,
-});
+  user: userReducer
+})
 
 // Process persist Reducer
-const persistedReducer = persistReducer(rootPersistConfig, reducers);
-
+const persistedReducer = persistReducer(rootPersistConfig, reducers)
 
 export const store = configureStore({
-    reducer: persistedReducer,
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        serializableCheck: {
-          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        },
-      }),
-       devTools: process.env.NODE_ENV !== 'production',
-  });
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+      }
+    }),
+  devTools: process.env.NODE_ENV !== 'production'
+})
 
+export const persistor = persistStore(store)
 
-export const persistor = persistStore(store);
-
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
