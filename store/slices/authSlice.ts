@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "..";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import axiosInstance from '@/api/axios'
+import { de } from 'zod/v4/locales'
 
 interface AuthState {
   currentUser: Partial<User> | null
@@ -161,4 +161,4 @@ export const selectIsAuthenticated = (state: { user: AuthState }) =>
 export const selectIsLoading = (state: { user: AuthState }) =>
   state.user.isLoading
 
-export const userReducer = userSlice.reducer
+export default userSlice.reducer
