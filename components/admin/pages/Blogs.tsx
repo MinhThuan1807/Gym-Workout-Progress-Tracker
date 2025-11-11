@@ -1,87 +1,87 @@
-"use client";
+'use client'
 
-import React, { useState, useContext } from "react";
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
-import { RouterContext } from "@/app/admin/RouterContext";
-import { PageHeader } from "../shared/PageHeader";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import React, { useState, useContext } from 'react'
+import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
+import { PageHeader } from '../shared/PageHeader'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { useRouter } from 'next/navigation'
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "../ui/table";
-import { DeleteConfirmModal } from "../modals/DeleteConfirmModal";
+  TableRow
+} from '../ui/table'
+import { DeleteConfirmModal } from '../modals/DeleteConfirmModal'
 
 const blogPosts = [
   {
     id: 1,
-    title: "10 Essential Exercises for Building Muscle",
+    title: '10 Essential Exercises for Building Muscle',
     description:
-      "Learn the most effective compound movements to maximize your muscle growth and strength gains.",
-    createdDate: "2024-10-15",
-    updatedDate: "2024-10-20",
+      'Learn the most effective compound movements to maximize your muscle growth and strength gains.',
+    createdDate: '2024-10-15',
+    updatedDate: '2024-10-20'
   },
   {
     id: 2,
-    title: "The Complete Guide to Nutrition for Athletes",
+    title: 'The Complete Guide to Nutrition for Athletes',
     description:
-      "Everything you need to know about fueling your body for optimal performance and recovery.",
-    createdDate: "2024-10-10",
-    updatedDate: "2024-10-18",
+      'Everything you need to know about fueling your body for optimal performance and recovery.',
+    createdDate: '2024-10-10',
+    updatedDate: '2024-10-18'
   },
   {
     id: 3,
-    title: "How to Create an Effective Workout Plan",
+    title: 'How to Create an Effective Workout Plan',
     description:
-      "Step-by-step guide to designing a personalized training program that fits your goals.",
-    createdDate: "2024-10-05",
-    updatedDate: "2024-10-05",
+      'Step-by-step guide to designing a personalized training program that fits your goals.',
+    createdDate: '2024-10-05',
+    updatedDate: '2024-10-05'
   },
   {
     id: 4,
-    title: "Rest and Recovery: Why They Matter",
+    title: 'Rest and Recovery: Why They Matter',
     description:
-      "Understanding the importance of rest days and recovery techniques for long-term progress.",
-    createdDate: "2024-09-28",
-    updatedDate: "2024-10-12",
+      'Understanding the importance of rest days and recovery techniques for long-term progress.',
+    createdDate: '2024-09-28',
+    updatedDate: '2024-10-12'
   },
   {
     id: 5,
-    title: "Cardio vs Strength Training: Finding Balance",
+    title: 'Cardio vs Strength Training: Finding Balance',
     description:
-      "How to combine cardiovascular exercise and resistance training for optimal fitness.",
-    createdDate: "2024-09-20",
-    updatedDate: "2024-09-20",
-  },
-];
+      'How to combine cardiovascular exercise and resistance training for optimal fitness.',
+    createdDate: '2024-09-20',
+    updatedDate: '2024-09-20'
+  }
+]
 
 export function Blogs() {
-  const { navigate } = useContext(RouterContext);
-  const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter()
+  const [searchTerm, setSearchTerm] = useState('')
   const [deleteModal, setDeleteModal] = useState<{
-    open: boolean;
-    post: (typeof blogPosts)[0] | null;
+    open: boolean
+    post: (typeof blogPosts)[0] | null
   }>({
     open: false,
-    post: null,
-  });
+    post: null
+  })
 
   return (
     <div className="p-4 lg:p-6">
       <PageHeader
         title="Blog Posts"
         breadcrumbs={[
-          { label: "Dashboard", path: "/admin/dashboard" },
-          { label: "Blogs" },
+          { label: 'Dashboard', path: '/admin/dashboard' },
+          { label: 'Blogs' }
         ]}
         action={
           <Button
             className="bg-[#2d8cf0] hover:bg-[#2577d4] text-sm lg:text-base px-3 lg:px-4"
-            onClick={() => navigate("blogs-new")}
+            onClick={() => router.push('blogs/new')}
           >
             <Plus className="w-4 h-4 mr-1 lg:mr-2" />
             <span className="hidden sm:inline">Create New</span>
@@ -139,7 +139,9 @@ export function Blogs() {
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={() =>
-                        navigate("blogs-edit", { id: post.id.toString() })
+                        router.push('blogs/edit', {
+                          id: post.id.toString()
+                        })
                       }
                       title="Edit"
                     >
@@ -199,7 +201,9 @@ export function Blogs() {
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          navigate("blogs-edit", { id: post.id.toString() })
+                          router.push('blogs/edit', {
+                            id: post.id.toString()
+                          })
                         }
                         title="Edit"
                       >
@@ -227,9 +231,9 @@ export function Blogs() {
           open={deleteModal.open}
           onOpenChange={(open) => setDeleteModal({ open, post: null })}
           itemName={deleteModal.post.title}
-          onConfirm={() => console.log("Delete post:", deleteModal.post)}
+          onConfirm={() => console.log('Delete post:', deleteModal.post)}
         />
       )}
     </div>
-  );
+  )
 }
