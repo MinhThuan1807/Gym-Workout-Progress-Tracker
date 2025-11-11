@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "..";
 import axiosInstance from '@/api/axios'
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface AuthState {
   currentUser: Partial<User> | null
