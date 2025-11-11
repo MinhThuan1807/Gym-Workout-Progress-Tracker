@@ -46,7 +46,7 @@ const mockProfile: UserProfile = {
 };
 const mockGoals: Goal[] = [
   {
-    id: 'goal-1',
+    _id: 'goal-1',
     type: 'weight',
     name: 'Reach Target Weight',
     startValue: 84,
@@ -59,7 +59,7 @@ const mockGoals: Goal[] = [
     notes: 'Aiming for slow, sustainable weight loss'
   },
   {
-    id: 'goal-2',
+    _id: 'goal-2',
     type: 'bodyFat',
     name: 'Body Fat Reduction',
     startValue: 18,
@@ -71,7 +71,7 @@ const mockGoals: Goal[] = [
     targetDate: '2025-12-31'
   },
   {
-    id: 'goal-3',
+    _id: 'goal-3',
     type: 'oneRepMax',
     name: 'Bench Press 100kg',
     startValue: 80,
@@ -85,7 +85,7 @@ const mockGoals: Goal[] = [
     linkedExerciseName: 'Bench Press'
   },
   {
-    id: 'goal-4',
+    _id: 'goal-4',
     type: 'sessionsWeek',
     name: 'Train 5x Per Week',
     currentValue: 4.2,
@@ -95,7 +95,7 @@ const mockGoals: Goal[] = [
     startDate: '2025-11-01'
   },
   {
-    id: 'goal-5',
+    _id: 'goal-5',
     type: 'strength',
     name: 'Deadlift 150kg',
     startValue: 120,
@@ -110,18 +110,18 @@ const mockGoals: Goal[] = [
   }
 ];
 const mockAchievements: Achievement[] = [
-  { id: 'ach-1', name: 'First Workout', description: 'Complete your first training session', icon: '🎯', unlocked: true, color: '#10b981' },
-  { id: 'ach-2', name: '10 Workouts', description: 'Complete 10 training sessions', icon: '💪', unlocked: true, color: '#3b82f6' },
-  { id: 'ach-3', name: '50 Workouts', description: 'Complete 50 training sessions', icon: '🔥', unlocked: true, color: '#f59e0b' },
-  { id: 'ach-4', name: '100 Workouts', description: 'Complete 100 training sessions', icon: '🏆', unlocked: true, color: '#fbbf24' },
-  { id: 'ach-5', name: '7 Day Streak', description: 'Train for 7 consecutive days', icon: '⚡', unlocked: true, color: '#f97316' },
-  { id: 'ach-6', name: '30 Day Streak', description: 'Train for 30 consecutive days', icon: '🌟', unlocked: false, progress: 12, requirement: 30, color: '#8b5cf6' },
-  { id: 'ach-7', name: 'First Goal', description: 'Achieve your first fitness goal', icon: '🎖️', unlocked: true, color: '#ec4899' },
-  { id: 'ach-8', name: '10,000kg Volume', description: 'Lift 10,000kg total volume', icon: '💎', unlocked: true, color: '#14b8a6' },
-  { id: 'ach-9', name: '50,000kg Volume', description: 'Lift 50,000kg total volume', icon: '👑', unlocked: false, progress: 28500, requirement: 50000, color: '#6366f1' },
-  { id: 'ach-10', name: 'Bodyweight Bench', description: 'Bench press your bodyweight', icon: '🦾', unlocked: true, color: '#10b981' },
-  { id: 'ach-11', name: '1.5x Bodyweight Bench', description: 'Bench press 1.5x your bodyweight', icon: '🚀', unlocked: false, progress: 92, requirement: 120, color: '#f59e0b' },
-  { id: 'ach-12', name: 'Elite Lifter', description: 'Join the 1000lb club (Squat+Bench+Deadlift)', icon: '⭐', unlocked: false, progress: 780, requirement: 1000, color: '#fbbf24' },
+  { _id: 'ach-1', name: 'First Workout', description: 'Complete your first training session', icon: '🎯', unlocked: true, color: '#10b981' },
+  { _id: 'ach-2', name: '10 Workouts', description: 'Complete 10 training sessions', icon: '💪', unlocked: true, color: '#3b82f6' },
+  { _id: 'ach-3', name: '50 Workouts', description: 'Complete 50 training sessions', icon: '🔥', unlocked: true, color: '#f59e0b' },
+  { _id: 'ach-4', name: '100 Workouts', description: 'Complete 100 training sessions', icon: '🏆', unlocked: true, color: '#fbbf24' },
+  { _id: 'ach-5', name: '7 Day Streak', description: 'Train for 7 consecutive days', icon: '⚡', unlocked: true, color: '#f97316' },
+  { _id: 'ach-6', name: '30 Day Streak', description: 'Train for 30 consecutive days', icon: '🌟', unlocked: false, progress: 12, requirement: 30, color: '#8b5cf6' },
+  { _id: 'ach-7', name: 'First Goal', description: 'Achieve your first fitness goal', icon: '🎖️', unlocked: true, color: '#ec4899' },
+  { _id: 'ach-8', name: '10,000kg Volume', description: 'Lift 10,000kg total volume', icon: '💎', unlocked: true, color: '#14b8a6' },
+  { _id: 'ach-9', name: '50,000kg Volume', description: 'Lift 50,000kg total volume', icon: '👑', unlocked: false, progress: 28500, requirement: 50000, color: '#6366f1' },
+  { _id: 'ach-10', name: 'Bodyweight Bench', description: 'Bench press your bodyweight', icon: '🦾', unlocked: true, color: '#10b981' },
+  { _id: 'ach-11', name: '1.5x Bodyweight Bench', description: 'Bench press 1.5x your bodyweight', icon: '🚀', unlocked: false, progress: 92, requirement: 120, color: '#f59e0b' },
+  { _id: 'ach-12', name: 'Elite Lifter', description: 'Join the 1000lb club (Squat+Bench+Deadlift)', icon: '⭐', unlocked: false, progress: 780, requirement: 1000, color: '#fbbf24' },
 ];
 const quickStats = {
   totalWorkouts: 124,
@@ -144,13 +144,13 @@ export default function ProfilePage() {
     const unlockedAchievements = useMemo(() => achievements.filter(a => a.unlocked), [achievements]);
 
     const calculateProgress = (goal: Goal) => {
-    const config = goalTypeConfigs[goal.type as GoalType];
-    const start = goal.startValue || goal.currentValue;
-    const range = Math.abs(goal.targetValue - start);
-    const progress = Math.abs(goal.currentValue - start);
-    
-    if (range === 0) return 100;
-        return Math.min(100, Math.max(0, (progress / range) * 100));
+        const config = goalTypeConfigs[goal.type as GoalType];
+        const start = goal.startValue || goal.currentValue;
+        const range = Math.abs(goal.targetValue - start);
+        const progress = Math.abs(goal.currentValue - start);
+        
+        if (range === 0) return 100;
+            return Math.min(100, Math.max(0, (progress / range) * 100));
     };
 
     const getProgressColor = (percentage: number) => {
@@ -310,7 +310,7 @@ export default function ProfilePage() {
                     const daysRemaining = getDaysRemaining(goal.targetDate);
 
                     return (
-                      <Card key={goal.id} className="rounded-xl border-[#e5e7eb] bg-[#f9fafb] hover:shadow-md transition-shadow">
+                      <Card key={goal._id} className="rounded-xl border-[#e5e7eb] bg-[#f9fafb] hover:shadow-md transition-shadow">
                         <CardContent className="p-4 space-y-3">
                           {/* Header */}
                           <div className="flex items-start justify-between">
@@ -425,7 +425,7 @@ export default function ProfilePage() {
                         const Icon = config.icon;
                         
                         return (
-                          <div key={goal.id} className="flex items-center gap-3 p-3 rounded-xl bg-[#fbbf24]/10 border border-[#fbbf24]/20">
+                          <div key={goal._id} className="flex items-center gap-3 p-3 rounded-xl bg-[#fbbf24]/10 border border-[#fbbf24]/20">
                             <div className="w-8 h-8 rounded-lg bg-[#fbbf24]/20 flex items-center justify-center">
                               <Icon className="w-4 h-4 text-[#fbbf24]" />
                             </div>
@@ -509,7 +509,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-3 gap-3 mb-3">
                 {achievements.map((achievement) => (
                   <div
-                    key={achievement.id}
+                    key={achievement._id}
                     className={`relative group cursor-pointer transition-all duration-300 ${
                       achievement.unlocked 
                         ? 'hover:scale-105' 

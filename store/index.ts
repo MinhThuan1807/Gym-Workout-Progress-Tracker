@@ -16,7 +16,7 @@ import { userReducer } from "./slices/authSlice";
 const rootPersistConfig = {
   key: "root", // The key for the root reducer
   storage: storage, // Use local storage for persisting user data
-  whitelist: ["user"], // user data can store in redux when press f5
+  whitelist: [], // user data can store in redux when press f5
 };
 
 // Combine all reducers 
@@ -44,3 +44,5 @@ export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+export type AppStore = typeof store;
+export default store;

@@ -1,7 +1,9 @@
 import { useDispatch, useSelector, useStore } from 'react-redux';
-import type { AppDispatch, RootState, store } from './index';
+import type { AppDispatch, RootState, AppStore } from './index';
 
-
-export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
-export const useAppSelector = useSelector.withTypes<RootState>();
-export const useAppStore = useStore.withTypes<typeof store>();
+// Sử dụng typed hooks theo cách truyền thống
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+export const useAppSelector = <TSelected>(
+  selector: (state: RootState) => TSelected
+) => useSelector(selector);
+export const useAppStore = () => useStore<AppStore>();

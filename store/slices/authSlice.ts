@@ -1,5 +1,6 @@
 import { authAPI } from "@/api/auth";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "..";
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -106,21 +107,7 @@ const userSlice = createSlice({
                 state.isLoading = false;
                 // Lưu user info (không cần lưu tokens vì đã có trong cookies)
                 const userData = action.payload.data;
-                 state.user = {
-                    _id: userData._id,
-                    email: userData.email,
-                    displayName: userData.displayName,
-                    role: userData.role,
-                    avatar: userData.avatar,
-                    gender: userData.gender,
-                    dob: userData.dob,
-                    heightCm: userData.heightCm,
-                    weightKg: userData.weightKg,
-                    verifyToken: null,
-                    token: '', // Không cần
-                    createAt: userData.createdAt,
-                    updateAt: userData.updatedAt
-                };
+                state.user = userData;
                 state.isAuthenticated = true;
                 state.error = null;
         })
@@ -193,7 +180,21 @@ const userSlice = createSlice({
 });
 export const { resetAuth, clearError, checkAuth } = userSlice.actions;
 export const selectCurrentUser = (state: { user: AuthState }) => state.user.user;
-export const selectIsAuthenticated = (state: { user: AuthState }) => state.user.isAuthenticated;
 export const selectIsLoading = (state: { user: AuthState }) => state.user.isLoading;
+export const selectAuth = (state: RootState) => state.user || { 
+  isAuthenticated: false, 
+  user: null, 
+  isLoading: false,
+  error: null 
+};
+
+export const selectIsAuthenticated = (state: RootState) => 
+  state.user?.isAuthenticated ?? false;
+
+export const selectUser = (state: RootState) => 
+  state.user?.user ?? null;
+
+export const selectAuthLoading = (state: RootState) => 
+  state.user?.isLoading ?? false;
 
 export const userReducer = userSlice.reducer;

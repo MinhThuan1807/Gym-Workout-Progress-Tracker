@@ -62,7 +62,7 @@ declare global {
     }
 
     interface Exercise {
-        id: number;
+        _id: number;
         name: string;
         type: 'Strength' | 'Cardio' | 'Calisthenics' | 'Mobility' | 'Flexibility';
         difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
@@ -74,7 +74,7 @@ declare global {
         mediaVideoUrl?: string;
     }
     interface Goal {
-        id: string;
+        _id: string;
         type: GoalType;
         name: string;
         startValue?: number;
@@ -90,7 +90,7 @@ declare global {
     }
 
     interface Achievement {
-        id: string;
+        _id: string;
         name: string;
         description: string;
         icon: string;
@@ -111,23 +111,25 @@ declare global {
         role: string;
     }
     interface MetricEntry {
-        id: string;
-        date: string;
-        metricType: MetricType;
+        _id: string;
+        metricCode: MetricType;
         value: number;
-        notes?: string;
+        unit: string;
+        note?: string;
+        measureAt: string;
     }
 
     interface MetricConfig {
         name: string;
         unit: string;
-        category: MetricCategory;
+        metricCode: MetricType;
+        category: 'weight' | 'body_composition' | 'measurements' | 'vitals';
         goalDirection?: 'up' | 'down';
         color: string;
     }
 
     interface PlanExercise {
-        id: string;
+        _id: string;
         exerciseId: number;
         exerciseName: string;
         exerciseThumbnail: string;
@@ -140,7 +142,7 @@ declare global {
     }
 
     interface WorkoutPlan {
-        id: string;
+        _id: string;
         name: string;
         goalHint: string;
         isActive: boolean;
@@ -172,7 +174,7 @@ declare global {
     }
 
     interface WorkoutSession {
-        id: string;
+        _id: string;
         startTime: string;
         endTime?: string;
         planId?: string;
@@ -182,5 +184,18 @@ declare global {
         energyLevel?: number;
         notes?: string;
     }
+    // ===== TYPES =====
+    type MetricType = 
+        | 'weight'
+        | 'height'
+        | 'body_fat'
+        | 'muscle_mass'
+        | 'BMI'
+        | 'waist_circumference'
+        | 'hip_circumference'
+        | 'blood_pressure'
+        | 'heart_rate'
+
+    type MetricCategory = 'weight' | 'bodyFat' | 'measurements' | 'vitals';
 }
 export {};
