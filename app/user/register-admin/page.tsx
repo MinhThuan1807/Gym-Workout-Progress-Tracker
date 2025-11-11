@@ -8,17 +8,23 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { registerUserAPI } from '@/api'
+import { registerAdminAPI } from '@/api'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
   FIELD_REQUIRED_MESSAGE,
   PASSWORD_RULE,
-  PASSWORD_RULE_MESSAGE
+  PASSWORD_RULE_MESSAGE,
+  SECRET_KEY_RULE,
+  SECRET_KEY_MESSAGE
 } from '@/utils/validators'
 
 const registerSchema = z
   .object({
+    secretKey: z
+      .string()
+      .nonempty(FIELD_REQUIRED_MESSAGE)
+      .regex(SECRET_KEY_RULE, SECRET_KEY_MESSAGE),
     email: z
       .string()
       .nonempty(FIELD_REQUIRED_MESSAGE)
@@ -41,15 +47,14 @@ const Register = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting }
-  } = useForm<SignUpFormData>({
+  } = useForm<SignUpAdminFormData>({
     resolver: zodResolver(registerSchema)
   })
 
-  const onSubmit = async (data: SignUpFormData) => {
+  const onSubmit = async (data: SignUpAdminFormData) => {
     try {
-      const { email, password } = data
-
-      await registerUserAPI({ email, password })
+      const { secretKey, email, password } = data
+      await registerAdminAPI({ secretKey, email, password })
 
       toast.success('Registration successful!')
       toast.success('Please check your email to verify your account.')
@@ -71,6 +76,15 @@ const Register = () => {
           </CardHeader>
           <CardContent className="space-y-6 pb-3">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <InputField
+                name="secretKey"
+                label="Secret Key"
+                placeholder="Enter your secret key..."
+                type="password"
+                register={register}
+                error={errors.secretKey}
+              />
+
               <InputField
                 name="email"
                 label="Email"

@@ -28,8 +28,8 @@ const COOKIE_SET_DELAY = 500; // Tăng lên 500ms
 
 // Axios instances
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/v1/",
-  headers: { "Content-Type": "application/json" },
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/v1/',
+  headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
   timeout: API_TIMEOUT,
 });

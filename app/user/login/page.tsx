@@ -1,39 +1,50 @@
-"use client";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import InputField from "@/components/forms/InputField";
-import FooterLink from "@/components/forms/FooterLink";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import axios from "axios";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { loginUserAPI } from "@/store/slices/authSlice";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
+'use client'
+import { useForm } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import InputField from '@/components/forms/InputField'
+import FooterLink from '@/components/forms/FooterLink'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { toast } from 'sonner'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { loginUserAPI } from '@/store/slices/authSlice'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '@/store'
+import {
+  EMAIL_RULE,
+  EMAIL_RULE_MESSAGE,
+  FIELD_REQUIRED_MESSAGE,
+  PASSWORD_RULE,
+  PASSWORD_RULE_MESSAGE
+} from '@/utils/validators'
+
 const SignIn = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
+  const searchParams = useSearchParams()
+  const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter()
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<SignInFormData>();
+    formState: { errors, isSubmitting }
+  } = useForm<SignInFormData>()
+
+  if (searchParams.get('verified') === 'true') {
+    toast.success('Email verified successfully! You can now log in.')
+  }
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      await dispatch(loginUserAPI(data)).unwrap();
+      const user = await dispatch(loginUserAPI(data)).unwrap()
 
-      toast.success("Đăng nhập thành công!");
-      router.push("/");
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Đăng nhập thất bại!");
-      } else {
-        toast.error("Đăng nhập thất bại!");
+      if (user.data.role === 'admin') {
+        router.push('/admin/dashboard')
+        return
       }
-      console.error(error);
+      router.push('/dashboard')
+    } catch (error) {
+      toast.error(error as string)
+      console.error(error)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -41,7 +52,7 @@ const SignIn = () => {
         <Card className="border-border">
           <CardHeader className="text-center mt-1">
             <CardTitle className="font-inter text-foreground pt-3">
-              Đăng nhập
+              Sign In
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 pb-3">
@@ -53,19 +64,25 @@ const SignIn = () => {
                 register={register}
                 error={errors.email}
                 validation={{
-                  required: "Email là bắt buộc",
-                  pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                  required: FIELD_REQUIRED_MESSAGE,
+                  pattern: { value: EMAIL_RULE, message: EMAIL_RULE_MESSAGE }
                 }}
               />
 
               <InputField
                 name="password"
-                label="Mật khẩu"
-                placeholder="Nhập mật khẩu của bạn..."
+                label="Password"
+                placeholder="Enter your password..."
                 type="password"
                 register={register}
                 error={errors.password}
-                validation={{ required: "Mật khẩu là bắt buộc", minLength: 8 }}
+                validation={{
+                  required: FIELD_REQUIRED_MESSAGE,
+                  pattern: {
+                    value: PASSWORD_RULE,
+                    message: PASSWORD_RULE_MESSAGE
+                  }
+                }}
               />
 
               <Button
@@ -73,12 +90,12 @@ const SignIn = () => {
                 disabled={isSubmitting}
                 className="w-full text-foreground font-poppins"
               >
-                {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
+                {isSubmitting ? 'Signing in...' : 'Sign In'}
               </Button>
 
               <FooterLink
-                text="Bạn chưa có tài khoản?"
-                linkText="Đăng ký"
+                text="Don't have an account?"
+                linkText="Sign Up"
                 href="/user/register"
               />
             </form>
@@ -86,6 +103,7 @@ const SignIn = () => {
         </Card>
       </div>
     </div>
-  );
-};
-export default SignIn;
+  )
+}
+
+export default SignIn

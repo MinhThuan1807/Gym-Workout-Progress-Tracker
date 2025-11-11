@@ -1,59 +1,60 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useRef, useContext } from "react";
-import { RouterContext } from "@/app/admin/RouterContext";
-import { ArrowLeft } from "lucide-react";
-import { PageHeader } from "../shared/PageHeader";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+import { useState, useEffect, useRef, useContext } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+import { PageHeader } from '../shared/PageHeader'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Textarea } from '../ui/textarea'
 
 export function BlogForm() {
-  const { navigate, params } = useContext(RouterContext);
-  const id = params?.id;
-  const isEdit = !!id;
-  const editorRef = useRef<HTMLDivElement>(null);
+  const router = useRouter()
+  const params = useParams()
+  const id = params?.id
+  const isEdit = !!id
+  const editorRef = useRef<HTMLDivElement>(null)
 
   const [formData, setFormData] = useState({
-    title: isEdit ? "10 Essential Exercises for Building Muscle" : "",
+    title: isEdit ? '10 Essential Exercises for Building Muscle' : '',
     description: isEdit
-      ? "Learn the most effective compound movements to maximize your muscle growth and strength gains."
-      : "",
+      ? 'Learn the most effective compound movements to maximize your muscle growth and strength gains.'
+      : '',
     content: isEdit
       ? '<h2>Introduction</h2><p>Building muscle requires a combination of proper exercise selection, progressive overload, and adequate nutrition. In this guide, we\'ll cover the 10 most essential exercises that should form the foundation of any muscle-building program.</p><h2>1. Barbell Squats</h2><p>The squat is often called the "king of exercises" for good reason. It targets your quadriceps, hamstrings, glutes, and core muscles.</p>'
-      : "",
-  });
+      : ''
+  })
 
   useEffect(() => {
     // Initialize CKEditor when component mounts
-    if (typeof window !== "undefined" && editorRef.current) {
+    if (typeof window !== 'undefined' && editorRef.current) {
       // In a real implementation, you would initialize CKEditor here
       // For this mockup, we'll simulate the editor with a contenteditable div
-      const editor = editorRef.current;
-      editor.innerHTML = formData.content;
+      const editor = editorRef.current
+      editor.innerHTML = formData.content
 
       // Add event listener to update content
-      editor.addEventListener("input", (e) => {
+      editor.addEventListener('input', (e) => {
         setFormData({
           ...formData,
-          content: (e.target as HTMLDivElement).innerHTML,
-        });
-      });
+          content: (e.target as HTMLDivElement).innerHTML
+        })
+      })
     }
-  }, []);
+  }, [])
 
   return (
     <div className="p-6">
       <PageHeader
-        title={isEdit ? "Edit Blog Post" : "Create New Blog Post"}
+        title={isEdit ? 'Edit Blog Post' : 'Create New Blog Post'}
         breadcrumbs={[
-          { label: "Dashboard", path: "/admin/dashboard" },
-          { label: "Blogs", path: "/admin/blogs" },
-          { label: isEdit ? "Edit Blog Post" : "Create New Blog Post" },
+          { label: 'Dashboard', path: '/admin/dashboard' },
+          { label: 'Blogs', path: '/admin/blogs' },
+          { label: isEdit ? 'Edit Blog Post' : 'Create New Blog Post' }
         ]}
         action={
-          <Button variant="outline" onClick={() => navigate("blogs")}>
+          <Button variant="outline" onClick={() => router.push('blogs')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
@@ -167,7 +168,7 @@ export function BlogForm() {
                   className="px-3 py-1 text-sm hover:bg-gray-200 rounded transition-colors"
                   title="Code Block"
                 >
-                  {"</>"}
+                  {'</>'}
                 </button>
                 <div className="w-px bg-gray-300 mx-1"></div>
                 <button
@@ -191,7 +192,7 @@ export function BlogForm() {
                 ref={editorRef}
                 contentEditable
                 className="p-4 min-h-[600px] focus:outline-none prose max-w-none"
-                style={{ wordWrap: "break-word" }}
+                style={{ wordWrap: 'break-word' }}
               />
             </div>
             <p className="text-sm text-gray-500 mt-2">
@@ -205,7 +206,7 @@ export function BlogForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("blogs")}
+              onClick={() => router.push('blogs')}
             >
               Cancel
             </Button>
@@ -213,11 +214,11 @@ export function BlogForm() {
               Save Draft
             </Button>
             <Button type="button" className="bg-[#2d8cf0] hover:bg-[#2577d4]">
-              {isEdit ? "Update Post" : "Publish Post"}
+              {isEdit ? 'Update Post' : 'Publish Post'}
             </Button>
           </div>
         </form>
       </div>
     </div>
-  );
+  )
 }

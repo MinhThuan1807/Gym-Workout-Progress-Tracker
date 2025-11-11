@@ -18,7 +18,7 @@ const LandingPage = () => {
             <span className="text-xl font-semibold">FitTrack</span>
           </div>
           <Link
-            href="/"
+            href="/user/login"
             className="p-1 inline-flex items-center justify-center w-16 rounded-2xl border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
           >
             Login
@@ -49,13 +49,15 @@ const LandingPage = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                size="lg"
-                onClick={() => router.push("/dashboard")}
-                className="text-lg h-14 px-8 rounded-2xl shadow-lg shadow-primary/20 cursor-pointer"
-              >
-                Get Started
-              </Button>
+              <Link href="/user/register" className="flex">
+                <Button
+                  size="lg"
+                  onClick={() => router.push("/dashboard")}
+                  className="text-lg h-14 px-8 rounded-2xl shadow-lg shadow-primary/20 cursor-pointer"
+                >
+                  Get Started
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 size="lg"
