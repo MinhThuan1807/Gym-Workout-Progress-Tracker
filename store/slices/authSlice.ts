@@ -4,14 +4,14 @@ import axiosInstance from '@/api/axios'
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface AuthState {
-  user: User | null
+  currentUser: Partial<User> | null
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
 }
 
 const initialState: AuthState = {
-  user: null,
+  currentUser: null,
   isAuthenticated: false,
   isLoading: false,
   error: null
@@ -22,7 +22,7 @@ export const loginUserAPI = createAsyncThunk(
   async (data: SignInFormData, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post('/auth/login', data)
-      console.log('response', response)
+
       return response.data
     } catch (error: any) {
       const message =
@@ -60,6 +60,8 @@ export const getCurrentUserAPI = createAsyncThunk(
 const userSlice = createSlice({
   name: 'user',
   initialState,
+
+  // Synchronous reducers
   reducers: {
     // Clear error
     clearError: (state) => {
@@ -67,21 +69,23 @@ const userSlice = createSlice({
     },
     // Manual logout (khi token expire)
     resetAuth: (state) => {
-      state.user = null
+      state.currentUser = null
       state.isAuthenticated = false
       state.error = null
     },
     // Check auth
     checkAuth: (state, action: PayloadAction<User | null>) => {
       if (action.payload) {
-        state.user = action.payload
+        state.currentUser = action.payload
         state.isAuthenticated = true
       } else {
-        state.user = null
+        state.currentUser = null
         state.isAuthenticated = false
       }
     }
   },
+
+  // Asynchronous reducers
   extraReducers: (builder) => {
     builder
       // Login
@@ -93,7 +97,7 @@ const userSlice = createSlice({
         state.isLoading = false
 
         const userData = action.payload.data
-        state.user = {
+        state.currentUser = {
           _id: userData._id,
           email: userData.email,
           displayName: userData.displayName,
@@ -120,13 +124,13 @@ const userSlice = createSlice({
       })
       .addCase(logoutUserAPI.fulfilled, (state) => {
         state.isLoading = false
-        state.user = null
+        state.currentUser = null
         state.isAuthenticated = false
         state.error = null
       })
       .addCase(logoutUserAPI.rejected, (state) => {
         state.isLoading = false
-        state.user = null
+        state.currentUser = null
         state.isAuthenticated = false
       })
       // Get Current User
@@ -135,7 +139,7 @@ const userSlice = createSlice({
       })
       .addCase(getCurrentUserAPI.fulfilled, (state, action) => {
         state.isLoading = false
-        state.user = action.payload.data
+        state.currentUser = action.payload.data
         state.isAuthenticated = true
         state.error = null
       })
@@ -143,13 +147,14 @@ const userSlice = createSlice({
         state.isLoading = false
         state.error = action.payload as string
         state.isAuthenticated = false
-        state.user = null
+        state.currentUser = null
       })
   }
 })
 
 export const { resetAuth, clearError, checkAuth } = userSlice.actions
-export const selectCurrentUser = (state: { user: AuthState }) => state.user.user
+export const selectCurrentUser = (state: { user: AuthState }) =>
+  state.user.currentUser
 export const selectIsAuthenticated = (state: { user: AuthState }) =>
   state.user.isAuthenticated
 export const selectIsLoading = (state: { user: AuthState }) =>

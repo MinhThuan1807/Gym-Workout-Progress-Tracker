@@ -33,8 +33,12 @@ const SignIn = () => {
 
   const onSubmit = async (data: SignInFormData) => {
     try {
-      await dispatch(loginUserAPI(data)).unwrap()
+      const user = await dispatch(loginUserAPI(data)).unwrap()
 
+      if (user.data.role === 'admin') {
+        router.push('/admin/dashboard')
+        return
+      }
       router.push('/dashboard')
     } catch (error) {
       toast.error(error as string)
