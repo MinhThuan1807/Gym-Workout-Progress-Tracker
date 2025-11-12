@@ -1,19 +1,20 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
-import { Button } from "../ui/button";
+  DialogTitle
+} from '../ui/dialog'
+import { Button } from '../ui/button'
 
 interface DeleteConfirmModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  itemName: string;
-  onConfirm: () => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  itemName: string
+  onConfirm: () => void
+  disLoading: boolean
 }
 
 export function DeleteConfirmModal({
@@ -21,6 +22,7 @@ export function DeleteConfirmModal({
   onOpenChange,
   itemName,
   onConfirm,
+  disLoading
 }: DeleteConfirmModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -31,26 +33,37 @@ export function DeleteConfirmModal({
           </div>
           <DialogTitle className="text-center">Confirm Deletion</DialogTitle>
           <DialogDescription className="text-center">
-            Are you sure you want to delete{" "}
+            Are you sure you want to delete{' '}
             <span className="font-semibold">{itemName}</span>? This action
             cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-center gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={disLoading}
+          >
             Cancel
           </Button>
           <Button
             className="bg-red-600 hover:bg-red-700"
             onClick={() => {
-              onConfirm();
-              onOpenChange(false);
+              onConfirm()
             }}
+            disabled={disLoading}
           >
-            Delete
+            {disLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Deleting ...
+              </>
+            ) : (
+              'Delete'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
