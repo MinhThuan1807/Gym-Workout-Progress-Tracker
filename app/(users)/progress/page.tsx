@@ -30,6 +30,8 @@ import {
   ArrowDown,
   ArrowUp,
   CalendarIcon,
+  Camera,
+  ImageIcon,
   Target,
   TrendingUp
 } from 'lucide-react'
@@ -44,6 +46,7 @@ import {
   selectIsAuthenticated,
   selectCurrentUser
 } from '@/store/slices/authSlice'
+import ProgressPhotos from '@/components/progress/ProgressPhoto'
 
 type TimeRange = '1W' | '1M' | '3M' | '6M' | '1Y' | 'ALL'
 
@@ -179,7 +182,7 @@ export default function ProgressPage() {
   const [inputValue, setInputValue] = useState('')
   const [inputNotes, setInputNotes] = useState('')
   const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date())
-  const [viewMode, setViewMode] = useState<'chart' | 'calendar'>('chart')
+  const [viewMode, setViewMode] = useState<'chart' | 'calendar' | 'photo'>('chart')
   const [isLoading, setIsLoading] = useState(false)
 
   const isAuthenticated = useSelector(selectIsAuthenticated)
@@ -263,12 +266,13 @@ export default function ProgressPage() {
     }
 
     const values = filteredEntries.map((e) => e.value)
-    const current = values[values.length - 1]
-    const starting = values[0]
+    const current = values[0]
+    const starting = values[values.length - 1]
+    console.log(filteredEntries)
     const change = current - starting
     const changePercent = starting !== 0 ? (change / starting) * 100 : 0
-    const best = Math.min(...values)
-    const worst = Math.max(...values)
+    const best = Math.max(...values)
+    const worst = Math.min(...values)
 
     return { current, starting, change, changePercent, best, worst }
   }, [filteredEntries])
@@ -351,17 +355,6 @@ export default function ProgressPage() {
       })
       .filter((date): date is Date => date !== null)
   }, [entries])
-
-  // Get entries for selected calendar date
-  const entriesForSelectedDate = useMemo(() => {
-    if (!calendarDate) return []
-    const dateStr = calendarDate.toISOString().split('T')[0]
-    return entries.filter((e) => {
-      const entryDate = e.measureAt
-      if (!entryDate) return false
-      return entryDate.startsWith(dateStr)
-    })
-  }, [calendarDate, entries])
 
   const handleLogEntry = async () => {
     // ✅ Check auth trước
@@ -572,13 +565,13 @@ export default function ProgressPage() {
             Charts
           </Button>
           <Button
-            variant={viewMode === 'calendar' ? 'default' : 'outline'}
+            variant={viewMode === 'photo' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setViewMode('calendar')}
+            onClick={() => setViewMode('photo')}
             className="rounded-xl"
           >
-            <CalendarIcon className="w-4 h-4 mr-2" />
-            Calendar
+            <Camera className="w-4 h-4 mr-2" />
+            Photo
           </Button>
         </div>
 
@@ -853,105 +846,8 @@ export default function ProgressPage() {
             </Tabs>
           </>
         ) : (
-          /* CALENDAR VIEW */
-          <Card className="rounded-2xl border-[#e5e7eb] shadow-sm bg-white">
-            <CardHeader>
-              <CardTitle className="text-[#111827]">Metrics Calendar</CardTitle>
-              <p className="text-sm text-[#6b7280]">
-                Days with logged metrics are highlighted
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="gr_id md:gr_id-cols-2 gap-6">
-                <div className="flex justify-center">
-                  <Calendar
-                    mode="single"
-                    selected={calendarDate}
-                    onSelect={setCalendarDate}
-                    className="rounded-xl border border-[#e5e7eb]"
-                    modifiers={{
-                      logged: loggedDates
-                    }}
-                    modifiersClassNames={{
-                      logged:
-                        "bg-[#10b981] text-white hover:bg-[#059669] relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-white after:rounded-full"
-                    }}
-                  />
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg text-[#111827] mb-2">
-                      {calendarDate?.toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </h3>
-                    <p className="text-sm text-[#6b7280]">
-                      {entriesForSelectedDate.length}{' '}
-                      {entriesForSelectedDate.length === 1
-                        ? 'entry'
-                        : 'entries'}{' '}
-                      logged
-                    </p>
-                  </div>
-                  <Separator />
-                  {entriesForSelectedDate.length > 0 ? (
-                    <ScrollArea className="h-[400px]">
-                      <div className="space-y-3">
-                        {entriesForSelectedDate.map((entry) => (
-                          <Card
-                            key={entry._id}
-                            className="rounded-xl border-[#e5e7eb] bg-[#f9fafb]"
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <h4 className="text-[#111827]">
-                                    {/* {metricConfigs[entry.metricType as MetricType].name} */}
-                                    {entry.metricCode}
-                                  </h4>
-                                  <Badge
-                                    className="mt-1 rounded-lg text-xs"
-                                    style={{
-                                      backgroundColor:
-                                        metricConfigs[
-                                          entry.metricCode as MetricType
-                                        ].color
-                                    }}
-                                  >
-                                    {/* {metricConfigs[entry.metricType as MetricType].metricCode} */}
-                                    {entry.unit}
-                                  </Badge>
-                                </div>
-                                <div className="text-xl text-[#111827]">
-                                  {entry.value}
-                                  <span className="text-sm text-[#6b7280] ml-1">
-                                    {/* {metricConfigs[entry.metricType as MetricType].unit} */}
-                                    {entry.unit}
-                                  </span>
-                                </div>
-                              </div>
-                              {entry.note && (
-                                <p className="text-sm text-[#6b7280] italic mt-2">
-                                  {entry.note}
-                                </p>
-                              )}
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  ) : (
-                    <div className="h-[400px] flex items-center justify-center text-[#6b7280]">
-                      No metrics logged on this day
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          /* PHOTO */
+            <ProgressPhotos />
         )}
       </div>
     </div>
