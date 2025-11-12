@@ -18,3 +18,36 @@ export const registerAdminAPI = async (data: RegisterAdminParams) => {
   const response = await axios.post('admins/register', data)
   return response.data
 }
+
+/* Muscle Group API */
+export const getAllMuscleGroupsAPI = async () => {
+  const response = await axios.get('muscle-groups')
+  return response.data
+}
+
+export const getMuscleGroupByIdAPI = async (id: string) => {
+  const response = await axios.get(`muscle-groups/${id}`)
+  return response.data
+}
+
+export const createMuscleGroupAPI = async (data: CreateMuscleGroupParams) => {
+  const response = await axios.post('muscle-groups', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
+export const updateMuscleGroupAPI = async (
+  id: string,
+  data: UpdateMuscleGroupRequest
+) => {
+  const response = await axios.put(`muscle-groups/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
+export const deleteMuscleGroupAPI = async (id: string) => {
+  const response = await axios.delete(`muscle-groups/${id}`)
+  return response.data
+}

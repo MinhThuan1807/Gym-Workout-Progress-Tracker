@@ -56,9 +56,9 @@ axiosInstance.interceptors.response.use(
     return response
   },
   async (error: AxiosError) => {
-    console.log('error', error)
-    console.log('error Status:', error.status)
-    console.log('error message:', (error.response?.data as any)?.message)
+    // console.log('error', error)
+    // console.log('error Status:', error.status)
+    // console.log('error message:', (error.response?.data as any)?.message)
     if (error?.status === 401) {
       axiosReduxStore.dispatch(logoutUserAPI())
     }
@@ -70,13 +70,11 @@ axiosInstance.interceptors.response.use(
 
     // If error 410 GONE - token expired, need to refresh
     if (error.status === 410 && !originalRequest._retry) {
-      console.log('đã nhảy vào đây')
       originalRequest._retry = true
 
       if (!refreshTokenPromise) {
         refreshTokenPromise = refreshToken()
           .then((data) => {
-            console.log('đã có accessToken mới', data?.accessToken)
             return data?.accessToken
           })
           .catch((err) => {

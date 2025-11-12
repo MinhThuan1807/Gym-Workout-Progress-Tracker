@@ -1,88 +1,101 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import { Plus, Edit, Trash2, Activity } from "lucide-react";
-import { PageHeader } from "../shared/PageHeader";
-import { Button } from "../ui/button";
-import { EmptyState } from "../shared/EmptyState";
-import { MuscleGroupModal } from "../modals/MuscleGroupModal";
-import { DeleteConfirmModal } from "../modals/DeleteConfirmModal";
-
-const muscleGroups = [
-  {
-    id: 1,
-    name: "Chest",
-    description: "Pectoralis major and minor muscles",
-    image:
-      "https://images.unsplash.com/photo-1750698544932-c7471990f1ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmaXRuZXNzJTIwZ3ltJTIwd29ya291dHxlbnwxfHx8fDE3NjI0ODQxOTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: 2,
-    name: "Back",
-    description: "Latissimus dorsi, trapezius, and rhomboids",
-    image:
-      "https://images.unsplash.com/photo-1725398753361-b867935f811e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNjdWxhciUyMGJvZHklMjBhbmF0b215fGVufDF8fHx8MTc2MjQ5NzI2NHww&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: 3,
-    name: "Shoulders",
-    description: "Deltoid muscles (anterior, lateral, posterior)",
-    image:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkdW1iYmVsbCUyMHdlaWdodHN8ZW58MXx8fHwxNzYyNDk3MjY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: 4,
-    name: "Legs",
-    description: "Quadriceps, hamstrings, glutes, and calves",
-    image:
-      "https://images.unsplash.com/photo-1737736193172-f3b87a760ad5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJkaW8lMjBydW5uaW5nfGVufDF8fHx8MTc2MjM4MTEzMXww&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: 5,
-    name: "Arms",
-    description: "Biceps, triceps, and forearms",
-    image:
-      "https://images.unsplash.com/photo-1630857539167-e68ecccf3854?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxleGVyY2lzZSUyMHRyYWluaW5nfGVufDF8fHx8MTc2MjQ2NTU1OHww&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: 6,
-    name: "Core",
-    description: "Abdominals and obliques",
-    image:
-      "https://images.unsplash.com/photo-1607909599990-e2c4778e546b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b2dhJTIwc3RyZXRjaGluZ3xlbnwxfHx8fDE3NjI0MjE5MDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-];
+import { useEffect, useState } from 'react'
+import { Plus, Edit, Trash2, Activity } from 'lucide-react'
+import { PageHeader } from '../shared/PageHeader'
+import { Button } from '../ui/button'
+import { EmptyState } from '../shared/EmptyState'
+import { MuscleGroupModal } from '../modals/MuscleGroupModal'
+import { DeleteConfirmModal } from '../modals/DeleteConfirmModal'
+import {
+  getAllMuscleGroupsAPI,
+  createMuscleGroupAPI,
+  updateMuscleGroupAPI,
+  deleteMuscleGroupAPI
+} from '@/api'
+import { toast } from 'sonner'
 
 export function MuscleGroups() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingGroup, setEditingGroup] = useState<
-    (typeof muscleGroups)[0] | null
-  >(null);
-  const [deleteModal, setDeleteModal] = useState<{
-    open: boolean;
-    group: (typeof muscleGroups)[0] | null;
-  }>({
+  const [muscleGroups, setMuscleGroups] = useState<any[]>([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editingGroup, setEditingGroup] = useState<any | null>(null)
+  const [deleteModal, setDeleteModal] = useState({
     open: false,
-    group: null,
-  });
+    group: null as any | null
+  })
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleEdit = (group: (typeof muscleGroups)[0]) => {
-    setEditingGroup(group);
-    setModalOpen(true);
-  };
+  useEffect(() => {
+    const fetchMuscleGroups = async () => {
+      try {
+        const result = await getAllMuscleGroupsAPI()
+        setMuscleGroups(result.data || [])
+      } catch (error) {
+        console.error('Failed to fetch muscle groups:', error)
+      }
+    }
+    fetchMuscleGroups()
+  }, [])
+
+  const handleEdit = (group: any) => {
+    setEditingGroup(group)
+    setModalOpen(true)
+  }
 
   const handleAdd = () => {
-    setEditingGroup(null);
-    setModalOpen(true);
-  };
+    setEditingGroup(null)
+    setModalOpen(true)
+  }
+
+  const handleSave = async (data: any) => {
+    try {
+      if (editingGroup) {
+        // update existing
+        const res = await updateMuscleGroupAPI(editingGroup._id, data)
+        const updated = res.data
+        toast.success(res.message)
+        setMuscleGroups((prev) =>
+          prev.map((g) => (g._id === updated._id ? updated : g))
+        )
+      } else {
+        // create new
+
+        const res = await createMuscleGroupAPI(data)
+        const created = res.data
+        toast.success(res.message)
+        setMuscleGroups((prev) => [created, ...prev])
+      }
+      setModalOpen(false)
+      setEditingGroup(null)
+    } catch (error) {
+      console.error('Failed to save muscle group:', error)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.group) return
+    setIsLoading(true)
+    try {
+      const res = await deleteMuscleGroupAPI(deleteModal.group._id)
+      toast.success(res.message)
+      setMuscleGroups((prev) =>
+        prev.filter((g) => g._id !== deleteModal.group._id)
+      )
+      setDeleteModal({ open: false, group: null })
+    } catch (error) {
+      console.error('Failed to delete muscle group:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="p-4 lg:p-6">
       <PageHeader
         title="Muscle Groups"
         breadcrumbs={[
-          { label: "Dashboard", path: "/admin/dashboard" },
-          { label: "Muscle Groups" },
+          { label: 'Dashboard', path: '/admin/dashboard' },
+          { label: 'Muscle Groups' }
         ]}
         action={
           <Button
@@ -109,16 +122,16 @@ export function MuscleGroups() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-          {muscleGroups.map((group) => (
+          {muscleGroups.map((group: any) => (
             <div
-              key={group.id}
+              key={group._id}
               className="bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md"
             >
               <div className="aspect-video bg-gray-200 overflow-hidden">
                 <img
-                  src={group.image}
+                  src={group.imageUrl}
                   alt={group.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-center bg-center"
                 />
               </div>
               <div className="p-4 lg:p-5">
@@ -157,7 +170,7 @@ export function MuscleGroups() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         muscleGroup={editingGroup}
-        onSave={(data) => console.log("Save muscle group:", data)}
+        onSave={handleSave}
       />
 
       {deleteModal.group && (
@@ -165,11 +178,10 @@ export function MuscleGroups() {
           open={deleteModal.open}
           onOpenChange={(open) => setDeleteModal({ open, group: null })}
           itemName={deleteModal.group.name}
-          onConfirm={() =>
-            console.log("Delete muscle group:", deleteModal.group)
-          }
+          onConfirm={handleDeleteConfirm}
+          disLoading={isLoading}
         />
       )}
     </div>
-  );
+  )
 }
