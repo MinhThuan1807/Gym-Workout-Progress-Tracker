@@ -31,18 +31,6 @@ declare global {
     confirmPassword: string
   }
 
-  interface Exercise {
-    _id: number
-    name: string
-    type: 'Strength' | 'Cardio' | 'Calisthenics' | 'Mobility' | 'Flexibility'
-    difficulty: 'Beginner' | 'Intermediate' | 'Advanced'
-    muscleGroup: string
-    secondaryMuscles?: string[]
-    equipment: string
-    description: string
-    mediaImageUrl: string
-    mediaVideoUrl?: string
-  }
   interface Goal {
     _id: string
     type: GoalType
@@ -335,5 +323,32 @@ declare global {
     description?: string
     image?: string
   }
+    interface Exercise {
+        _id?: string
+        adminId: string
+        name: string
+        description?: string
+        type: 'strength' | 'cardio' | 'mobility' | 'flexibility' | 'calisthenics'
+        difficulty: 'beginner' | 'intermediate' | 'advance'
+        equipment?: string
+        mediaVideoUrl?: string
+        mediaVideoPublicId?: string
+        mediaImageUrl?: string
+        mediaImagePublicId?: string
+        primaryMuscles: string[]
+        secondaryMuscles: string[]
+        isPublic: boolean
+        createdAt: Date
+        updatedAt: Date | null
+    }
+    interface MuscleGroup {
+        _id?: string
+        name: string
+        description?: string
+        imageUrl?: string
+        imagePublicId?: string
+        createdAt: Date
+        updatedAt: Date
+    }
 }
 export {}
