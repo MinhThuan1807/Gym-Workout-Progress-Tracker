@@ -116,6 +116,24 @@ declare global {
       saturday: PlanExercise[]
     }
   }
+  interface U_WorkoutPlan {
+    _id: string
+    name: string
+    goalHint: string
+    startDate?: string
+    endDate?: string
+    isActive: boolean
+    days: {
+        sunday: U_Exercise[]
+        monday: U_Exercise[]
+        tuesday: U_Exercise[]
+        wednesday: U_Exercise[]
+        thursday: U_Exercise[]
+        friday: U_Exercise[]
+        saturday: U_Exercise[]
+
+    }
+  }
   type FormInputProps = {
     name: string
     label: string
@@ -167,7 +185,7 @@ declare global {
   }
 
   interface Exercise {
-    id: number
+    _id: string
     name: string
     type: 'Strength' | 'Cardio' | 'Calisthenics' | 'Mobility' | 'Flexibility'
     difficulty: 'Beginner' | 'Intermediate' | 'Advanced'
@@ -287,7 +305,7 @@ declare global {
   }
 
   interface ExerciseSet {
-    setNumber: number
+    setNo: number
     reps: number
     weight: number
     rpe?: number
@@ -295,21 +313,43 @@ declare global {
   }
 
   interface SessionExercise {
-    exerciseId: number
-    exerciseName: string
+    exerciseId: string
+    exerciseName?: string
     sets: ExerciseSet[]
   }
 
   interface WorkoutSession {
     id: string
-    startTime: string
-    endTime?: string
+    startTime: Date
+    endTime?: Date
     planId?: string
     planName?: string
     exercises: SessionExercise[]
     mood?: 'happy' | 'neutral' | 'sad'
     energyLevel?: number
     notes?: string
+  }
+  interface U_WorkoutSession {
+    _id: string
+    startTime: Date
+    endTime?: Date
+    planId?: string
+    planName?: string
+    exercises: SessionExercise[]
+    mood?: 'happy' | 'neutral' | 'sad'
+    energyLevel?: number
+    notes?: string
+  }
+
+  interface U_Exercise {
+    exerciseId: string
+    targetSets: number
+    repsMin: number
+    repsMax: number
+    targetWeight: number
+    tempo: string
+    restSec: number
+    order: number
   }
 
   // ====== Admin =====
@@ -323,21 +363,17 @@ declare global {
     description?: string
     image?: string
   }
-    interface Exercise {
+    interface I_Exercise {
         _id?: string
-        adminId: string
         name: string
         description?: string
         type: 'strength' | 'cardio' | 'mobility' | 'flexibility' | 'calisthenics'
         difficulty: 'beginner' | 'intermediate' | 'advance'
         equipment?: string
         mediaVideoUrl?: string
-        mediaVideoPublicId?: string
         mediaImageUrl?: string
-        mediaImagePublicId?: string
         primaryMuscles: string[]
         secondaryMuscles: string[]
-        isPublic: boolean
         createdAt: Date
         updatedAt: Date | null
     }
