@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,149 +19,148 @@ import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Suspense } from "react";
 import { SkeletonExercises } from "@/components/skeleton/SkeletonExcercises";
+import { exerciseAPI } from "@/api/exercise";
+import { muscleAPI } from "@/api/muscle";
 
-const exercises: Exercise[] = [
-  { 
-    id: 1, 
-    name: "Barbell Squat", 
-    type: "Strength",
-    difficulty: "Intermediate",
-    muscleGroup: "Legs", 
-    secondaryMuscles: ["Core", "Glutes"],
-    equipment: "Barbell, Squat Rack",
-    description: "A compound exercise that targets the quadriceps, hamstrings, and glutes. Stand with feet shoulder-width apart, lower your body by bending knees and hips, then push back up to starting position.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1734668476747-8e46a86fb925?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjBzcXVhdHRpbmclMjBneW18ZW58MXx8fHwxNzYyNTMyOTgyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    mediaVideoUrl: "https://example.com/squat-video.mp4"
-  },
-  { 
-    id: 2, 
-    name: "Bench Press", 
-    type: "Strength",
-    difficulty: "Intermediate",
-    muscleGroup: "Chest", 
-    secondaryMuscles: ["Triceps", "Shoulders"],
-    equipment: "Barbell, Bench",
-    description: "A classic upper body exercise. Lie on a bench and press a barbell upward from chest level until arms are fully extended, then lower it back down with control.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1651346847980-ab1c883e8cc8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZW5jaCUyMHByZXNzJTIwZXhlcmNpc2V8ZW58MXx8fHwxNzYyNDk5MjUzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  },
-  { 
-    id: 3, 
-    name: "Deadlift", 
-    type: "Strength",
-    difficulty: "Advanced",
-    muscleGroup: "Back", 
-    secondaryMuscles: ["Legs", "Core", "Forearms"],
-    equipment: "Barbell",
-    description: "One of the most effective full-body exercises. Lift a loaded barbell from the ground to hip level by extending the hips and knees, then lower it back down.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1686247167200-d74f0f24b5be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZWFkbGlmdCUyMHdvcmtvdXR8ZW58MXx8fHwxNzYyNDYwODA0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    mediaVideoUrl: "https://example.com/deadlift-video.mp4"
-  },
-  { 
-    id: 4, 
-    name: "Pull-Up", 
-    type: "Calisthenics",
-    difficulty: "Advanced",
-    muscleGroup: "Back", 
-    secondaryMuscles: ["Biceps", "Forearms"],
-    equipment: "Pull-up Bar",
-    description: "A bodyweight exercise that builds upper body strength. Hang from a bar with an overhand grip and pull yourself up until your chin is above the bar.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1701826510552-aadcfa841065?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwdWxsJTIwdXBzJTIwZXhlcmNpc2V8ZW58MXx8fHwxNzYyNDMzMDM2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  },
-  { 
-    id: 5, 
-    name: "Running", 
-    type: "Cardio",
-    difficulty: "Beginner",
-    muscleGroup: "Legs", 
-    secondaryMuscles: ["Core"],
-    equipment: "Running Shoes",
-    description: "An excellent cardiovascular exercise that improves endurance and burns calories. Maintain a steady pace and focus on proper running form.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1669806954505-936e77929af6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxydW5uaW5nJTIwY2FyZGlvfGVufDF8fHx8MTc2MjUyMjU5M3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  },
-  { 
-    id: 6, 
-    name: "Yoga Flow", 
-    type: "Flexibility",
-    difficulty: "Beginner",
-    muscleGroup: "Full Body", 
-    secondaryMuscles: ["Core"],
-    equipment: "Yoga Mat",
-    description: "A series of flowing poses that improve flexibility, balance, and mindfulness. Focus on breathing and smooth transitions between poses.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1606372952193-27c80cb73d26?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b2dhJTIwZmxleGliaWxpdHl8ZW58MXx8fHwxNzYyNTMyOTg0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    mediaVideoUrl: "https://example.com/yoga-video.mp4"
-  },
-  { 
-    id: 7, 
-    name: "Push-Up", 
-    type: "Calisthenics",
-    difficulty: "Beginner",
-    muscleGroup: "Chest", 
-    secondaryMuscles: ["Triceps", "Shoulders", "Core"],
-    equipment: "None",
-    description: "A fundamental bodyweight exercise. Start in a plank position and lower your body until your chest nearly touches the ground, then push back up.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1514512364185-4c2b0985be01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwdXNodXBzJTIwY2FsaXN0aGVuaWNzfGVufDF8fHx8MTc2MjUzMjk4NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  },
-  { 
-    id: 8, 
-    name: "Dumbbell Shoulder Press", 
-    type: "Strength",
-    difficulty: "Intermediate",
-    muscleGroup: "Shoulders", 
-    secondaryMuscles: ["Triceps", "Core"],
-    equipment: "Dumbbells",
-    description: "Sit or stand with dumbbells at shoulder height and press them overhead until arms are fully extended, then lower back to starting position.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1580569688519-b3a259826ad4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzaG91bGRlciUyMHByZXNzJTIwZHVtYmJlbGxzfGVufDF8fHx8MTc2MjUzMjk4NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  },
-  { 
-    id: 9, 
-    name: "Walking Lunges", 
-    type: "Strength",
-    difficulty: "Beginner",
-    muscleGroup: "Legs", 
-    secondaryMuscles: ["Glutes", "Core"],
-    equipment: "Dumbbells (Optional)",
-    description: "Step forward with one leg and lower your hips until both knees are bent at 90 degrees. Push off and bring the back leg forward into the next lunge.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdW5nZXMlMjBleGVyY2lzZXxlbnwxfHx8fDE3NjI1MDc0MTR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  },
-  { 
-    id: 10, 
-    name: "Plank", 
-    type: "Calisthenics",
-    difficulty: "Beginner",
-    muscleGroup: "Core", 
-    secondaryMuscles: ["Shoulders", "Back"],
-    equipment: "None",
-    description: "Hold a push-up position with your body in a straight line from head to heels. Engage your core and hold for time.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1758599879661-a656f9678ce2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbGFuayUyMGNvcmUlMjB3b3Jrb3V0fGVufDF8fHx8MTc2MjQ1OTEzMHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  },
-  { 
-    id: 11, 
-    name: "Bicep Curls", 
-    type: "Strength",
-    difficulty: "Beginner",
-    muscleGroup: "Arms", 
-    secondaryMuscles: ["Forearms"],
-    equipment: "Dumbbells",
-    description: "Stand with dumbbells at your sides and curl them up to shoulder level by bending your elbows. Lower back down with control.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1681040517791-aba993f05b2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiaWNlcCUyMGN1cmxzfGVufDF8fHx8MTc2MjUzMjk4Nnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    mediaVideoUrl: "https://example.com/bicep-curls-video.mp4"
-  },
-  { 
-    id: 12, 
-    name: "Stationary Bike", 
-    type: "Cardio",
-    difficulty: "Beginner",
-    muscleGroup: "Legs", 
-    secondaryMuscles: [],
-    equipment: "Stationary Bike",
-    description: "A low-impact cardio exercise that's easy on the joints. Adjust resistance and maintain a steady cadence for cardiovascular benefits.",
-    mediaImageUrl: "https://images.unsplash.com/photo-1761971976282-b2bb051a5474?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjeWNsaW5nJTIwY2FyZGlvfGVufDF8fHx8MTc2MjUzMjk4Nnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-  },
-];
+// const exercises: Exercise[] = [
+//   { 
+//     id: 1, 
+//     name: "Barbell Squat", 
+//     type: "Strength",
+//     difficulty: "Intermediate",
+//     muscleGroup: "Legs", 
+//     secondaryMuscles: ["Core", "Glutes"],
+//     equipment: "Barbell, Squat Rack",
+//     description: "A compound exercise that targets the quadriceps, hamstrings, and glutes. Stand with feet shoulder-width apart, lower your body by bending knees and hips, then push back up to starting position.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1734668476747-8e46a86fb925?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjBzcXVhdHRpbmclMjBneW18ZW58MXx8fHwxNzYyNTMyOTgyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+//     mediaVideoUrl: "https://example.com/squat-video.mp4"
+//   },
+//   { 
+//     id: 2, 
+//     name: "Bench Press", 
+//     type: "Strength",
+//     difficulty: "Intermediate",
+//     muscleGroup: "Chest", 
+//     secondaryMuscles: ["Triceps", "Shoulders"],
+//     equipment: "Barbell, Bench",
+//     description: "A classic upper body exercise. Lie on a bench and press a barbell upward from chest level until arms are fully extended, then lower it back down with control.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1651346847980-ab1c883e8cc8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZW5jaCUyMHByZXNzJTIwZXhlcmNpc2V8ZW58MXx8fHwxNzYyNDk5MjUzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+//   },
+//   { 
+//     id: 3, 
+//     name: "Deadlift", 
+//     type: "Strength",
+//     difficulty: "Advanced",
+//     muscleGroup: "Back", 
+//     secondaryMuscles: ["Legs", "Core", "Forearms"],
+//     equipment: "Barbell",
+//     description: "One of the most effective full-body exercises. Lift a loaded barbell from the ground to hip level by extending the hips and knees, then lower it back down.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1686247167200-d74f0f24b5be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZWFkbGlmdCUyMHdvcmtvdXR8ZW58MXx8fHwxNzYyNDYwODA0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+//     mediaVideoUrl: "https://example.com/deadlift-video.mp4"
+//   },
+//   { 
+//     id: 4, 
+//     name: "Pull-Up", 
+//     type: "Calisthenics",
+//     difficulty: "Advanced",
+//     muscleGroup: "Back", 
+//     secondaryMuscles: ["Biceps", "Forearms"],
+//     equipment: "Pull-up Bar",
+//     description: "A bodyweight exercise that builds upper body strength. Hang from a bar with an overhand grip and pull yourself up until your chin is above the bar.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1701826510552-aadcfa841065?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwdWxsJTIwdXBzJTIwZXhlcmNpc2V8ZW58MXx8fHwxNzYyNDMzMDM2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+//   },
+//   { 
+//     id: 5, 
+//     name: "Running", 
+//     type: "Cardio",
+//     difficulty: "Beginner",
+//     muscleGroup: "Legs", 
+//     secondaryMuscles: ["Core"],
+//     equipment: "Running Shoes",
+//     description: "An excellent cardiovascular exercise that improves endurance and burns calories. Maintain a steady pace and focus on proper running form.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1669806954505-936e77929af6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxydW5uaW5nJTIwY2FyZGlvfGVufDF8fHx8MTc2MjUyMjU5M3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+//   },
+//   { 
+//     id: 6, 
+//     name: "Yoga Flow", 
+//     type: "Flexibility",
+//     difficulty: "Beginner",
+//     muscleGroup: "Full Body", 
+//     secondaryMuscles: ["Core"],
+//     equipment: "Yoga Mat",
+//     description: "A series of flowing poses that improve flexibility, balance, and mindfulness. Focus on breathing and smooth transitions between poses.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1606372952193-27c80cb73d26?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b2dhJTIwZmxleGliaWxpdHl8ZW58MXx8fHwxNzYyNTMyOTg0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+//     mediaVideoUrl: "https://example.com/yoga-video.mp4"
+//   },
+//   { 
+//     id: 7, 
+//     name: "Push-Up", 
+//     type: "Calisthenics",
+//     difficulty: "Beginner",
+//     muscleGroup: "Chest", 
+//     secondaryMuscles: ["Triceps", "Shoulders", "Core"],
+//     equipment: "None",
+//     description: "A fundamental bodyweight exercise. Start in a plank position and lower your body until your chest nearly touches the ground, then push back up.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1514512364185-4c2b0985be01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwdXNodXBzJTIwY2FsaXN0aGVuaWNzfGVufDF8fHx8MTc2MjUzMjk4NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+//   },
+//   { 
+//     id: 8, 
+//     name: "Dumbbell Shoulder Press", 
+//     type: "Strength",
+//     difficulty: "Intermediate",
+//     muscleGroup: "Shoulders", 
+//     secondaryMuscles: ["Triceps", "Core"],
+//     equipment: "Dumbbells",
+//     description: "Sit or stand with dumbbells at shoulder height and press them overhead until arms are fully extended, then lower back to starting position.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1580569688519-b3a259826ad4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzaG91bGRlciUyMHByZXNzJTIwZHVtYmJlbGxzfGVufDF8fHx8MTc2MjUzMjk4NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+//   },
+//   { 
+//     id: 9, 
+//     name: "Walking Lunges", 
+//     type: "Strength",
+//     difficulty: "Beginner",
+//     muscleGroup: "Legs", 
+//     secondaryMuscles: ["Glutes", "Core"],
+//     equipment: "Dumbbells (Optional)",
+//     description: "Step forward with one leg and lower your hips until both knees are bent at 90 degrees. Push off and bring the back leg forward into the next lunge.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdW5nZXMlMjBleGVyY2lzZXxlbnwxfHx8fDE3NjI1MDc0MTR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+//   },
+//   { 
+//     id: 10, 
+//     name: "Plank", 
+//     type: "Calisthenics",
+//     difficulty: "Beginner",
+//     muscleGroup: "Core", 
+//     secondaryMuscles: ["Shoulders", "Back"],
+//     equipment: "None",
+//     description: "Hold a push-up position with your body in a straight line from head to heels. Engage your core and hold for time.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1758599879661-a656f9678ce2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbGFuayUyMGNvcmUlMjB3b3Jrb3V0fGVufDF8fHx8MTc2MjQ1OTEzMHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+//   },
+//   { 
+//     id: 11, 
+//     name: "Bicep Curls", 
+//     type: "Strength",
+//     difficulty: "Beginner",
+//     muscleGroup: "Arms", 
+//     secondaryMuscles: ["Forearms"],
+//     equipment: "Dumbbells",
+//     description: "Stand with dumbbells at your sides and curl them up to shoulder level by bending your elbows. Lower back down with control.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1681040517791-aba993f05b2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiaWNlcCUyMGN1cmxzfGVufDF8fHx8MTc2MjUzMjk4Nnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+//     mediaVideoUrl: "https://example.com/bicep-curls-video.mp4"
+//   },
+//   { 
+//     id: 12, 
+//     name: "Stationary Bike", 
+//     type: "Cardio",
+//     difficulty: "Beginner",
+//     muscleGroup: "Legs", 
+//     secondaryMuscles: [],
+//     equipment: "Stationary Bike",
+//     description: "A low-impact cardio exercise that's easy on the joints. Adjust resistance and maintain a steady cadence for cardiovascular benefits.",
+//     mediaImageUrl: "https://images.unsplash.com/photo-1761971976282-b2bb051a5474?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjeWNsaW5nJTIwY2FyZGlvfGVufDF8fHx8MTc2MjUzMjk4Nnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+//   },
+// ];
 
-const exerciseTypes = ['All', 'Strength', 'Cardio', 'Calisthenics', 'Mobility', 'Flexibility'];
-const difficultyLevels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
-const muscleGroups = ['All', 'Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Full Body'];
 
 const getDifficultyColor = (difficulty: string) => {
   switch(difficulty) {
@@ -185,6 +184,9 @@ const getTypeIcon = (type: string) => {
 
 
 export default function ExercisesLibrary() {
+    const [exercises, setExercises] = useState<Exercise[]>([]);
+    const [muscleGroups, setMuscleGroups] = useState<MuscleGroup[]>([]);
+
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedType, setSelectedType] = useState("All");
     const [selectedDifficulty, setSelectedDifficulty] = useState("All");
@@ -193,13 +195,49 @@ export default function ExercisesLibrary() {
     const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch cả exercises và muscle groups
+                const [exercisesData, musclesData] = await Promise.all([
+                    exerciseAPI.getAll(),
+                    muscleAPI.getAll()
+                ]);
+                
+                console.log("Fetched exercises: ", exercisesData);
+                console.log("Fetched muscles: ", musclesData);
+                
+                setExercises(exercisesData.data);
+                setMuscleGroups(musclesData.data || musclesData);
+            } catch(err) {
+                console.log("error: ", err)
+            }
+        }
+        fetchData();
+    },[])
+
+    const getMuscleName = (muscleId: string) => {
+            const muscle = muscleGroups.find(m => m._id === muscleId);
+            return muscle ? muscle.name : muscleId;
+    };
+    const exerciseTypes = ["All", ...Array.from(new Set(exercises.map(ex => ex.type)))];
+    const difficultyLevels = ["All", ...Array.from(new Set(exercises.map(ex => ex.difficulty)))];
+    const muscleGroupOptions = ["All", ...Array.from(new Set(muscleGroups.map(m => m.name)))];
+
     const filteredExercises = exercises.filter(exercise => {
         const matchesSearch = exercise.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesType = selectedType === "All" || exercise.type === selectedType;
         const matchesDifficulty = selectedDifficulty === "All" || exercise.difficulty === selectedDifficulty;
-        const matchesMuscleGroup = selectedMuscleGroup === "All" || exercise.muscleGroup === selectedMuscleGroup;
+        const matchesMuscleGroup = selectedMuscleGroup === "All" || 
+        (exercise.primaryMuscles && exercise.primaryMuscles.some(muscleId => {
+            const muscle = muscleGroups.find(m => m._id === muscleId);
+            return muscle && muscle.name === selectedMuscleGroup;
+        })) ||
+        (exercise.secondaryMuscles && exercise.secondaryMuscles.some(muscleId => {
+            const muscle = muscleGroups.find(m => m._id === muscleId);
+            return muscle && muscle.name === selectedMuscleGroup;
+        }));      
         const matchesEquipment = equipmentFilter === "" || exercise.equipment.toLowerCase().includes(equipmentFilter.toLowerCase());
-        
         return matchesSearch && matchesType && matchesDifficulty && matchesMuscleGroup && matchesEquipment;
     });
 
@@ -290,7 +328,8 @@ export default function ExercisesLibrary() {
                 <SelectValue placeholder="Select muscle group" />
               </SelectTrigger>
               <SelectContent>
-                {muscleGroups.map((group) => (
+                <SelectItem value="All"></SelectItem>
+                {muscleGroupOptions.map((group) => (
                   <SelectItem key={group} value={group}>
                     {group}
                   </SelectItem>
@@ -327,7 +366,7 @@ export default function ExercisesLibrary() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredExercises.map((exercise) => (
                 <Card 
-                  key={exercise.id} 
+                  key={exercise._id} 
                   className="rounded-2xl border-[#e5e7eb] shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer group bg-white"
                   onClick={() => openExerciseDetail(exercise)}
                 >
@@ -381,14 +420,17 @@ export default function ExercisesLibrary() {
                     </div>
     
                     <div className="flex flex-wrap gap-1">
-                      <Badge className="bg-[#10b981]/10 text-[#10b981] hover:bg-[#10b981]/20 rounded-lg text-xs">
-                        {exercise.muscleGroup}
-                      </Badge>
-                      {exercise.secondaryMuscles && exercise.secondaryMuscles.slice(0, 2).map((muscle, index) => (
-                        <Badge key={index} variant="outline" className="rounded-lg text-xs border-[#e5e7eb] text-[#6b7280]">
-                          {muscle}
+                        {exercise.primaryMuscles && exercise.primaryMuscles.map((muscleId, index) => (
+                        <Badge key={index} className="rounded-lg text-xs border-[#e5e7eb] text-white">
+                            {getMuscleName(muscleId)}
                         </Badge>
-                      ))}
+                        ))}
+                        {exercise.secondaryMuscles && exercise.secondaryMuscles.map((muscleId, index) => (
+                        <Badge key={index} variant="outline" className="rounded-lg text-xs border-[#e5e7eb] text-[#6b7280]">
+                            {getMuscleName(muscleId)}
+                        </Badge>
+                        ))}
+                        
                     </div>
                   </CardContent>
                 </Card>
@@ -444,13 +486,16 @@ export default function ExercisesLibrary() {
               <div className="space-y-2">
                 {selectedExercise.mediaVideoUrl ? (
                   <AspectRatio ratio={16/9}>
-                    <div className="w-full h-full bg-black rounded-xl flex items-center justify-center">
-                      <div className="text-center text-white space-y-2">
-                        <Play className="w-16 h-16 mx-auto" />
-                        <p className="text-sm">Video player would be embedded here</p>
-                        <p className="text-xs text-gray-400">{selectedExercise.mediaVideoUrl}</p>
-                      </div>
-                    </div>
+                    <video className="w-full h-full rounded-4xl " controls preload="none">
+                        <source src={selectedExercise.mediaVideoUrl} type="video/mp4" />
+                        <track
+                            src={selectedExercise.mediaVideoUrl}
+                            kind="subtitles"
+                            srcLang="en"
+                            label="English"
+                        />
+                        Your browser does not support the video tag.
+                    </video>
                   </AspectRatio>
                 ) : (
                   <AspectRatio ratio={16/9}>
@@ -477,9 +522,11 @@ export default function ExercisesLibrary() {
 
                 <div className="space-y-2 p-4 bg-[#e5e7eb]/30 rounded-xl">
                   <h4 className="text-sm text-[#6b7280]">Primary Muscle</h4>
-                  <Badge className="bg-[#10b981] text-white rounded-lg">
-                    {selectedExercise.muscleGroup}
-                  </Badge>
+                   {selectedExercise.primaryMuscles && selectedExercise.primaryMuscles.map((muscleId, index) => (
+                        <Badge key={index} className="rounded-lg text-xs border-[#e5e7eb] text-white">
+                            {getMuscleName(muscleId)}
+                        </Badge>
+                        ))}
                 </div>
               </div>
 
@@ -487,9 +534,9 @@ export default function ExercisesLibrary() {
                 <div className="space-y-2">
                   <h4 className="text-sm text-[#6b7280]">Secondary Muscles</h4>
                   <div className="flex flex-wrap gap-2">
-                    {selectedExercise.secondaryMuscles.map((muscle, index) => (
+                    {selectedExercise.secondaryMuscles.map((muscleId, index) => (
                       <Badge key={index} variant="outline" className="rounded-lg border-[#e5e7eb] text-[#6b7280]">
-                        {muscle}
+                         {getMuscleName(muscleId)}
                       </Badge>
                     ))}
                   </div>
