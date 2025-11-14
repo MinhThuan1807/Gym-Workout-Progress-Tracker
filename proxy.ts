@@ -31,7 +31,6 @@ export function proxy(request: NextRequest) {
     '/admin/exercises',
     '/admin/muscle-groups',
     '/admin/profile',
-    '/admin/settings',
     '/admin/users'
   ]
 

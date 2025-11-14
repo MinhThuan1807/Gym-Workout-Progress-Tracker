@@ -1,80 +1,85 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import { Camera, Mail, Phone, MapPin, Calendar, Save } from "lucide-react";
-import { PageHeader } from "../shared/PageHeader";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import React, { useState } from 'react'
+import { Camera, Mail, Phone, MapPin, Calendar, Save } from 'lucide-react'
+import { PageHeader } from '../shared/PageHeader'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Textarea } from '../ui/textarea'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
-} from "../ui/card";
+  CardTitle
+} from '../ui/card'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { toast } from "sonner";
+  SelectValue
+} from '../ui/select'
+import { toast } from 'sonner'
+import { useAppSelector } from '@/store/hook'
+import { selectCurrentUser } from '@/store/slices/authSlice'
 
 export function Profile() {
-  const [isEditing, setIsEditing] = useState(false);
+  const currentUser = useAppSelector(selectCurrentUser)
+
+  const [isEditing, setIsEditing] = useState(false)
   const [profileImage, setProfileImage] = useState(
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=admin"
-  );
+    currentUser?.avatar ||
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
+  )
   const [formData, setFormData] = useState({
-    firstName: "Admin",
-    lastName: "User",
-    email: "admin@fittrack.com",
-    phone: "+1 (555) 123-4567",
-    bio: "Passionate fitness enthusiast and platform administrator. Dedicated to helping users achieve their fitness goals.",
-    location: "New York, USA",
-    dateOfBirth: "1990-01-15",
-    gender: "male",
-    height: "175",
-    weight: "75",
-    role: "Administrator",
-    department: "Operations",
-    joinDate: "2023-01-15",
-  });
+    firstName: 'Admin',
+    lastName: 'User',
+    email: currentUser?.email || '',
+    phone: '+1 (555) 123-4567',
+    bio: 'Passionate fitness enthusiast and platform administrator. Dedicated to helping users achieve their fitness goals.',
+    location: 'New York, USA',
+    dateOfBirth: '1990-01-15',
+    gender: 'male',
+    height: '175',
+    weight: '75',
+    role: 'Administrator',
+    department: 'Operations',
+    joinDate: '2023-01-15'
+  })
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-        toast.success("Profile image updated successfully!");
-      };
-      reader.readAsDataURL(file);
+        setProfileImage(reader.result as string)
+        toast.success('Profile image updated successfully!')
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const handleSave = () => {
     // In a real app, this would save to backend
-    toast.success("Profile updated successfully!");
-    setIsEditing(false);
-  };
+    toast.success('Profile updated successfully!')
+    setIsEditing(false)
+  }
 
   const handleCancel = () => {
-    setIsEditing(false);
-    toast.info("Changes discarded");
-  };
+    setIsEditing(false)
+    toast.info('Changes discarded')
+  }
 
   return (
     <div className="p-4 lg:p-6">
       <PageHeader
         title="My Profile"
         breadcrumbs={[
-          { label: "Dashboard", path: "/admin/dashboard" },
-          { label: "Profile" },
+          { label: 'Dashboard', path: '/admin/dashboard' },
+          { label: 'Profile' }
         ]}
         action={
           !isEditing ? (
@@ -428,7 +433,7 @@ export function Profile() {
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-green-500 h-2 rounded-full"
-                    style={{ width: "45%" }}
+                    style={{ width: '45%' }}
                   ></div>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
@@ -493,5 +498,5 @@ export function Profile() {
         </div>
       </div>
     </div>
-  );
+  )
 }
