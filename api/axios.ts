@@ -23,7 +23,7 @@ const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/v1/',
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
-  timeout: 15000
+  timeout: 30000
 })
 
 const refreshToken = async () => {
