@@ -51,3 +51,41 @@ export const deleteMuscleGroupAPI = async (id: string) => {
   const response = await axios.delete(`muscle-groups/${id}`)
   return response.data
 }
+
+/* Exercise API */
+
+export const getAllExercisesAPI = async () => {
+  const response = await axios.get('exercises')
+  return response.data
+}
+
+export const getExerciseByIdAPI = async (id: string) => {
+  const response = await axios.get(`exercises/${id}`)
+  return response.data
+}
+
+export const createExerciseAPI = async (data: FormData) => {
+  const response = await axios.post('exercises', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
+export const updateExerciseAPI = async (id: string, data: FormData) => {
+  const response = await axios.put(`exercises/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
+export const deleteExerciseAPI = async (id: string) => {
+  const response = await axios.delete(`exercises/${id}`)
+  return response.data
+}
+
+export const uploadVideoAPI = async (id: string, data: FormData) => {
+  const response = await axios.put(`exercises/${id}/upload-video`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
