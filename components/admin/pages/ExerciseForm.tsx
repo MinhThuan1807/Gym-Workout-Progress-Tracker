@@ -1,61 +1,196 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { PageHeader } from "../shared/PageHeader";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+import { useEffect, useState } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { PageHeader } from '../shared/PageHeader'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Textarea } from '../ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Switch } from "../ui/switch";
-import { FileUpload } from "../shared/FileUpload";
-import { Badge } from "../ui/badge";
-import { X } from "lucide-react";
+  SelectValue
+} from '../ui/select'
+import { Switch } from '../ui/switch'
+import { FileUpload } from '../shared/FileUpload'
+import { Badge } from '../ui/badge'
+import { Loader2, X } from 'lucide-react'
+import {
+  getAllMuscleGroupsAPI,
+  getExerciseByIdAPI,
+  getMuscleGroupByIdAPI
+} from '@/api'
+import { toast } from 'sonner'
+import { createExerciseAPI, updateExerciseAPI } from '@/api'
 
 export function ExerciseForm() {
-  const router = useRouter();
-  const params = useParams();
-  const id = params?.id as string | undefined;
-  const isEdit = !!id;
+  const router = useRouter()
+  const params = useParams()
+  const id = params?.id as string | undefined
+  const isEdit = !!id
 
   const [formData, setFormData] = useState({
-    name: isEdit ? "Bench Press" : "",
-    description: isEdit
-      ? "A compound upper body exercise that targets the chest, shoulders, and triceps."
-      : "",
-    type: isEdit ? "strength" : "",
-    difficulty: isEdit ? "intermediate" : "",
-    equipment: isEdit ? "Barbell, Bench" : "",
-    image: isEdit
-      ? "https://images.unsplash.com/photo-1750698544932-c7471990f1ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmaXRuZXNzJTIwZ3ltJTIwd29ya291dHxlbnwxfHx8fDE3NjI0ODQxOTV8MA&ixlib=rb-4.1.0&q=80&w=1080"
-      : "",
-    video: "",
-    primaryMuscles: isEdit ? ["Chest", "Triceps"] : [],
-    secondaryMuscles: isEdit ? ["Shoulders"] : [],
-    isPublic: true,
-  });
+    name: '',
+    description: '',
+    type: '',
+    difficulty: '',
+    equipment: '',
+    image: '',
+    video: '',
+    primaryMuscles: [] as string[],
+    secondaryMuscles: [] as string[],
+    isPublic: true
+  })
 
-  const [newPrimaryMuscle, setNewPrimaryMuscle] = useState("");
-  const [newSecondaryMuscle, setNewSecondaryMuscle] = useState("");
+  const [newPrimaryMuscle, setNewPrimaryMuscle] = useState('')
+  const [newSecondaryMuscle, setNewSecondaryMuscle] = useState('')
+  const [availableMuscles, setAvailableMuscles] = useState<
+    Record<string, string>
+  >({})
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const availableMuscles = [
-    "Chest",
-    "Back",
-    "Shoulders",
-    "Legs",
-    "Arms",
-    "Core",
-    "Triceps",
-    "Biceps",
-    "Glutes",
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch muscle groups
+        const muscleGroups = await getAllMuscleGroupsAPI()
+        const muscleMap: Record<string, string> = {}
+        muscleGroups.data.forEach((muscle: MuscleGroup) => {
+          muscleMap[muscle._id!] = muscle.name
+        })
+        setAvailableMuscles(muscleMap)
+
+        // If editing, fetch exercise data
+        if (isEdit) {
+          const exercise = await getExerciseByIdAPI(id)
+
+          const primaryMuscleIds =
+            exercise.data.primaryMuscles?.map((muscle: any) =>
+              typeof muscle === 'string' ? muscle : muscle._id || muscle.id
+            ) || []
+
+          const secondaryMuscleIds =
+            exercise.data.secondaryMuscles?.map((muscle: any) =>
+              typeof muscle === 'string' ? muscle : muscle._id || muscle.id
+            ) || []
+          setFormData({
+            name: exercise.data.name,
+            description: exercise.data.description || '',
+            type: exercise.data.type,
+            difficulty: exercise.data.difficulty,
+            equipment: exercise.data.equipment || '',
+            image: exercise.data.mediaImageUrl || '',
+            video: exercise.data.mediaVideoUrl || '',
+            primaryMuscles: primaryMuscleIds,
+            secondaryMuscles: secondaryMuscleIds,
+            isPublic: exercise.data.isPublic
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        toast.error('Failed to load data')
+      }
+    }
+
+    fetchData()
+  }, [id, isEdit])
+
+  // console.log(formData)
+
+  const handleSubmit = async () => {
+    // Validation
+    if (!formData.name.trim()) {
+      toast.error('Name is required')
+      return
+    }
+
+    if (formData.primaryMuscles.length === 0) {
+      toast.error('At least one primary muscle is required')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const formDataToSend = new FormData()
+
+      // Append text data
+      formDataToSend.append('name', formData.name)
+      formDataToSend.append('description', formData.description)
+      formDataToSend.append('type', formData.type)
+      formDataToSend.append('difficulty', formData.difficulty)
+      formDataToSend.append('equipment', formData.equipment)
+      formData.primaryMuscles.forEach((muscle) => {
+        formDataToSend.append('primaryMuscles[]', muscle)
+      })
+
+      formData.secondaryMuscles.forEach((muscle) => {
+        formDataToSend.append('secondaryMuscles[]', muscle)
+      })
+      formDataToSend.append('isPublic', formData.isPublic.toString())
+
+      // Append image file if exists
+      if (imageFile) {
+        formDataToSend.append('image', imageFile)
+      }
+
+      // Handle video file if exists
+
+      if (isEdit) {
+        // Call update exercise API
+        const res = await updateExerciseAPI(id, formDataToSend)
+        toast.success(res.message)
+      } else {
+        // Call create exercise API
+        const res = await createExerciseAPI(formDataToSend)
+        toast.success(res.message)
+      }
+      // Reset form
+      setImageFile(null)
+      setFormData({
+        name: '',
+        description: '',
+        type: '',
+        difficulty: '',
+        equipment: '',
+        image: '',
+        video: '',
+        primaryMuscles: [] as string[],
+        secondaryMuscles: [] as string[],
+        isPublic: true
+      })
+      router.push('/admin/exercises')
+    } catch (error) {
+      console.error('Error saving exercise:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSelectFile = (file: File) => {
+    // const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file')
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB')
+        return
+      }
+
+      setImageFile(file)
+
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+    }
+  }
 
   const addPrimaryMuscle = () => {
     if (
@@ -64,11 +199,11 @@ export function ExerciseForm() {
     ) {
       setFormData({
         ...formData,
-        primaryMuscles: [...formData.primaryMuscles, newPrimaryMuscle],
-      });
-      setNewPrimaryMuscle("");
+        primaryMuscles: [...formData.primaryMuscles, newPrimaryMuscle]
+      })
+      setNewPrimaryMuscle('')
     }
-  };
+  }
 
   const addSecondaryMuscle = () => {
     if (
@@ -77,39 +212,39 @@ export function ExerciseForm() {
     ) {
       setFormData({
         ...formData,
-        secondaryMuscles: [...formData.secondaryMuscles, newSecondaryMuscle],
-      });
-      setNewSecondaryMuscle("");
+        secondaryMuscles: [...formData.secondaryMuscles, newSecondaryMuscle]
+      })
+      setNewSecondaryMuscle('')
     }
-  };
+  }
 
   const removePrimaryMuscle = (muscle: string) => {
     setFormData({
       ...formData,
-      primaryMuscles: formData.primaryMuscles.filter((m) => m !== muscle),
-    });
-  };
+      primaryMuscles: formData.primaryMuscles.filter((m) => m !== muscle)
+    })
+  }
 
   const removeSecondaryMuscle = (muscle: string) => {
     setFormData({
       ...formData,
-      secondaryMuscles: formData.secondaryMuscles.filter((m) => m !== muscle),
-    });
-  };
+      secondaryMuscles: formData.secondaryMuscles.filter((m) => m !== muscle)
+    })
+  }
 
   return (
     <div className="p-4 lg:p-6">
       <PageHeader
-        title={isEdit ? "Edit Exercise" : "Create New Exercise"}
+        title={isEdit ? 'Edit Exercise' : 'Create New Exercise'}
         breadcrumbs={[
-          { label: "Dashboard", path: "/admin/dashboard" },
-          { label: "Exercises", path: "/admin/exercises" },
-          { label: isEdit ? "Edit Exercise" : "Create New Exercise" },
+          { label: 'Dashboard', path: '/admin/dashboard' },
+          { label: 'Exercises', path: '/admin/exercises' },
+          { label: isEdit ? 'Edit Exercise' : 'Create New Exercise' }
         ]}
         action={
           <Button
             variant="outline"
-            onClick={() => router.push("/admin/exercises")}
+            onClick={() => router.push('/admin/exercises')}
             className="text-sm lg:text-base px-3 lg:px-4"
           >
             <span className="hidden sm:inline">Back</span>
@@ -200,7 +335,7 @@ export function ExerciseForm() {
                     <SelectContent>
                       <SelectItem value="beginner">Beginner</SelectItem>
                       <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="advanced">Advanced</SelectItem>
+                      <SelectItem value="advance">Advance</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -209,15 +344,44 @@ export function ExerciseForm() {
                   <Label htmlFor="equipment" className="text-sm lg:text-base">
                     Equipment
                   </Label>
-                  <Input
-                    id="equipment"
+                  <Select
                     value={formData.equipment}
-                    onChange={(e) =>
-                      setFormData({ ...formData, equipment: e.target.value })
+                    onValueChange={(value: string) =>
+                      setFormData({ ...formData, equipment: value })
                     }
-                    placeholder="e.g., Barbell, Dumbbell"
-                    className="text-sm lg:text-base"
-                  />
+                  >
+                    <SelectTrigger
+                      id="equipment"
+                      className="text-sm lg:text-base"
+                    >
+                      <SelectValue placeholder="Select equipment" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="barbell">Barbell</SelectItem>
+                      <SelectItem value="dumbbell">Dumbbell</SelectItem>
+                      <SelectItem value="kettlebell">Kettlebell</SelectItem>
+                      <SelectItem value="cable">Cable Machine</SelectItem>
+                      <SelectItem value="machine">Machine</SelectItem>
+                      <SelectItem value="resistance-band">
+                        Resistance Band
+                      </SelectItem>
+                      <SelectItem value="bodyweight">Bodyweight</SelectItem>
+                      <SelectItem value="plate">Weight Plate</SelectItem>
+                      <SelectItem value="pull-up-bar">Pull-up Bar</SelectItem>
+                      <SelectItem value="bench">Bench</SelectItem>
+                      <SelectItem value="smith-machine">
+                        Smith Machine
+                      </SelectItem>
+                      <SelectItem value="suspension-trainer">
+                        Suspension Trainer
+                      </SelectItem>
+                      <SelectItem value="medicine-ball">
+                        Medicine Ball
+                      </SelectItem>
+                      <SelectItem value="foam-roller">Foam Roller</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -231,35 +395,17 @@ export function ExerciseForm() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               <FileUpload
                 label="Exercise Image"
-                preview={formData.image}
-                onFileSelect={(file) => {
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    setFormData({
-                      ...formData,
-                      image: reader.result as string,
-                    });
-                  };
-                  reader.readAsDataURL(file);
+                preview={
+                  imageFile ? URL.createObjectURL(imageFile) : formData.image
+                }
+                onFileSelect={handleSelectFile}
+                onRemove={() => {
+                  if (isEdit) {
+                    setFormData({ ...formData, image: '' })
+                  } else {
+                    setImageFile(null)
+                  }
                 }}
-                onRemove={() => setFormData({ ...formData, image: "" })}
-              />
-
-              <FileUpload
-                label="Exercise Video (Optional)"
-                accept="video/*"
-                preview={formData.video}
-                onFileSelect={(file) => {
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    setFormData({
-                      ...formData,
-                      video: reader.result as string,
-                    });
-                  };
-                  reader.readAsDataURL(file);
-                }}
-                onRemove={() => setFormData({ ...formData, video: "" })}
               />
             </div>
           </div>
@@ -272,7 +418,7 @@ export function ExerciseForm() {
             <div className="space-y-6">
               <div>
                 <Label className="text-sm lg:text-base">
-                  Primary Muscles{" "}
+                  Primary Muscles{' '}
                   <span className="text-red-500">* (at least 1)</span>
                 </Label>
                 <div className="flex flex-col sm:flex-row gap-2 mb-3">
@@ -285,9 +431,9 @@ export function ExerciseForm() {
                         <SelectValue placeholder="Select muscle" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableMuscles.map((muscle) => (
-                          <SelectItem key={muscle} value={muscle}>
-                            {muscle}
+                        {Object.entries(availableMuscles).map(([id, name]) => (
+                          <SelectItem key={id} value={id}>
+                            {name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -302,15 +448,15 @@ export function ExerciseForm() {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {formData.primaryMuscles.map((muscle) => (
+                  {formData.primaryMuscles.map((muscleId) => (
                     <Badge
-                      key={muscle}
+                      key={muscleId}
                       className="bg-[#2d8cf0] hover:bg-[#2577d4] text-sm lg:text-base px-2 lg:px-3 py-1"
                     >
-                      {muscle}
+                      {availableMuscles[muscleId] || muscleId}
                       <button
                         type="button"
-                        onClick={() => removePrimaryMuscle(muscle)}
+                        onClick={() => removePrimaryMuscle(muscleId)}
                         className="ml-2 hover:bg-[#1e6bb8] rounded-full"
                       >
                         <X className="w-3 h-3" />
@@ -334,9 +480,9 @@ export function ExerciseForm() {
                         <SelectValue placeholder="Select muscle" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableMuscles.map((muscle) => (
-                          <SelectItem key={muscle} value={muscle}>
-                            {muscle}
+                        {Object.entries(availableMuscles).map(([id, name]) => (
+                          <SelectItem key={id} value={id}>
+                            {name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -351,16 +497,16 @@ export function ExerciseForm() {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {formData.secondaryMuscles.map((muscle) => (
+                  {formData.secondaryMuscles.map((muscleId) => (
                     <Badge
-                      key={muscle}
+                      key={muscleId}
                       variant="secondary"
                       className="text-sm lg:text-base px-2 lg:px-3 py-1"
                     >
-                      {muscle}
+                      {availableMuscles[muscleId] || muscleId}
                       <button
                         type="button"
-                        onClick={() => removeSecondaryMuscle(muscle)}
+                        onClick={() => removeSecondaryMuscle(muscleId)}
                         className="ml-2 hover:bg-gray-300 rounded-full"
                       >
                         <X className="w-3 h-3" />
@@ -404,7 +550,7 @@ export function ExerciseForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push("/admin/exercises")}
+              onClick={() => router.push('/admin/exercises')}
               className="text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-3 order-2 sm:order-1"
             >
               Cancel
@@ -412,12 +558,23 @@ export function ExerciseForm() {
             <Button
               type="button"
               className="bg-[#2d8cf0] hover:bg-[#2577d4] text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-3 order-1 sm:order-2"
+              onClick={handleSubmit}
+              disabled={isLoading || !formData.name.trim()}
             >
-              {isEdit ? "Update Exercise" : "Publish Exercise"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {isEdit ? 'Updating...' : 'Creating...'}
+                </>
+              ) : isEdit ? (
+                'Update Exercise'
+              ) : (
+                'Create Exercise'
+              )}
             </Button>
           </div>
         </form>
       </div>
     </div>
-  );
+  )
 }
