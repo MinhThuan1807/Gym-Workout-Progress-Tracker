@@ -89,3 +89,30 @@ export const uploadVideoAPI = async (id: string, data: FormData) => {
   })
   return response.data
 }
+
+/* Blog API */
+
+export const getAllBlogsAPI = async () => {
+  const response = await axios.get('blogs')
+  return response.data
+}
+
+export const getBlogByIdAPI = async (id: string) => {
+  const response = await axios.get(`blogs/${id}`)
+  return response.data
+}
+
+export const createBlogAPI = async (data: CreateBlogRequest) => {
+  const response = await axios.post('blogs', data)
+  return response.data
+}
+
+export const updateBlogAPI = async (id: string, data: UpdateBlogRequest) => {
+  const response = await axios.put(`blogs/${id}`, data)
+  return response.data
+}
+
+export const deleteBlogAPI = async (id: string) => {
+  const response = await axios.delete(`blogs/${id}`)
+  return response.data
+}
