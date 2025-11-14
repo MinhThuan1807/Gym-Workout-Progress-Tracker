@@ -116,3 +116,24 @@ export const deleteBlogAPI = async (id: string) => {
   const response = await axios.delete(`blogs/${id}`)
   return response.data
 }
+
+// ===== Dashboard Stats =====
+export const totalUsersAPI = async () => {
+  const response = await axios.get('dashboard/total-users')
+  return response.data
+}
+
+export const totalExercisesAPI = async () => {
+  const response = await axios.get('dashboard/total-exercises')
+  return response.data
+}
+
+export const totalMuscleGroupsAPI = async () => {
+  const response = await axios.get('dashboard/total-muscle-groups')
+  return response.data
+}
+
+export const totalWorkoutPlansAPI = async () => {
+  const response = await axios.get('dashboard/total-workout-plans')
+  return response.data
+}
