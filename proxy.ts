@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 
 export function proxy(request: NextRequest) {
   // Get the pathname of the request (e.g. /, /dashboard, /workouts)
-  const path = request.nextUrl.pathname;
+  const path = request.nextUrl.pathname
 
   // Auth Routes
   const authRoutes = [
@@ -38,7 +38,7 @@ export function proxy(request: NextRequest) {
   // Check if the current path is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)
-  );
+  )
 
   const isAdminRoute = adminRoutes.some((route) => path.startsWith(route))
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
 import { PageHeader } from '../shared/PageHeader'
 import { Button } from '../ui/button'
@@ -15,60 +15,55 @@ import {
   TableRow
 } from '../ui/table'
 import { DeleteConfirmModal } from '../modals/DeleteConfirmModal'
-
-const blogPosts = [
-  {
-    id: 1,
-    title: '10 Essential Exercises for Building Muscle',
-    description:
-      'Learn the most effective compound movements to maximize your muscle growth and strength gains.',
-    createdDate: '2024-10-15',
-    updatedDate: '2024-10-20'
-  },
-  {
-    id: 2,
-    title: 'The Complete Guide to Nutrition for Athletes',
-    description:
-      'Everything you need to know about fueling your body for optimal performance and recovery.',
-    createdDate: '2024-10-10',
-    updatedDate: '2024-10-18'
-  },
-  {
-    id: 3,
-    title: 'How to Create an Effective Workout Plan',
-    description:
-      'Step-by-step guide to designing a personalized training program that fits your goals.',
-    createdDate: '2024-10-05',
-    updatedDate: '2024-10-05'
-  },
-  {
-    id: 4,
-    title: 'Rest and Recovery: Why They Matter',
-    description:
-      'Understanding the importance of rest days and recovery techniques for long-term progress.',
-    createdDate: '2024-09-28',
-    updatedDate: '2024-10-12'
-  },
-  {
-    id: 5,
-    title: 'Cardio vs Strength Training: Finding Balance',
-    description:
-      'How to combine cardiovascular exercise and resistance training for optimal fitness.',
-    createdDate: '2024-09-20',
-    updatedDate: '2024-09-20'
-  }
-]
+import { getAllBlogsAPI, deleteBlogAPI } from '@/api'
+import { toast } from 'sonner'
 
 export function Blogs() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
+  const [blogPosts, setBlogPosts] = useState<any[]>([])
   const [deleteModal, setDeleteModal] = useState<{
     open: boolean
-    post: (typeof blogPosts)[0] | null
+    post: Blog | null
   }>({
     open: false,
     post: null
   })
+
+  // console.log(blogPosts)
+
+  useEffect(() => {
+    const fetchBlogPosts = async () => {
+      const response = await getAllBlogsAPI()
+
+      const formattedPosts = response.data.map((post: any) => ({
+        id: post._id,
+        name: post.name,
+        description: post.description,
+        createdDate: new Date(post.createdAt).toLocaleDateString(),
+        updatedDate: post.updatedAt
+          ? new Date(post.updatedAt).toLocaleDateString()
+          : null
+      }))
+
+      // console.log(formattedPosts)
+
+      setBlogPosts(formattedPosts || [])
+    }
+
+    fetchBlogPosts()
+  }, [])
+
+  const handleDeleteBlog = async (post: any) => {
+    try {
+      const res = await deleteBlogAPI(post.id)
+      setBlogPosts((prev) => prev.filter((p) => p.id !== post.id))
+      setDeleteModal({ open: false, post: null })
+      toast.success(res.message)
+    } catch (error) {
+      console.error('Error deleting blog post:', error)
+    }
+  }
 
   return (
     <div className="p-4 lg:p-6">
@@ -106,7 +101,7 @@ export function Blogs() {
 
         {/* Mobile Card Layout */}
         <div className="block lg:hidden">
-          {blogPosts.map((post) => (
+          {blogPosts.map((post: any) => (
             <div
               key={post.id}
               className="p-4 border-b border-gray-100 last:border-0"
@@ -114,7 +109,7 @@ export function Blogs() {
               <div className="space-y-3">
                 <div>
                   <h3 className="font-medium text-gray-900 text-sm leading-tight">
-                    {post.title}
+                    {post.name}
                   </h3>
                   <p className="text-gray-600 text-xs mt-1 line-clamp-2">
                     {post.description}
@@ -138,11 +133,7 @@ export function Blogs() {
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"
-                      onClick={() =>
-                        router.push('blogs/edit', {
-                          id: post.id.toString()
-                        })
-                      }
+                      onClick={() => router.push(`blogs/edit/${post.id}`)}
                       title="Edit"
                     >
                       <Edit className="w-3 h-3" />
@@ -179,7 +170,7 @@ export function Blogs() {
               {blogPosts.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell className="max-w-xs">
-                    <div className="truncate font-medium">{post.title}</div>
+                    <div className="truncate font-medium">{post.name}</div>
                   </TableCell>
                   <TableCell className="max-w-md">
                     <div className="text-gray-600 text-sm line-clamp-2">
@@ -194,17 +185,13 @@ export function Blogs() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" title="Preview">
+                      {/* <Button variant="ghost" size="sm" title="Preview">
                         <Eye className="w-4 h-4" />
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          router.push('blogs/edit', {
-                            id: post.id.toString()
-                          })
-                        }
+                        onClick={() => router.push(`blogs/edit/${post.id}`)}
                         title="Edit"
                       >
                         <Edit className="w-4 h-4" />
@@ -230,8 +217,11 @@ export function Blogs() {
         <DeleteConfirmModal
           open={deleteModal.open}
           onOpenChange={(open) => setDeleteModal({ open, post: null })}
-          itemName={deleteModal.post.title}
-          onConfirm={() => console.log('Delete post:', deleteModal.post)}
+          itemName={deleteModal.post.name}
+          onConfirm={() => {
+            handleDeleteBlog(deleteModal.post)
+          }}
+          disLoading={false}
         />
       )}
     </div>

@@ -427,5 +427,28 @@ declare global {
     secondaryMuscles?: string[]
     isPublic?: boolean
   }
+
+  // ===== Blog =====
+
+  interface Blog {
+    _id?: string
+    name: string
+    description?: string
+    content?: string
+    createdAt: Date
+    updatedAt: Date | null
+  }
+
+  interface CreateBlogRequest {
+    name: string
+    description?: string
+    content?: string
+  }
+
+  interface UpdateBlogRequest {
+    name?: string
+    description?: string
+    content?: string
+  }
 }
 export {}

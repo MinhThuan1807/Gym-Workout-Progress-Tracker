@@ -1,4 +1,5 @@
-import { AlertTriangle, Loader2, Upload } from 'lucide-react'
+import { Loader2, Upload } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import {
   Dialog,
   DialogContent,
@@ -27,10 +28,8 @@ export function UploadVideoExerciseModal({
   itemVideoUrl,
   itemId
 }: UploadVideoExerciseModalProps) {
+  const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [formData, setFormData] = useState<{ video: string }>({
-    video: ''
-  })
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -95,6 +94,7 @@ export function UploadVideoExerciseModal({
       // Reset form
       setVideoFile(null)
       onOpenChange(false)
+      router.push('/admin/exercises')
     } catch (error: any) {
       console.error('Error uploading video:', error)
       toast.error(error?.response?.data?.message || 'Failed to upload video')
