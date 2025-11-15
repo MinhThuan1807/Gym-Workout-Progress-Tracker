@@ -102,18 +102,32 @@ export const getBlogByIdAPI = async (id: string) => {
   return response.data
 }
 
-export const createBlogAPI = async (data: CreateBlogRequest) => {
-  const response = await axios.post('blogs', data)
+export const createBlogAPI = async (data: FormData) => {
+  const response = await axios.post('blogs', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
   return response.data
 }
 
-export const updateBlogAPI = async (id: string, data: UpdateBlogRequest) => {
-  const response = await axios.put(`blogs/${id}`, data)
+export const updateBlogAPI = async (id: string, data: FormData) => {
+  const response = await axios.put(`blogs/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
   return response.data
 }
 
 export const deleteBlogAPI = async (id: string) => {
   const response = await axios.delete(`blogs/${id}`)
+  return response.data
+}
+
+export const likeBlogAPI = async (id: string) => {
+  const response = await axios.put(`blogs/${id}/like`)
+  return response.data
+}
+
+export const viewBlogAPI = async (id: string) => {
+  const response = await axios.put(`blogs/${id}/view`)
   return response.data
 }
 

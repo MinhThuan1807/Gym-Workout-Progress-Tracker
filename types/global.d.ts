@@ -124,14 +124,13 @@ declare global {
     endDate?: string
     isActive: boolean
     days: {
-        sunday: U_Exercise[]
-        monday: U_Exercise[]
-        tuesday: U_Exercise[]
-        wednesday: U_Exercise[]
-        thursday: U_Exercise[]
-        friday: U_Exercise[]
-        saturday: U_Exercise[]
-
+      sunday: U_Exercise[]
+      monday: U_Exercise[]
+      tuesday: U_Exercise[]
+      wednesday: U_Exercise[]
+      thursday: U_Exercise[]
+      friday: U_Exercise[]
+      saturday: U_Exercise[]
     }
   }
   type FormInputProps = {
@@ -363,29 +362,29 @@ declare global {
     description?: string
     image?: string
   }
-    interface I_Exercise {
-        _id?: string
-        name: string
-        description?: string
-        type: 'strength' | 'cardio' | 'mobility' | 'flexibility' | 'calisthenics'
-        difficulty: 'beginner' | 'intermediate' | 'advance'
-        equipment?: string
-        mediaVideoUrl?: string
-        mediaImageUrl?: string
-        primaryMuscles: string[]
-        secondaryMuscles: string[]
-        createdAt: Date
-        updatedAt: Date | null
-    }
-    interface MuscleGroup {
-        _id?: string
-        name: string
-        description?: string
-        imageUrl?: string
-        imagePublicId?: string
-        createdAt: Date
-        updatedAt: Date
-    }
+  interface I_Exercise {
+    _id?: string
+    name: string
+    description?: string
+    type: 'strength' | 'cardio' | 'mobility' | 'flexibility' | 'calisthenics'
+    difficulty: 'beginner' | 'intermediate' | 'advance'
+    equipment?: string
+    mediaVideoUrl?: string
+    mediaImageUrl?: string
+    primaryMuscles: string[]
+    secondaryMuscles: string[]
+    createdAt: Date
+    updatedAt: Date | null
+  }
+  interface MuscleGroup {
+    _id?: string
+    name: string
+    description?: string
+    imageUrl?: string
+    imagePublicId?: string
+    createdAt: Date
+    updatedAt: Date
+  }
 
   interface Exercise {
     _id?: string
@@ -432,9 +431,15 @@ declare global {
 
   interface Blog {
     _id?: string
+    adminId: string
     name: string
     description?: string
     content?: string
+    type: 'general' | 'nutrition' | 'workout' | 'lifestyle' | 'other'
+    thumbnailUrl?: string
+    thumbnailPublicId?: string
+    likes: number
+    views: number
     createdAt: Date
     updatedAt: Date | null
   }
@@ -443,12 +448,14 @@ declare global {
     name: string
     description?: string
     content?: string
+    type: 'general' | 'nutrition' | 'workout' | 'lifestyle' | 'other'
   }
 
   interface UpdateBlogRequest {
     name?: string
     description?: string
     content?: string
+    type?: 'general' | 'nutrition' | 'workout' | 'lifestyle' | 'other'
   }
 }
 export {}

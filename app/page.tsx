@@ -1,30 +1,18 @@
-"use client";
+'use client'
 
-import { Dumbbell } from "lucide-react";
-import { Button } from "@/components/admin/ui/button";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Button } from '@/components/admin/ui/button'
+import Image from 'next/image'
+import Link from 'next/link'
+import Header from '@/components/page/layout/Header'
+import Footer from '@/components/page/layout/Footer'
+import { useRouter } from 'next/navigation'
 
 const LandingPage = () => {
-  const router = useRouter();
+  const router = useRouter()
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-emerald-50/30 to-white">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Dumbbell className="w-8 h-8 text-primary" />
-            <span className="text-xl font-semibold">FitTrack</span>
-          </div>
-          <Link
-            href="/user/login"
-            className="p-1 inline-flex items-center justify-center w-16 rounded-2xl border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
-          >
-            Login
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 lg:py-24">
@@ -52,7 +40,7 @@ const LandingPage = () => {
               <Link href="/user/register" className="flex">
                 <Button
                   size="lg"
-                  onClick={() => router.push("/dashboard")}
+                  onClick={() => router.push('/dashboard')}
                   className="text-lg h-14 px-8 rounded-2xl shadow-lg shadow-primary/20 cursor-pointer"
                 >
                   Get Started
@@ -112,23 +100,23 @@ const LandingPage = () => {
         <div className="grid md:grid-cols-3 gap-8">
           {[
             {
-              title: "Track Workouts",
+              title: 'Track Workouts',
               description:
-                "Log exercises, sets, reps, and weights with ease. Never forget a workout again.",
-              icon: "📊",
+                'Log exercises, sets, reps, and weights with ease. Never forget a workout again.',
+              icon: '📊'
             },
             {
-              title: "Monitor Progress",
+              title: 'Monitor Progress',
               description:
-                "Visualize your strength gains and body composition changes over time.",
-              icon: "📈",
+                'Visualize your strength gains and body composition changes over time.',
+              icon: '📈'
             },
             {
-              title: "Exercise Library",
+              title: 'Exercise Library',
               description:
-                "Access hundreds of exercises with detailed instructions and muscle groups.",
-              icon: "💪",
-            },
+                'Access hundreds of exercises with detailed instructions and muscle groups.',
+              icon: '💪'
+            }
           ].map((feature, i) => (
             <div
               key={i}
@@ -141,7 +129,9 @@ const LandingPage = () => {
           ))}
         </div>
       </section>
+      {/* Footer */}
+      <Footer />
     </div>
-  );
-};
-export default LandingPage;
+  )
+}
+export default LandingPage
