@@ -1,211 +1,248 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { Search, Download, Edit, Trash2 } from "lucide-react";
-import { PageHeader } from "../shared/PageHeader";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { useEffect, useState } from 'react'
+import { Search, Download, Edit, Trash2 } from 'lucide-react'
+import { PageHeader } from '../shared/PageHeader'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+  SelectValue
+} from '../ui/select'
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "../ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Badge } from "../ui/badge";
-import { Switch } from "../ui/switch";
+  TableRow
+} from '../ui/table'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { Badge } from '../ui/badge'
+import { Switch } from '../ui/switch'
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
-} from "../ui/pagination";
-import { DeleteConfirmModal } from "../modals/DeleteConfirmModal";
-import { UserEditModal } from "../modals/UserEditModal";
+  PaginationPrevious
+} from '../ui/pagination'
+import { DeleteConfirmModal } from '../modals/DeleteConfirmModal'
+import { UserEditModal } from '../modals/UserEditModal'
 import {
   getAllUsersAPI,
   updateUserAPI,
   deleteUserAPI,
-  toggleUserStatusAPI,
-} from "@/api";
-import { toast } from "sonner";
+  toggleUserStatusAPI
+} from '@/api'
+import { toast } from 'sonner'
 
 export function UserManagement() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [isLoading, setIsLoading] = useState(false);
+  const [users, setUsers] = useState<any[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filter, setFilter] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const [isLoading, setIsLoading] = useState(false)
   const [deleteModal, setDeleteModal] = useState({
     open: false,
-    user: null as any | null,
-  });
+    user: null as any | null
+  })
   const [editModal, setEditModal] = useState({
     open: false,
-    user: null as any | null,
-  });
+    user: null as any | null
+  })
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers()
+  }, [])
 
   const fetchUsers = async () => {
     try {
-      const result = await getAllUsersAPI();
-      setUsers(result.data || []);
+      const result = await getAllUsersAPI()
+      setUsers(result.data || [])
     } catch (error) {
-      console.error("Failed to fetch users:", error);
-      toast.error("Failed to load users");
+      console.error('Failed to fetch users:', error)
+      toast.error('Failed to load users')
     }
-  };
+  }
 
   const handleToggleStatus = async (user: any) => {
     try {
-      const result = await toggleUserStatusAPI(user._id);
-      toast.success(result.message || "User status updated");
+      const result = await toggleUserStatusAPI(user._id)
+      toast.success(result.message || 'User status updated')
       setUsers((prev) =>
         prev.map((u) =>
           u._id === user._id ? { ...u, isActive: !u.isActive } : u
         )
-      );
+      )
     } catch (error) {
-      console.error("Failed to toggle user status:", error);
-      toast.error("Failed to update user status");
+      console.error('Failed to toggle user status:', error)
+      toast.error('Failed to update user status')
     }
-  };
+  }
 
   const handleUpdateUser = async (updatedUser: any) => {
     try {
-      const updateData = {
-        displayName: updatedUser.displayName,
-        isActive: updatedUser.isActive,
-        gender: updatedUser.gender || undefined,
-        dateOfBirth: updatedUser.dateOfBirth || undefined,
-        height: updatedUser.height ? Number(updatedUser.height) : undefined,
-        weight: updatedUser.weight ? Number(updatedUser.weight) : undefined,
-      };
-      
-      const result = await updateUserAPI(updatedUser._id, updateData);
-      toast.success(result.message || "User updated successfully");
-      
+      let result
+
+      // Check if we have FormData (with file upload)
+      if (updatedUser.formData) {
+        result = await updateUserAPI(updatedUser._id, updatedUser.formData)
+      } else {
+        // For backward compatibility, create FormData from object
+        const formData = new FormData()
+        formData.append('displayName', updatedUser.displayName)
+        formData.append('isActive', updatedUser.isActive.toString())
+
+        if (updatedUser.gender) {
+          formData.append('gender', updatedUser.gender)
+        }
+
+        if (updatedUser.dateOfBirth) {
+          formData.append('dateOfBirth', updatedUser.dateOfBirth)
+        }
+
+        if (updatedUser.height) {
+          formData.append('height', updatedUser.height)
+        }
+
+        if (updatedUser.weight) {
+          formData.append('weight', updatedUser.weight)
+        }
+
+        result = await updateUserAPI(updatedUser._id, formData)
+      }
+
+      toast.success(result.message || 'User updated successfully')
+
+      // Update the user in the list with the returned data
       setUsers((prev) =>
-        prev.map((u) => (u._id === updatedUser._id ? { ...u, ...result.data } : u))
-      );
-      setEditModal({ open: false, user: null });
+        prev.map((u) =>
+          u._id === updatedUser._id ? { ...u, ...result.data } : u
+        )
+      )
     } catch (error: any) {
-      console.error("Failed to update user:", error);
-      throw error;
+      console.error('Failed to update user:', error)
+      throw error
     }
-  };
+  }
 
   const handleDeleteUser = async () => {
-    if (!deleteModal.user) return;
-    setIsLoading(true);
+    if (!deleteModal.user) return
+    setIsLoading(true)
     try {
-      const result = await deleteUserAPI(deleteModal.user._id);
-      toast.success(result.message || "User deleted successfully");
-      setUsers((prev) => prev.filter((u) => u._id !== deleteModal.user._id));
-      setDeleteModal({ open: false, user: null });
+      const result = await deleteUserAPI(deleteModal.user._id)
+      toast.success(result.message || 'User deleted successfully')
+      setUsers((prev) => prev.filter((u) => u._id !== deleteModal.user._id))
+      setDeleteModal({ open: false, user: null })
     } catch (error) {
-      console.error("Failed to delete user:", error);
-      toast.error("Failed to delete user");
+      console.error('Failed to delete user:', error)
+      toast.error('Failed to delete user')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter =
-      filter === "all" ||
-      (filter === "active" && user.isActive) ||
-      (filter === "inactive" && !user.isActive);
-    
-    return matchesSearch && matchesFilter;
-  });
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+    const matchesFilter =
+      filter === 'all' ||
+      (filter === 'active' && user.isActive) ||
+      (filter === 'inactive' && !user.isActive)
+
+    return matchesSearch && matchesFilter
+  })
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filter]);
+    setCurrentPage(1)
+  }, [searchTerm, filter])
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      setCurrentPage(page)
     }
-  };
+  }
 
   const handleExportUsers = () => {
     try {
       // Prepare CSV data
-      const csvHeaders = ["Display Name", "Email", "Role", "Status", "Gender", "Date of Birth", "Height (cm)", "Weight (kg)", "Registration Date"];
+      const csvHeaders = [
+        'Display Name',
+        'Email',
+        'Role',
+        'Status',
+        'Gender',
+        'Date of Birth',
+        'Height (cm)',
+        'Weight (kg)',
+        'Registration Date'
+      ]
       const csvRows = filteredUsers.map((user: any) => [
-        user.displayName || "N/A",
+        user.displayName || 'N/A',
         user.email,
         user.role,
-        user.isActive ? "Active" : "Inactive",
-        user.gender || "N/A",
-        user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : "N/A",
-        user.height || "N/A",
-        user.weight || "N/A",
-        new Date(user.createdAt).toLocaleDateString(),
-      ]);
+        user.isActive ? 'Active' : 'Inactive',
+        user.gender || 'N/A',
+        user.dateOfBirth
+          ? new Date(user.dateOfBirth).toLocaleDateString()
+          : 'N/A',
+        user.height || 'N/A',
+        user.weight || 'N/A',
+        new Date(user.createdAt).toLocaleDateString()
+      ])
 
       // Create CSV content
       const csvContent = [
-        csvHeaders.join(","),
-        ...csvRows.map(row => row.map(cell => `"${cell}"`).join(","))
-      ].join("\n");
+        csvHeaders.join(','),
+        ...csvRows.map((row) => row.map((cell) => `"${cell}"`).join(','))
+      ].join('\n')
 
       // Create blob and download
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      
-      link.setAttribute("href", url);
-      link.setAttribute("download", `users_export_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = "hidden";
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast.success(`Exported ${filteredUsers.length} users successfully`);
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+
+      link.setAttribute('href', url)
+      link.setAttribute(
+        'download',
+        `users_export_${new Date().toISOString().split('T')[0]}.csv`
+      )
+      link.style.visibility = 'hidden'
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      toast.success(`Exported ${filteredUsers.length} users successfully`)
     } catch (error) {
-      console.error("Failed to export users:", error);
-      toast.error("Failed to export users");
+      console.error('Failed to export users:', error)
+      toast.error('Failed to export users')
     }
-  };
+  }
 
   return (
     <div className="p-4 lg:p-6">
       <PageHeader
         title="User Management"
         breadcrumbs={[
-          { label: "Dashboard", path: "/admin/dashboard" },
-          { label: "User Management" },
+          { label: 'Dashboard', path: '/admin/dashboard' },
+          { label: 'User Management' }
         ]}
         action={
-          <Button 
+          <Button
             className="bg-[#2d8cf0] hover:bg-[#2577d4] text-sm lg:text-base px-3 lg:px-4"
             onClick={handleExportUsers}
           >
@@ -244,9 +281,7 @@ export function UserManagement() {
         {/* Mobile Card Layout */}
         <div className="block lg:hidden">
           {paginatedUsers.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No users found
-            </div>
+            <div className="p-8 text-center text-gray-500">No users found</div>
           ) : (
             paginatedUsers.map((user: any) => (
               <div
@@ -255,14 +290,21 @@ export function UserManagement() {
               >
                 <div className="flex items-start space-x-3">
                   <Avatar className="w-12 h-12 shrink-0">
-                    <AvatarImage src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} />
-                    <AvatarFallback>{user.displayName?.[0] || user.email?.[0]}</AvatarFallback>
+                    <AvatarImage
+                      src={
+                        user.avatar ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`
+                      }
+                    />
+                    <AvatarFallback>
+                      {user.displayName?.[0] || user.email?.[0]}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
                       <div className="min-w-0">
                         <h3 className="font-medium text-gray-900 truncate text-sm">
-                          {user.displayName || "N/A"}
+                          {user.displayName || 'N/A'}
                         </h3>
                         <p className="text-xs text-gray-600 truncate">
                           {user.email}
@@ -291,15 +333,15 @@ export function UserManagement() {
                       <div className="flex items-center gap-2">
                         <Badge
                           className={`text-xs ${
-                            user.role === "admin"
-                              ? "bg-[#2d8cf0] hover:bg-[#2577d4]"
-                              : "bg-green-100 text-green-700 hover:bg-green-200"
+                            user.role === 'admin'
+                              ? 'bg-[#2d8cf0] hover:bg-[#2577d4]'
+                              : 'bg-green-100 text-green-700 hover:bg-green-200'
                           }`}
                         >
                           {user.role}
                         </Badge>
-                        <Switch 
-                          checked={user.isActive} 
+                        <Switch
+                          checked={user.isActive}
                           className="scale-90"
                           onCheckedChange={() => handleToggleStatus(user)}
                         />
@@ -332,7 +374,10 @@ export function UserManagement() {
             <TableBody>
               {paginatedUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                  <TableCell
+                    colSpan={7}
+                    className="text-center py-8 text-gray-500"
+                  >
                     No users found
                   </TableCell>
                 </TableRow>
@@ -341,27 +386,36 @@ export function UserManagement() {
                   <TableRow key={user._id}>
                     <TableCell>
                       <Avatar className="w-10 h-10">
-                        <AvatarImage src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} />
-                        <AvatarFallback>{user.displayName?.[0] || user.email?.[0]}</AvatarFallback>
+                        <AvatarImage
+                          src={
+                            user.avatar ||
+                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`
+                          }
+                        />
+                        <AvatarFallback>
+                          {user.displayName?.[0] || user.email?.[0]}
+                        </AvatarFallback>
                       </Avatar>
                     </TableCell>
                     <TableCell className="font-medium">
-                      {user.displayName || "N/A"}
+                      {user.displayName || 'N/A'}
                     </TableCell>
-                    <TableCell className="text-gray-600">{user.email}</TableCell>
+                    <TableCell className="text-gray-600">
+                      {user.email}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         className={
-                          user.role === "admin"
-                            ? "bg-[#2d8cf0] hover:bg-[#2577d4]"
-                            : "bg-green-100 text-green-700 hover:bg-green-200"
+                          user.role === 'admin'
+                            ? 'bg-[#2d8cf0] hover:bg-[#2577d4]'
+                            : 'bg-green-100 text-green-700 hover:bg-green-200'
                         }
                       >
                         {user.role}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Switch 
+                      <Switch
                         checked={user.isActive}
                         onCheckedChange={() => handleToggleStatus(user)}
                       />
@@ -398,33 +452,45 @@ export function UserManagement() {
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                Showing {startIndex + 1} to {Math.min(endIndex, filteredUsers.length)} of {filteredUsers.length} users
+                Showing {startIndex + 1} to{' '}
+                {Math.min(endIndex, filteredUsers.length)} of{' '}
+                {filteredUsers.length} users
               </p>
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious 
+                    <PaginationPrevious
                       onClick={() => handlePageChange(currentPage - 1)}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      className={
+                        currentPage === 1
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
                       size="default"
                     />
                   </PaginationItem>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        onClick={() => handlePageChange(page)}
-                        isActive={currentPage === page}
-                        className="cursor-pointer"
-                        size="default"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                          size="default"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
                   <PaginationItem>
                     <PaginationNext
                       onClick={() => handlePageChange(currentPage + 1)}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      className={
+                        currentPage === totalPages
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
                       size="default"
                     />
                   </PaginationItem>
@@ -454,5 +520,5 @@ export function UserManagement() {
         />
       )}
     </div>
-  );
+  )
 }
