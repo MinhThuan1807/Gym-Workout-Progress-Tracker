@@ -45,9 +45,18 @@ declare global {
     linkedExerciseId?: number
     linkedExerciseName?: string
     notes?: string
+    metricCode?: MetricType
   }
-  type GoalType = 'weight' | 'bodyFat' | 'sessionsWeek' | 'oneRepMax' | 'strength' | 'endurance' | 'flexibility';
-  type GoalStatus = 'active' | 'achieved' | 'abandoned';
+  type GoalType =
+    | 'weight'
+    | 'body_fat_pct' // ✅ Thay vì 'bodyFat'
+    | 'sessions_per_week' // ✅ Thay vì 'sessionsWeek'
+    | 'one_rm' // ✅ Thay vì 'oneRepMax'
+    | 'strength'
+    | 'endurance'
+    | 'flexibility'
+
+  type GoalStatus = 'active' | 'achieved' | 'abandoned'
 
   interface Achievement {
     _id: string
@@ -60,11 +69,11 @@ declare global {
     color?: string
   }
   interface QuickStats {
-    totalWorkouts: number;
-    currentStreak: number;
-    goalsAchieved: number;
-    totalGoals: number;
-    totalVolume: number;
+    totalWorkouts: number
+    currentStreak: number
+    goalsAchieved: number
+    totalGoals: number
+    totalVolume: number
   }
 
   interface UserProfile {
@@ -133,14 +142,13 @@ declare global {
     endDate?: string
     isActive: boolean
     days: {
-        sunday: U_Exercise[]
-        monday: U_Exercise[]
-        tuesday: U_Exercise[]
-        wednesday: U_Exercise[]
-        thursday: U_Exercise[]
-        friday: U_Exercise[]
-        saturday: U_Exercise[]
-
+      sunday: U_Exercise[]
+      monday: U_Exercise[]
+      tuesday: U_Exercise[]
+      wednesday: U_Exercise[]
+      thursday: U_Exercise[]
+      friday: U_Exercise[]
+      saturday: U_Exercise[]
     }
   }
   type FormInputProps = {
@@ -344,29 +352,29 @@ declare global {
     description?: string
     image?: string
   }
-    interface I_Exercise {
-        _id?: string
-        name: string
-        description?: string
-        type: 'strength' | 'cardio' | 'mobility' | 'flexibility' | 'calisthenics'
-        difficulty: 'beginner' | 'intermediate' | 'advance'
-        equipment?: string
-        mediaVideoUrl?: string
-        mediaImageUrl?: string
-        primaryMuscles: string[]
-        secondaryMuscles: string[]
-        createdAt: Date
-        updatedAt: Date | null
-    }
-    interface MuscleGroup {
-        _id?: string
-        name: string
-        description?: string
-        imageUrl?: string
-        imagePublicId?: string
-        createdAt: Date
-        updatedAt: Date
-    }
+  interface I_Exercise {
+    _id?: string
+    name: string
+    description?: string
+    type: 'strength' | 'cardio' | 'mobility' | 'flexibility' | 'calisthenics'
+    difficulty: 'beginner' | 'intermediate' | 'advance'
+    equipment?: string
+    mediaVideoUrl?: string
+    mediaImageUrl?: string
+    primaryMuscles: string[]
+    secondaryMuscles: string[]
+    createdAt: Date
+    updatedAt: Date | null
+  }
+  interface MuscleGroup {
+    _id?: string
+    name: string
+    description?: string
+    imageUrl?: string
+    imagePublicId?: string
+    createdAt: Date
+    updatedAt: Date
+  }
 
   interface Exercise {
     _id?: string

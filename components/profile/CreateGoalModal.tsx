@@ -1,163 +1,378 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Target } from "lucide-react";
-import { useState } from "react";
-import { goalTypeConfigs } from "./GoalCard";
+'use client'
 
+import { useState, useEffect } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
+import { CalendarIcon } from 'lucide-react'
+import { format } from 'date-fns'
+import { cn } from '@/lib/utils'
 
 interface CreateGoalModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: CreateGoalData) => Promise<void>
+  initialData?: Goal
+  isEditing?: boolean
 }
 
-export function CreateGoalModal({ open, onOpenChange }: CreateGoalModalProps) {
-  const [selectedGoalType, setSelectedGoalType] = useState<GoalType>('weight');
+interface CreateGoalData {
+  goalType: GoalType
+  targetValue: number
+  unit?: string
+  startValue?: number
+  startDate?: string
+  targetDate?: string
+  note?: string
+  metricCode?: MetricType
+  exerciseId?: string
+}
+
+const GOAL_TYPES: { value: GoalType; label: string; defaultUnit: string }[] = [
+  { value: 'weight', label: 'Weight Goal', defaultUnit: 'kg' },
+  { value: 'body_fat_pct', label: 'Body Fat Goal', defaultUnit: '%' },
+  {
+    value: 'sessions_per_week',
+    label: 'Weekly Sessions',
+    defaultUnit: 'sessions'
+  },
+  { value: 'one_rm', label: 'One Rep Max', defaultUnit: 'kg' },
+  { value: 'strength', label: 'Strength Goal', defaultUnit: 'kg' },
+  { value: 'endurance', label: 'Endurance Goal', defaultUnit: 'minutes' },
+  { value: 'flexibility', label: 'Flexibility Goal', defaultUnit: 'cm' }
+]
+
+const METRIC_TYPES: { value: MetricType; label: string }[] = [
+  { value: 'weight', label: 'Weight' },
+  { value: 'height', label: 'Height' },
+  { value: 'body_fat', label: 'Body Fat' },
+  { value: 'muscle_mass', label: 'Muscle Mass' },
+  { value: 'BMI', label: 'BMI' },
+  { value: 'waist_circumference', label: 'Waist' },
+  { value: 'hip_circumference', label: 'Hip' },
+  { value: 'blood_pressure', label: 'Blood Pressure' },
+  { value: 'heart_rate', label: 'Heart Rate' }
+]
+
+export function CreateGoalModal({
+  open,
+  onOpenChange,
+  onSubmit,
+  initialData,
+  isEditing = false
+}: CreateGoalModalProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [goalType, setGoalType] = useState<GoalType>('weight')
+  const [targetValue, setTargetValue] = useState<number>(0)
+  const [unit, setUnit] = useState<string>('kg')
+  const [startValue, setStartValue] = useState<number | undefined>()
+  const [startDate, setStartDate] = useState<Date | undefined>()
+  const [targetDate, setTargetDate] = useState<Date | undefined>()
+  const [note, setNote] = useState<string>('')
+  const [metricCode, setMetricCode] = useState<MetricType | undefined>()
+  const [exerciseId, setExerciseId] = useState<string>('')
+
+  // ✅ Load initial data when editing
+  useEffect(() => {
+    if (initialData && isEditing) {
+      setGoalType(initialData.type)
+      setTargetValue(initialData.targetValue)
+      setUnit(initialData.unit)
+      setStartValue(initialData.startValue)
+      setStartDate(
+        initialData.startDate ? new Date(initialData.startDate) : undefined
+      )
+      setTargetDate(
+        initialData.targetDate ? new Date(initialData.targetDate) : undefined
+      )
+      setNote(initialData.notes || '')
+      // Set metricCode and exerciseId if available in initialData
+    }
+  }, [initialData, isEditing])
+
+  // ✅ Reset form when modal closes
+  useEffect(() => {
+    if (!open) {
+      resetForm()
+    }
+  }, [open])
+
+  const resetForm = () => {
+    if (!isEditing) {
+      setGoalType('weight')
+      setTargetValue(0)
+      setUnit('kg')
+      setStartValue(undefined)
+      setStartDate(undefined)
+      setTargetDate(undefined)
+      setNote('')
+      setMetricCode(undefined)
+      setExerciseId('')
+    }
+  }
+
+  const handleGoalTypeChange = (value: GoalType) => {
+    setGoalType(value)
+    const selected = GOAL_TYPES.find((gt) => gt.value === value)
+    if (selected) {
+      setUnit(selected.defaultUnit)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!targetValue || targetValue <= 0) {
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const data: CreateGoalData = {
+        goalType,
+        targetValue,
+        unit,
+        startValue: startValue && startValue > 0 ? startValue : undefined,
+        startDate: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
+        targetDate: targetDate ? format(targetDate, 'yyyy-MM-dd') : undefined,
+        note: note.trim() || undefined,
+        metricCode: metricCode || undefined,
+        exerciseId: exerciseId.trim() || undefined
+      }
+
+      await onSubmit(data)
+      onOpenChange(false)
+      resetForm()
+    } catch (error) {
+      console.error('Failed to submit goal:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-[#111827]">Create New Goal</DialogTitle>
-          <DialogDescription className="text-[#6b7280]">
-            Set a new fitness objective to track your progress
+          <DialogTitle>
+            {isEditing ? 'Edit Goal' : 'Create New Goal'}
+          </DialogTitle>
+          <DialogDescription>
+            {isEditing
+              ? 'Update your fitness goal details'
+              : 'Set a new fitness goal to track your progress'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Goal Type Selector */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Goal Type */}
           <div className="space-y-2">
-            <Label className="text-[#111827]">Goal Type</Label>
-            <Select value={selectedGoalType} onValueChange={(value) => setSelectedGoalType(value as GoalType)}>
-              <SelectTrigger className="rounded-xl border-[#e5e7eb]">
+            <Label htmlFor="goalType">Goal Type *</Label>
+            <Select value={goalType} onValueChange={handleGoalTypeChange}>
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(goalTypeConfigs).map(([key, config]) => {
-                  const Icon = config.icon;
-                  return (
-                    <SelectItem key={key} value={key}>
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4" style={{ color: config.color }} />
-                        <span>{config.label}</span>
-                      </div>
-                    </SelectItem>
-                  );
-                })}
+                {GOAL_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Goal Name */}
+          {/* Target Value & Unit */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="targetValue">Target Value *</Label>
+              <Input
+                id="targetValue"
+                type="number"
+                step="0.1"
+                value={targetValue || ''}
+                onChange={(e) => setTargetValue(parseFloat(e.target.value))}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="unit">Unit</Label>
+              <Input
+                id="unit"
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                placeholder="kg, %, reps..."
+              />
+            </div>
+          </div>
+
+          {/* Start Value */}
           <div className="space-y-2">
-            <Label className="text-[#111827]">Goal Name</Label>
-            <Input 
-              placeholder="e.g., Reach 75kg"
-              className="rounded-xl border-[#e5e7eb]"
+            <Label htmlFor="startValue">Start Value (Optional)</Label>
+            <Input
+              id="startValue"
+              type="number"
+              step="0.1"
+              value={startValue || ''}
+              onChange={(e) =>
+                setStartValue(parseFloat(e.target.value) || undefined)
+              }
+              placeholder="Your starting point"
             />
           </div>
 
+          {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
-            {/* Start Value */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">
-                Start Value (Optional)
-                <span className="text-[#6b7280] ml-2">({goalTypeConfigs[selectedGoalType].unit})</span>
-              </Label>
-              <Input 
-                type="number"
-                step="0.1"
-                placeholder="Auto-filled"
-                className="rounded-xl border-[#e5e7eb]"
-              />
+              <Label>Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !startDate && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, 'PPP') : 'Pick a date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
-            {/* Target Value */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">
-                Target Value
-                <span className="text-[#6b7280] ml-2">({goalTypeConfigs[selectedGoalType].unit})</span>
-              </Label>
-              <Input 
-                type="number"
-                step="0.1"
-                placeholder="Enter target"
-                className="rounded-xl border-[#e5e7eb]"
-              />
+              <Label>Target Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !targetDate && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {targetDate ? format(targetDate, 'PPP') : 'Pick a date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={targetDate}
+                    onSelect={setTargetDate}
+                    initialFocus
+                    disabled={(date) => (startDate ? date < startDate : false)}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Start Date */}
-            <div className="space-y-2">
-              <Label className="text-[#111827]">Start Date</Label>
-              <Input 
-                type="date"
-                defaultValue={new Date().toISOString().split('T')[0]}
-                className="rounded-xl border-[#e5e7eb]"
-              />
-            </div>
-
-            {/* Target Date */}
-            <div className="space-y-2">
-              <Label className="text-[#111827]">Target Date (Optional)</Label>
-              <Input 
-                type="date"
-                className="rounded-xl border-[#e5e7eb]"
-              />
-            </div>
+          {/* Metric Code (Optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="metricCode">Link to Metric (Optional)</Label>
+            <Select
+              value={metricCode || 'none'}
+              onValueChange={(value) =>
+                setMetricCode(
+                  value === 'none' ? undefined : (value as MetricType)
+                )
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a metric" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {METRIC_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Link to Exercise */}
-          {(selectedGoalType === 'oneRepMax' || selectedGoalType === 'strength') && (
-            <div className="space-y-2">
-              <Label className="text-[#111827]">Link to Exercise</Label>
-              <Select>
-                <SelectTrigger className="rounded-xl border-[#e5e7eb]">
-                  <SelectValue placeholder="Select exercise" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Barbell Squat</SelectItem>
-                  <SelectItem value="2">Bench Press</SelectItem>
-                  <SelectItem value="3">Deadlift</SelectItem>
-                  <SelectItem value="4">Pull-Up</SelectItem>
-                  <SelectItem value="8">Dumbbell Shoulder Press</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          {/* Exercise ID (Optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="exerciseId">Exercise ID (Optional)</Label>
+            <Input
+              id="exerciseId"
+              value={exerciseId}
+              onChange={(e) => setExerciseId(e.target.value)}
+              placeholder="Link to specific exercise"
+            />
+          </div>
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label className="text-[#111827]">Notes (Optional)</Label>
-            <Textarea 
-              placeholder="Add any additional details about this goal..."
-              className="rounded-xl border-[#e5e7eb] min-h-[100px]"
+            <Label htmlFor="note">Notes (Optional)</Label>
+            <Textarea
+              id="note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add any additional notes about this goal..."
+              rows={3}
             />
           </div>
 
-          {/* Save Button */}
-          <div className="flex gap-3 pt-4 border-t border-[#e5e7eb]">
-            <Button 
-              className="flex-1 bg-[#10b981] hover:bg-[#059669] rounded-xl"
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
-            >
-              <Target className="w-4 h-4 mr-2" />
-              Create Goal
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="rounded-xl"
-              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !targetValue}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              {isSubmitting
+                ? isEditing
+                  ? 'Updating...'
+                  : 'Creating...'
+                : isEditing
+                ? 'Update Goal'
+                : 'Create Goal'}
+            </Button>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

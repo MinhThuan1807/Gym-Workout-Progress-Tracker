@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { PersonalInfoForm } from '@/components/profile/PersonalInfoForm'
 import { GoalsSection } from '@/components/profile/GoalsSection'
@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
 import { AlertCircle } from 'lucide-react'
 import { profileAPI } from '@/api/profile'
+import { metricAPI } from '@/api/metric'
 import { toast } from 'sonner'
 import { useAppSelector, useAppDispatch } from '@/store/hook'
 import {
@@ -28,7 +29,7 @@ interface UserProfile {
   dob: Date
   heightCm: number
   weightKg: number
-  avatarUrl?: string
+  avatarUrl: string
   role: string
 }
 
@@ -40,73 +41,6 @@ interface UpdateProfileData {
   weightKg?: number
   avatar?: File
 }
-
-//========= Mock Data (temporarily keep for goals and achievements) =========
-const mockGoals: Goal[] = [
-  {
-    _id: 'goal-1',
-    type: 'weight',
-    name: 'Reach Target Weight',
-    startValue: 84,
-    currentValue: 79.8,
-    targetValue: 75,
-    unit: 'kg',
-    status: 'active',
-    startDate: '2025-09-01',
-    targetDate: '2025-12-31',
-    notes: 'Aiming for slow, sustainable weight loss'
-  },
-  {
-    _id: 'goal-2',
-    type: 'bodyFat',
-    name: 'Body Fat Reduction',
-    startValue: 18,
-    currentValue: 15.8,
-    targetValue: 12,
-    unit: '%',
-    status: 'active',
-    startDate: '2025-09-01',
-    targetDate: '2025-12-31'
-  },
-  {
-    _id: 'goal-3',
-    type: 'oneRepMax',
-    name: 'Bench Press 100kg',
-    startValue: 80,
-    currentValue: 92,
-    targetValue: 100,
-    unit: 'kg',
-    status: 'active',
-    startDate: '2025-10-01',
-    targetDate: '2025-12-01',
-    linkedExerciseId: 2,
-    linkedExerciseName: 'Bench Press'
-  },
-  {
-    _id: 'goal-4',
-    type: 'sessionsWeek',
-    name: 'Train 5x Per Week',
-    currentValue: 4.2,
-    targetValue: 5,
-    unit: 'sessions',
-    status: 'active',
-    startDate: '2025-11-01'
-  },
-  {
-    _id: 'goal-5',
-    type: 'strength',
-    name: 'Deadlift 150kg',
-    startValue: 120,
-    currentValue: 150,
-    targetValue: 150,
-    unit: 'kg',
-    status: 'achieved',
-    startDate: '2025-08-01',
-    targetDate: '2025-10-31',
-    linkedExerciseId: 3,
-    linkedExerciseName: 'Deadlift'
-  }
-]
 
 const mockAchievements: Achievement[] = [
   {
@@ -259,38 +193,88 @@ export default function ProfilePage() {
   const dispatch = useAppDispatch()
 
   const [isUpdating, setIsUpdating] = useState(false)
-  const [goals] = useState<Goal[]>(mockGoals)
+  const [isLoadingGoals, setIsLoadingGoals] = useState(true)
+  const [goals, setGoals] = useState<Goal[]>([])
   const [achievements] = useState<Achievement[]>(mockAchievements)
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
 
-  // ✅ Convert user to UserProfile format
-  const profile: UserProfile | null = user
-    ? {
-        _id: user._id,
-        displayName: user.displayName,
-        email: user.email,
-        gender: user.gender || 'other',
-        dob: user.dob || '',
-        heightCm: user.heightCm || 0,
-        weightKg: user.weightKg || 0,
-        avatarUrl: user.avatarUrl,
-        role: user.role
+  // ✅ Fetch goals from API
+  useEffect(() => {
+    const fetchGoals = async () => {
+      if (!user) return
+
+      try {
+        setIsLoadingGoals(true)
+        const response = await profileAPI.getAllGoal()
+        setGoals(response.data || response)
+      } catch (error: any) {
+        console.error('Failed to fetch goals:', error)
+        toast.error('Failed to load goals')
+      } finally {
+        setIsLoadingGoals(false)
       }
-    : null
+    }
 
-  const activeGoals = useMemo(
-    () => goals.filter((g) => g.status === 'active'),
-    [goals]
-  )
-  const achievedGoals = useMemo(
-    () => goals.filter((g) => g.status === 'achieved'),
-    [goals]
-  )
-  const unlockedAchievements = useMemo(
-    () => achievements.filter((a) => a.unlocked),
-    [achievements]
-  )
+    fetchGoals()
+  }, [user])
+
+  // ✅ Fetch goals with current values from metrics
+  useEffect(() => {
+    const fetchGoalsWithProgress = async () => {
+      if (!user) return
+
+      try {
+        setIsLoadingGoals(true)
+        const goalsResponse = await profileAPI.getAllGoal()
+        const goalsData = goalsResponse.data || goalsResponse
+
+        // ✅ Fetch current values from metrics for each goal
+        const goalsWithProgress = await Promise.all(
+          goalsData.map(async (goal: Goal) => {
+            let currentValue = goal.startValue || 0
+
+            // Nếu goal có link với metric, lấy giá trị mới nhất
+            if (goal.metricCode) {
+              try {
+                // ✅ Sử dụng API mới
+                const metricResponse = await metricAPI.getLatestByCode(
+                  goal.metricCode
+                )
+
+                // ✅ Check if data exists
+                if (metricResponse.data) {
+                  currentValue = metricResponse.data.value
+                }
+              } catch (error) {
+                console.error(
+                  `Failed to fetch metric for goal ${goal._id}:`,
+                  error
+                )
+                // Keep using startValue as fallback
+              }
+            }
+
+            return {
+              ...goal,
+              currentValue
+            }
+          })
+        )
+
+        setGoals(goalsWithProgress)
+      } catch (error: any) {
+        console.error('Failed to fetch goals:', error)
+        toast.error('Failed to load goals')
+        setGoals([])
+      } finally {
+        setIsLoadingGoals(false)
+      }
+    }
+
+    fetchGoalsWithProgress()
+  }, [user])
 
   // ✅ Handle avatar change với Redux update
   const handleAvatarChange = async (file: File) => {
@@ -364,6 +348,108 @@ export default function ProfilePage() {
     }
   }
 
+  // ✅ Handle create goal
+  const handleCreateGoal = async (goalData: {
+    goalType: GoalType
+    targetValue: number
+    unit?: string
+    startValue?: number
+    startDate?: string
+    targetDate?: string
+    note?: string
+    metricCode?: MetricType
+    exerciseId?: string
+  }) => {
+    try {
+      const response = await profileAPI.createGoal(goalData)
+      const newGoal = response.data || response
+
+      setGoals((prev) => [...prev, newGoal])
+      toast.success('Goal created successfully')
+      setIsGoalModalOpen(false)
+    } catch (error: any) {
+      console.error('Failed to create goal:', error)
+      const errorMessage =
+        error.response?.data?.message || 'Failed to create goal'
+      toast.error(errorMessage)
+    }
+  }
+
+  // ✅ Handle update goal
+  const handleUpdateGoal = async (
+    goalId: string,
+    updates: {
+      goalType?: GoalType
+      targetValue?: number
+      unit?: string
+      startValue?: number
+      startDate?: string
+      targetDate?: string
+      note?: string
+      metricCode?: MetricType
+      exerciseId?: string
+      status?: GoalStatus
+    }
+  ) => {
+    try {
+      const response = await profileAPI.updateGoal(goalId, updates)
+      const updatedGoal = response.data || response
+
+      setGoals((prev) =>
+        prev.map((goal) => (goal._id === goalId ? updatedGoal : goal))
+      )
+      toast.success('Goal updated successfully')
+      setEditingGoal(null)
+    } catch (error: any) {
+      console.error('Failed to update goal:', error)
+      const errorMessage =
+        error.response?.data?.message || 'Failed to update goal'
+      toast.error(errorMessage)
+    }
+  }
+
+  // ✅ Handle delete goal
+  const handleDeleteGoal = async (goalId: string) => {
+    try {
+      await profileAPI.deleteGoal(goalId)
+      setGoals((prev) => prev.filter((goal) => goal._id !== goalId))
+      toast.success('Goal deleted successfully')
+    } catch (error: any) {
+      console.error('Failed to delete goal:', error)
+      const errorMessage =
+        error.response?.data?.message || 'Failed to delete goal'
+      toast.error(errorMessage)
+    }
+  }
+
+  // ✅ Convert user to UserProfile format
+  const profile: UserProfile = user
+    ? {
+        _id: user._id,
+        displayName: user.displayName,
+        email: user.email,
+        gender: user.gender ?? 'other',
+        dob: user.dob ? new Date(user.dob) : new Date(), 
+        heightCm: user.heightCm ?? 0,
+        weightKg: user.weightKg ?? 0,
+        avatarUrl: user.avatarUrl,
+        role: user.role
+      }
+    : null
+
+  const activeGoals = useMemo(
+    () => goals.filter((g) => g.status === 'active'),
+    [goals]
+  )
+  const achievedGoals = useMemo(
+    () => goals.filter((g) => g.status === 'achieved'),
+    [goals]
+  )
+  const unlockedAchievements = useMemo(
+    () => achievements.filter((a) => a.unlocked),
+    [achievements]
+  )
+
   // Show loading state nếu chưa có user
   if (!user) {
     return <ProfileSkeleton />
@@ -401,6 +487,9 @@ export default function ProfilePage() {
             activeGoals={activeGoals}
             achievedGoals={achievedGoals}
             onAddGoal={() => setIsGoalModalOpen(true)}
+            onEditGoal={setEditingGoal}
+            onDeleteGoal={handleDeleteGoal}
+            isLoading={isLoadingGoals}
           />
         </div>
 
@@ -417,7 +506,18 @@ export default function ProfilePage() {
       <CreateGoalModal
         open={isGoalModalOpen}
         onOpenChange={setIsGoalModalOpen}
+        onSubmit={handleCreateGoal}
       />
+
+      {editingGoal && (
+        <CreateGoalModal
+          open={!!editingGoal}
+          onOpenChange={(open) => !open && setEditingGoal(null)}
+          onSubmit={(data) => handleUpdateGoal(editingGoal._id, data)}
+          initialData={editingGoal}
+          isEditing
+        />
+      )}
 
       <EditProfileModal
         open={isEditProfileOpen}
