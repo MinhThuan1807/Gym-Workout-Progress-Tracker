@@ -263,27 +263,29 @@ export default function PlanModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl">
-        <div className="space-y-6">
+      <DialogContent className="max-w-[95vw] sm:max-w-5xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl">
+        <div className="space-y-4 sm:space-y-6">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-[#111827]">
+            <DialogTitle className="text-xl sm:text-2xl text-[#111827]">
               {isEditMode ? '✏️ Edit' : '➕ Create'} Workout Plan
             </DialogTitle>
-            <DialogDescription className="text-[#6b7280]">
+            <DialogDescription className="text-sm sm:text-base text-[#6b7280]">
               {isEditMode
                 ? 'Update your existing workout plan'
                 : 'Design your weekly training schedule'}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Basic Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label className="text-[#111827]">Plan Name</Label>
+                <Label className="text-sm sm:text-base text-[#111827]">
+                  Plan Name
+                </Label>
                 <Input
                   placeholder="e.g., Push Pull Legs"
-                  className="rounded-xl border-[#e5e7eb]"
+                  className="rounded-xl border-[#e5e7eb] h-10 sm:h-auto text-sm sm:text-base"
                   defaultValue={editingPlan.name}
                 />
               </div>
@@ -291,7 +293,7 @@ export default function PlanModal({
                 <div className="flex items-center gap-2">
                   {/* ✅ Controlled Switch - chỉ update state local */}
                   <Switch checked={isActive} onCheckedChange={setIsActive} />
-                  <Label className="text-[#111827]">
+                  <Label className="text-sm sm:text-base text-[#111827]">
                     Active Plan
                     {isActive && (
                       <span className="ml-2 text-xs text-[#10b981]">
@@ -306,28 +308,34 @@ export default function PlanModal({
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[#111827]">Goal Hint</Label>
+              <Label className="text-sm sm:text-base text-[#111827]">
+                Goal Hint
+              </Label>
               <Textarea
                 placeholder="What's the goal of this program?"
-                className="rounded-xl border-[#e5e7eb] min-h-[80px]"
+                className="rounded-xl border-[#e5e7eb] min-h-20 text-sm sm:text-base"
                 defaultValue={editingPlan.goalHint}
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <Label className="text-[#111827]">Start Date (Optional)</Label>
+                <Label className="text-sm sm:text-base text-[#111827]">
+                  Start Date (Optional)
+                </Label>
                 <Input
                   type="date"
-                  className="rounded-xl border-[#e5e7eb]"
+                  className="rounded-xl border-[#e5e7eb] h-10 sm:h-auto text-sm sm:text-base"
                   defaultValue={editingPlan.startDate}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[#111827]">End Date (Optional)</Label>
+                <Label className="text-sm sm:text-base text-[#111827]">
+                  End Date (Optional)
+                </Label>
                 <Input
                   type="date"
-                  className="rounded-xl border-[#e5e7eb]"
+                  className="rounded-xl border-[#e5e7eb] h-10 sm:h-auto text-sm sm:text-base"
                   defaultValue={editingPlan.endDate}
                 />
               </div>
@@ -336,8 +344,10 @@ export default function PlanModal({
             <Separator />
 
             {/* Weekly Schedule */}
-            <div className="space-y-4">
-              <h3 className="text-lg text-[#111827]">Weekly Schedule</h3>
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-base sm:text-lg text-[#111827]">
+                Weekly Schedule
+              </h3>
 
               <Tabs
                 value={selectedDay}
@@ -346,17 +356,19 @@ export default function PlanModal({
                 }
               >
                 <ScrollArea className="w-full">
-                  <TabsList className="inline-flex bg-[#e5e7eb]/50 rounded-xl p-1">
+                  <TabsList className="inline-flex bg-[#e5e7eb]/50 rounded-xl p-1 w-full sm:w-auto">
                     {daysOfWeek.map((day, index) => (
                       <TabsTrigger
                         key={day}
                         value={day}
-                        className="rounded-lg data-[state=active]:bg-[#3b82f6] data-[state=active]:text-white"
+                        className="rounded-lg data-[state=active]:bg-[#3b82f6] data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3"
                       >
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-xs">{dayFullNames[index]}</span>
+                        <div className="flex flex-col items-center gap-0.5 sm:gap-1">
+                          <span className="text-[10px] sm:text-xs">
+                            {dayFullNames[index].slice(0, 3)}
+                          </span>
                           {editingPlan.days[day].length > 0 && (
-                            <div className="w-1.5 h-1.5 bg-[#10b981] rounded-full" />
+                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#10b981] rounded-full" />
                           )}
                         </div>
                       </TabsTrigger>
@@ -365,14 +377,18 @@ export default function PlanModal({
                 </ScrollArea>
 
                 {daysOfWeek.map((day) => (
-                  <TabsContent key={day} value={day} className="mt-4 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="text-[#111827]">
+                  <TabsContent
+                    key={day}
+                    value={day}
+                    className="mt-3 sm:mt-4 space-y-3 sm:space-y-4"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+                      <h4 className="text-sm sm:text-base text-[#111827]">
                         {dayFullNames[daysOfWeek.indexOf(day)]} Exercises
                       </h4>
                       <Button
                         size="sm"
-                        className="rounded-xl bg-[#3b82f6] hover:bg-[#2563eb]"
+                        className="rounded-xl bg-[#3b82f6] hover:bg-[#2563eb] h-9 text-sm w-full sm:w-auto"
                         onClick={() => {
                           setIsAddingExercise(true)
                           setAddingExerciseForDay(day)
@@ -425,9 +441,9 @@ export default function PlanModal({
             </div>
 
             {/* Save Button */}
-            <div className="flex gap-3 pt-4 border-t border-[#e5e7eb]">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#e5e7eb]">
               <Button
-                className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] rounded-xl"
+                className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] rounded-xl h-10 sm:h-auto text-sm sm:text-base"
                 onClick={handleSave}
                 disabled={isSaving}
               >
@@ -439,7 +455,7 @@ export default function PlanModal({
               </Button>
               <Button
                 variant="ghost"
-                className="rounded-xl"
+                className="rounded-xl h-10 sm:h-auto text-sm sm:text-base sm:w-auto"
                 onClick={() => onOpenChange(false)}
                 disabled={isSaving}
               >

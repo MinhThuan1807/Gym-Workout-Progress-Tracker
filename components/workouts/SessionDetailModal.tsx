@@ -59,18 +59,18 @@ export default function SessionDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl">
+      <DialogContent className="max-w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-[#111827]">
+          <DialogTitle className="text-xl sm:text-2xl text-[#111827]">
             Workout Session Details
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Session Info */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="space-y-1">
-              <h3 className="text-xl">
+              <h3 className="text-base sm:text-xl">
                 {new Date(session.startTime).toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
@@ -78,7 +78,7 @@ export default function SessionDetailModal({
                   day: 'numeric'
                 })}
               </h3>
-              <p className="text-[#6b7280]">
+              <p className="text-sm sm:text-base text-[#6b7280]">
                 {new Date(session.startTime).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit'
@@ -94,62 +94,64 @@ export default function SessionDetailModal({
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-xl"
+                className="rounded-xl flex-1 sm:flex-none h-9 text-sm"
                 onClick={() => {
                   onOpenChange(false)
                   onEdit(session)
                 }}
               >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit
+                <Edit className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Edit</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-xl text-red-500 hover:bg-red-50"
+                className="rounded-xl text-red-500 hover:bg-red-50 flex-1 sm:flex-none h-9 text-sm"
                 onClick={() => {
                   onOpenChange(false)
                   onDelete(session._id)
                 }}
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
+                <Trash2 className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Delete</span>
               </Button>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-[#f9fafb] rounded-xl">
-              <Clock className="w-5 h-5 text-[#6b7280] mb-2" />
-              <p className="text-2xl font-semibold">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="p-3 sm:p-4 bg-[#f9fafb] rounded-xl">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#6b7280] mb-1 sm:mb-2" />
+              <p className="text-lg sm:text-2xl font-semibold">
                 {calculateDuration(session.startTime, session.endTime)}
               </p>
-              <p className="text-sm text-[#6b7280]">Duration</p>
+              <p className="text-xs sm:text-sm text-[#6b7280]">Duration</p>
             </div>
-            <div className="p-4 bg-[#f9fafb] rounded-xl">
-              <TrendingUp className="w-5 h-5 text-[#6b7280] mb-2" />
-              <p className="text-2xl font-semibold">
+            <div className="p-3 sm:p-4 bg-[#f9fafb] rounded-xl">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#6b7280] mb-1 sm:mb-2" />
+              <p className="text-lg sm:text-2xl font-semibold">
                 {calculateTotalVolume(session).toLocaleString()} kg
               </p>
-              <p className="text-sm text-[#6b7280]">Total Volume</p>
+              <p className="text-xs sm:text-sm text-[#6b7280]">Total Volume</p>
             </div>
             {session.energyLevel && (
-              <div className="p-4 bg-[#f9fafb] rounded-xl">
-                <Battery className="w-5 h-5 text-[#6b7280] mb-2" />
-                <p className="text-2xl font-semibold">
+              <div className="p-3 sm:p-4 bg-[#f9fafb] rounded-xl">
+                <Battery className="w-4 h-4 sm:w-5 sm:h-5 text-[#6b7280] mb-1 sm:mb-2" />
+                <p className="text-lg sm:text-2xl font-semibold">
                   {session.energyLevel}/10
                 </p>
-                <p className="text-sm text-[#6b7280]">Energy</p>
+                <p className="text-xs sm:text-sm text-[#6b7280]">Energy</p>
               </div>
             )}
             {session.mood && (
-              <div className="p-4 bg-[#f9fafb] rounded-xl">
-                {getMoodIcon(session.mood)}
-                <p className="text-2xl font-semibold capitalize overflow-hidden text-ellipsis whitespace-nowrap">
+              <div className="p-3 sm:p-4 bg-[#f9fafb] rounded-xl">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 mb-1 sm:mb-2">
+                  {getMoodIcon(session.mood)}
+                </div>
+                <p className="text-lg sm:text-2xl font-semibold capitalize overflow-hidden text-ellipsis whitespace-nowrap">
                   {session.mood}
                 </p>
-                <p className="text-sm text-[#6b7280] ">Mood</p>
+                <p className="text-xs sm:text-sm text-[#6b7280]">Mood</p>
               </div>
             )}
           </div>
@@ -158,6 +160,12 @@ export default function SessionDetailModal({
             <>
               <Separator />
               <div className="space-y-2">
+                <h4 className="text-sm sm:text-base font-medium text-[#111827]">
+                  Notes
+                </h4>
+                <p className="text-sm sm:text-base text-[#6b7280]">
+                  {session.notes}
+                </p>
                 <h4 className="text-[#111827] font-medium">Notes</h4>
                 <p className="text-[#6b7280]">{session.notes}</p>
               </div>

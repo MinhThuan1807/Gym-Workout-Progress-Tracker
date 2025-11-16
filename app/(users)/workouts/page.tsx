@@ -226,28 +226,32 @@ export default function WorkoutsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div>
-        <h1 className="text-3xl">Workouts</h1>
-        <p className="text-[#6b7280]">
+        <h1 className="text-2xl sm:text-3xl">Workouts</h1>
+        <p className="text-sm sm:text-base text-[#6b7280]">
           Manage your workout plans and training sessions
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full max-w-md grid-cols-2 rounded-xl bg-[#e5e7eb]/50">
-          <TabsTrigger value="plans" className="rounded-xl">
-            <Calendar className="w-4 h-4 mr-2" />
-            Workout Plans
+          <TabsTrigger value="plans" className="rounded-xl text-xs sm:text-sm">
+            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Workout Plans</span>
+            <span className="sm:hidden">Plans</span>
           </TabsTrigger>
-          <TabsTrigger value="sessions" className="rounded-xl">
-            <Dumbbell className="w-4 h-4 mr-2" />
+          <TabsTrigger
+            value="sessions"
+            className="rounded-xl text-xs sm:text-sm"
+          >
+            <Dumbbell className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             Sessions
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="plans" className="space-y-6 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <TabsContent value="plans" className="space-y-6 mt-4 sm:mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {plans.map((plan) => (
               <WorkoutPlanCard
                 key={plan._id}
@@ -257,19 +261,19 @@ export default function WorkoutsPage() {
               />
             ))}
           </div>
-          <div className="fixed bottom-8 right-8">
+          <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50">
             <Button
               size="lg"
-              className="rounded-full w-14 h-14 shadow-lg bg-[#3b82f6] hover:bg-[#2563eb]"
+              className="rounded-full w-12 h-12 sm:w-14 sm:h-14 shadow-lg bg-[#3b82f6] hover:bg-[#2563eb]"
               onClick={openCreatePlan}
             >
-              <Plus className="w-6 h-6" />
+              <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
           </div>
         </TabsContent>
 
-        <TabsContent value="sessions" className="space-y-6 mt-6">
-          <div className="space-y-4">
+        <TabsContent value="sessions" className="space-y-4 mt-4 sm:mt-6">
+          <div className="space-y-3 sm:space-y-4">
             {sessions.map((session) => (
               <SessionCard
                 key={session._id}
@@ -282,13 +286,13 @@ export default function WorkoutsPage() {
               />
             ))}
           </div>
-          <div className="fixed bottom-8 right-8">
+          <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50">
             <Button
               size="lg"
-              className="rounded-full w-14 h-14 shadow-lg bg-[#10b981] hover:bg-[#059669]"
+              className="rounded-full w-12 h-12 sm:w-14 sm:h-14 shadow-lg bg-[#10b981] hover:bg-[#059669]"
               onClick={openCreateSession}
             >
-              <Plus className="w-6 h-6" />
+              <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
           </div>
         </TabsContent>

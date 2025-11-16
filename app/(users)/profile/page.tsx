@@ -160,27 +160,27 @@ const quickStats: QuickStats = {
 // Loading skeleton component
 function ProfileSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <Card className="rounded-2xl border-[#e5e7eb] shadow-sm bg-white">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-6">
-            <Skeleton className="w-[120px] h-[120px] rounded-full" />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-64" />
-              <Skeleton className="h-6 w-24" />
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+            <Skeleton className="w-24 h-24 sm:w-[120px] sm:h-[120px] rounded-full" />
+            <div className="space-y-2 flex-1 w-full sm:w-auto text-center sm:text-left">
+              <Skeleton className="h-6 sm:h-8 w-32 sm:w-48 mx-auto sm:mx-0" />
+              <Skeleton className="h-4 w-48 sm:w-64 mx-auto sm:mx-0" />
+              <Skeleton className="h-5 sm:h-6 w-20 sm:w-24 mx-auto sm:mx-0" />
             </div>
           </div>
         </CardContent>
       </Card>
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Skeleton className="h-[300px] rounded-2xl" />
-          <Skeleton className="h-[400px] rounded-2xl" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+          <Skeleton className="h-[250px] sm:h-[300px] rounded-2xl" />
+          <Skeleton className="h-[300px] sm:h-[400px] rounded-2xl" />
         </div>
-        <div className="space-y-6">
-          <Skeleton className="h-[300px] rounded-2xl" />
-          <Skeleton className="h-[400px] rounded-2xl" />
+        <div className="space-y-4 sm:space-y-6">
+          <Skeleton className="h-[250px] sm:h-[300px] rounded-2xl" />
+          <Skeleton className="h-[300px] sm:h-[400px] rounded-2xl" />
         </div>
       </div>
     </div>
@@ -226,7 +226,7 @@ export default function ProfilePage() {
       return false
 
     // Xử lý các loại goal khác nhau
-    switch (goal.type) {
+    switch (goal.goalType) {
       case 'body_fat_pct':
         // Mục tiêu giảm: currentValue phải <= targetValue
         // VÀ phải giảm từ startValue
@@ -296,7 +296,7 @@ export default function ProfilePage() {
     const progress = calculateProgress(goal)
     const achieved = isGoalAchieved(goal)
 
-    console.log(`🎯 Checking goal "${goal.type}":`, {
+    console.log(`🎯 Checking goal "${goal.goalType}":`, {
       startValue: goal.startValue,
       currentValue: goal.currentValue,
       targetValue: goal.targetValue,
@@ -311,7 +311,7 @@ export default function ProfilePage() {
     // 3. Goal achieved theo logic kiểm tra
     if (goal.status === 'active' && progress >= 100 && achieved) {
       try {
-        console.log(`✅ Goal "${goal.type}" achieved! Auto-updating status...`)
+        console.log(`✅ Goal "${goal.goalType}" achieved! Auto-updating status...`)
 
         const response = await profileAPI.updateGoal(goal._id, {
           status: 'achieved' as GoalStatus
@@ -326,7 +326,7 @@ export default function ProfilePage() {
 
         // Show celebration toast
         toast.success(
-          `🎉 Congratulations! You've achieved your goal: ${goal.type}!`,
+          `🎉 Congratulations! You've achieved your goal: ${goal.goalType}!`,
           {
             duration: 5000
           }
@@ -339,7 +339,7 @@ export default function ProfilePage() {
       }
     } else if (goal.status === 'active') {
       console.log(
-        `⏳ Goal "${goal.type}" not yet achieved (${progress.toFixed(
+        `⏳ Goal "${goal.goalType}" not yet achieved (${progress.toFixed(
           2
         )}% complete)`
       )
@@ -598,7 +598,7 @@ export default function ProfilePage() {
   }
 
   // ✅ Convert user to UserProfile format
-  const profile: UserProfile = user
+  const profile: UserProfile | null = user
     ? {
         _id: user._id,
         displayName: user.displayName,
@@ -607,7 +607,7 @@ export default function ProfilePage() {
         dob: user.dob ? new Date(user.dob) : new Date(),
         heightCm: user.heightCm ?? 0,
         weightKg: user.weightKg ?? 0,
-        avatar: user.avatar,
+        avatar: user.avatar ?? '',
         role: user.role
       }
     : null
@@ -646,7 +646,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <ProfileHeader
         profile={profile}
         onEditClick={() => setIsEditProfileOpen(true)}
@@ -654,9 +654,9 @@ export default function ProfilePage() {
         isUpdating={isUpdating}
       />
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* LEFT COLUMN */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           <PersonalInfoForm profile={profile} />
           <GoalsSection
             activeGoals={activeGoals}
@@ -669,7 +669,7 @@ export default function ProfilePage() {
         </div>
 
         {/* RIGHT COLUMN */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <QuickStatsCard stats={quickStats} />
           <AchievementsCard
             achievements={achievements}

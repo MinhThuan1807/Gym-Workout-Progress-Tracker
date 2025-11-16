@@ -93,35 +93,39 @@ export function EditProfileModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-white rounded-2xl">
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl bg-white rounded-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-[#111827]">
+          <DialogTitle className="text-xl sm:text-2xl text-[#111827]">
             Edit Profile
           </DialogTitle>
-          <DialogDescription className="text-[#6b7280]">
+          <DialogDescription className="text-sm sm:text-base text-[#6b7280]">
             Update your personal information
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 py-4">
           {/* Display Name */}
           <div className="space-y-2">
-            <Label className="text-[#111827]">Display Name *</Label>
+            <Label className="text-sm sm:text-base text-[#111827]">
+              Display Name *
+            </Label>
             <Input
               value={formData.displayName}
               onChange={(e) =>
                 setFormData({ ...formData, displayName: e.target.value })
               }
-              className="rounded-xl border-[#e5e7eb]"
+              className="rounded-xl border-[#e5e7eb] h-10 sm:h-auto text-sm sm:text-base"
               required
               disabled={isUpdating}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Gender */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">Gender</Label>
+              <Label className="text-sm sm:text-base text-[#111827]">
+                Gender
+              </Label>
               <Select
                 value={formData.gender}
                 onValueChange={(value: 'male' | 'female' | 'other') =>
@@ -129,7 +133,7 @@ export function EditProfileModal({
                 }
                 disabled={isUpdating}
               >
-                <SelectTrigger className="rounded-xl border-[#e5e7eb]">
+                <SelectTrigger className="rounded-xl border-[#e5e7eb] h-10 sm:h-auto text-sm sm:text-base">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -142,7 +146,9 @@ export function EditProfileModal({
 
             {/* Date of Birth */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">Date of Birth</Label>
+              <Label className="text-sm sm:text-base text-[#111827]">
+                Date of Birth
+              </Label>
               <Input
                 type="date"
                 value={
@@ -156,16 +162,18 @@ export function EditProfileModal({
                     dob: e.target.value ? new Date(e.target.value) : undefined
                   })
                 }
-                className="rounded-xl border-[#e5e7eb]"
+                className="rounded-xl border-[#e5e7eb] h-10 sm:h-auto text-sm sm:text-base"
                 disabled={isUpdating}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Height */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">Height (cm)</Label>
+              <Label className="text-sm sm:text-base text-[#111827]">
+                Height (cm)
+              </Label>
               <Input
                 type="number"
                 step="0.1"
@@ -178,14 +186,16 @@ export function EditProfileModal({
                       : undefined
                   })
                 }
-                className="rounded-xl border-[#e5e7eb]"
+                className="rounded-xl border-[#e5e7eb] h-10 sm:h-auto text-sm sm:text-base"
                 disabled={isUpdating}
               />
             </div>
 
             {/* Weight */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">Weight (kg)</Label>
+              <Label className="text-sm sm:text-base text-[#111827]">
+                Weight (kg)
+              </Label>
               <Input
                 type="number"
                 step="0.1"
@@ -198,22 +208,22 @@ export function EditProfileModal({
                       : undefined
                   })
                 }
-                className="rounded-xl border-[#e5e7eb]"
+                className="rounded-xl border-[#e5e7eb] h-10 sm:h-auto text-sm sm:text-base"
                 disabled={isUpdating}
               />
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-4 border-t border-[#e5e7eb]">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t border-[#e5e7eb]">
             <Button
               type="submit"
-              className="flex-1 bg-[#10b981] hover:bg-[#059669] rounded-xl"
+              className="flex-1 bg-[#10b981] hover:bg-[#059669] rounded-xl h-10 sm:h-auto text-sm sm:text-base"
               disabled={isUpdating}
             >
               {isUpdating ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
                   Saving...
                 </>
               ) : (
@@ -223,7 +233,7 @@ export function EditProfileModal({
             <Button
               type="button"
               variant="ghost"
-              className="rounded-xl"
+              className="rounded-xl h-10 sm:h-auto text-sm sm:text-base"
               onClick={() => onOpenChange(false)}
               disabled={isUpdating}
             >
