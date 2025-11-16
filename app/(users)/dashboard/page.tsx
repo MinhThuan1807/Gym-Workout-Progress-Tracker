@@ -42,9 +42,9 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="h-20 bg-gray-100 animate-pulse rounded-lg" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+        <div className="h-16 sm:h-20 bg-gray-100 animate-pulse rounded-lg" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
@@ -57,16 +57,16 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div>
-        <h1 className="text-3xl text-[#111827]">Dashboard</h1>
-        <p className="text-[#6b7280]">
+        <h1 className="text-2xl sm:text-3xl text-[#111827]">Dashboard</h1>
+        <p className="text-sm sm:text-base text-[#6b7280]">
           Welcome back! Here's your fitness overview.
         </p>
       </div>
 
       {/* TOP STATS ROW */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <WeightCard
           latestWeight={latestWeight}
           weightTrend={weightTrend}
@@ -84,13 +84,13 @@ const Dashboard = () => {
       </div>
 
       {/* CHARTS ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <WeightChart data={weightChartData} />
         <WorkoutFrequencyChart data={workoutFrequencyData} />
       </div>
 
       {/* RECENT ACTIVITY & INSIGHTS ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <div className="lg:col-span-2">
           <RecentActivity activities={recentActivity} timeAgo={timeAgo} />
         </div>

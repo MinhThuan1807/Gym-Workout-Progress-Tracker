@@ -80,7 +80,7 @@ export function CreateGoalModal({
   isEditing = false
 }: CreateGoalModalProps) {
   const [goalType, setGoalType] = useState<GoalType>(
-    initialData?.type || 'weight'
+    initialData?.goalType || 'weight'
   )
   const [targetValue, setTargetValue] = useState(
     initialData?.targetValue?.toString() || ''
@@ -101,7 +101,7 @@ export function CreateGoalModal({
   const [exerciseId, setExerciseId] = useState<string | undefined>(
     initialData?.exerciseId
   )
-  const [note, setNote] = useState(initialData?.notes || '')
+  const [note, setNote] = useState(initialData?.note || '')
 
   // ✅ State cho exercises
   const [exercises, setExercises] = useState<Exercise[]>([])
@@ -132,7 +132,7 @@ export function CreateGoalModal({
   useEffect(() => {
     if (!open) {
       // Reset to initial or default values
-      setGoalType(initialData?.type || 'weight')
+      setGoalType(initialData?.goalType || 'weight')
       setTargetValue(initialData?.targetValue?.toString() || '')
       setUnit(initialData?.unit || 'kg')
       setStartValue(initialData?.startValue?.toString() || '')
@@ -144,7 +144,7 @@ export function CreateGoalModal({
       )
       setMetricCode(initialData?.metricCode)
       setExerciseId(initialData?.exerciseId)
-      setNote(initialData?.notes || '')
+      setNote(initialData?.note || '')
     }
   }, [open, initialData])
 
@@ -169,27 +169,27 @@ export function CreateGoalModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-xl sm:text-2xl">
             {isEditing ? 'Edit Goal' : 'Create New Goal'}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm sm:text-base">
             Set a new fitness goal to track your progress
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-3 sm:space-y-4 py-4">
           {/* Goal Type */}
           <div className="space-y-2">
-            <Label htmlFor="goalType">
+            <Label htmlFor="goalType" className="text-sm sm:text-base">
               Goal Type <span className="text-red-500">*</span>
             </Label>
             <Select
               value={goalType}
               onValueChange={(value: GoalType) => setGoalType(value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-10 sm:h-auto text-sm sm:text-base">
                 <SelectValue placeholder="Select goal type" />
               </SelectTrigger>
               <SelectContent>
@@ -203,9 +203,9 @@ export function CreateGoalModal({
           </div>
 
           {/* Target Value & Unit */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-3 sm:gap-4">
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="targetValue">
+              <Label htmlFor="targetValue" className="text-sm sm:text-base">
                 Target Value <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -215,22 +215,28 @@ export function CreateGoalModal({
                 placeholder="Enter target value"
                 value={targetValue}
                 onChange={(e) => setTargetValue(e.target.value)}
+                className="h-10 sm:h-auto text-sm sm:text-base"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="unit">Unit</Label>
+              <Label htmlFor="unit" className="text-sm sm:text-base">
+                Unit
+              </Label>
               <Input
                 id="unit"
                 placeholder="kg"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
+                className="h-10 sm:h-auto text-sm sm:text-base"
               />
             </div>
           </div>
 
           {/* Start Value */}
           <div className="space-y-2">
-            <Label htmlFor="startValue">Start Value (Optional)</Label>
+            <Label htmlFor="startValue" className="text-sm sm:text-base">
+              Start Value (Optional)
+            </Label>
             <Input
               id="startValue"
               type="number"
@@ -238,23 +244,24 @@ export function CreateGoalModal({
               placeholder="Your starting point"
               value={startValue}
               onChange={(e) => setStartValue(e.target.value)}
+              className="h-10 sm:h-auto text-sm sm:text-base"
             />
           </div>
 
           {/* Start Date & Target Date */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <Label>Start Date</Label>
+              <Label className="text-sm sm:text-base">Start Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      'w-full justify-start text-left font-normal',
+                      'w-full justify-start text-left font-normal h-10 sm:h-auto text-sm sm:text-base',
                       !startDate && 'text-muted-foreground'
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     {startDate ? format(startDate, 'PPP') : 'Pick a date'}
                   </Button>
                 </PopoverTrigger>
@@ -270,17 +277,17 @@ export function CreateGoalModal({
             </div>
 
             <div className="space-y-2">
-              <Label>Target Date</Label>
+              <Label className="text-sm sm:text-base">Target Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      'w-full justify-start text-left font-normal',
+                      'w-full justify-start text-left font-normal h-10 sm:h-auto text-sm sm:text-base',
                       !targetDate && 'text-muted-foreground'
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     {targetDate ? format(targetDate, 'PPP') : 'Pick a date'}
                   </Button>
                 </PopoverTrigger>
@@ -298,7 +305,9 @@ export function CreateGoalModal({
 
           {/* Link to Metric */}
           <div className="space-y-2">
-            <Label htmlFor="metricCode">Link to Metric (Optional)</Label>
+            <Label htmlFor="metricCode" className="text-sm sm:text-base">
+              Link to Metric (Optional)
+            </Label>
             <Select
               value={metricCode || 'none'}
               onValueChange={(value) =>
@@ -307,7 +316,7 @@ export function CreateGoalModal({
                 )
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-10 sm:h-auto text-sm sm:text-base">
                 <SelectValue placeholder="Select a metric" />
               </SelectTrigger>
               <SelectContent>
@@ -323,7 +332,9 @@ export function CreateGoalModal({
 
           {/* ✅ Exercise Selection */}
           <div className="space-y-2">
-            <Label htmlFor="exerciseId">Exercise ID (Optional)</Label>
+            <Label htmlFor="exerciseId" className="text-sm sm:text-base">
+              Exercise ID (Optional)
+            </Label>
             <Select
               value={exerciseId || 'none'}
               onValueChange={(value) =>
@@ -331,7 +342,7 @@ export function CreateGoalModal({
               }
               disabled={isLoadingExercises}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-10 sm:h-auto text-sm sm:text-base">
                 <SelectValue
                   placeholder={
                     isLoadingExercises
@@ -345,7 +356,7 @@ export function CreateGoalModal({
                 {exercises.map((exercise) => (
                   <SelectItem key={exercise._id} value={exercise._id}>
                     <div className="flex items-center gap-2">
-                      <span>{exercise.name}</span>
+                      <span className="text-sm">{exercise.name}</span>
                       <span className="text-xs text-muted-foreground">
                         ({exercise.type})
                       </span>
@@ -363,22 +374,32 @@ export function CreateGoalModal({
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="note">Notes (Optional)</Label>
+            <Label htmlFor="note" className="text-sm sm:text-base">
+              Notes (Optional)
+            </Label>
             <Textarea
               id="note"
               placeholder="Add any additional notes about this goal..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
+              className="text-sm sm:text-base"
             />
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto h-10 sm:h-auto text-sm sm:text-base"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button
+            onClick={handleSubmit}
+            className="w-full sm:w-auto h-10 sm:h-auto text-sm sm:text-base"
+          >
             {isEditing ? 'Update Goal' : 'Create Goal'}
           </Button>
         </DialogFooter>

@@ -178,7 +178,9 @@ export default function ProgressPage() {
   const [inputValue, setInputValue] = useState('')
   const [inputNotes, setInputNotes] = useState('')
   const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date())
-  const [viewMode, setViewMode] = useState<'chart' | 'calendar' | 'photo'>('chart')
+  const [viewMode, setViewMode] = useState<'chart' | 'calendar' | 'photo'>(
+    'chart'
+  )
   const [isLoading, setIsLoading] = useState(false)
 
   const isAuthenticated = useSelector(selectIsAuthenticated)
@@ -402,35 +404,43 @@ export default function ProgressPage() {
     isTrendGood === null ? config?.color : isTrendGood ? '#10b981' : '#ef4444'
 
   return (
-    <div className="flex gap-6 ">
-      {/* LEFT S_IDEBAR - 350px */}
-      <div className="w-[350px] flex-shrink-0 space-y-6">
+    <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
+      {/* LEFT SIDEBAR - 350px on desktop, full width on mobile */}
+      <div className="w-full lg:w-[350px] shrink-0 space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl mb-1">Progress</h1>
-          <p className="text-[#6b7280]">Track your fitness metrics</p>
+          <h1 className="text-2xl sm:text-3xl mb-1">Progress</h1>
+          <p className="text-sm sm:text-base text-[#6b7280]">
+            Track your fitness metrics
+          </p>
         </div>
 
         <Card className="rounded-2xl border-[#e5e7eb] shadow-sm bg-white">
-          <CardHeader>
-            <CardTitle className="text-[#111827]">Log Metric</CardTitle>
-            <p className="text-sm text-[#6b7280]">Record your measurements</p>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg text-[#111827]">
+              Log Metric
+            </CardTitle>
+            <p className="text-xs sm:text-sm text-[#6b7280]">
+              Record your measurements
+            </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
             {/* Metric Selector */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">Metric</Label>
+              <Label className="text-xs sm:text-sm text-[#111827]">
+                Metric
+              </Label>
               <Select
                 value={selectedMetric}
                 onValueChange={(value) =>
                   setSelectedMetric(value as MetricType)
                 }
               >
-                <SelectTrigger className="rounded-xl border-[#e5e7eb] bg-white">
+                <SelectTrigger className="rounded-xl border-[#e5e7eb] bg-white h-9 sm:h-10 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(metricConfigs).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>
+                    <SelectItem key={key} value={key} className="text-sm">
                       {config.metricCode} ({config.unit})
                     </SelectItem>
                   ))}
@@ -440,18 +450,18 @@ export default function ProgressPage() {
 
             {/* Date Picker */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">Date</Label>
+              <Label className="text-xs sm:text-sm text-[#111827]">Date</Label>
               <Input
                 type="date"
                 value={selectedDate.toISOString().split('T')[0]}
                 onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                className="rounded-xl border-[#e5e7eb]"
+                className="rounded-xl border-[#e5e7eb] h-9 sm:h-10 text-sm"
               />
             </div>
 
             {/* Value Input */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">
+              <Label className="text-xs sm:text-sm text-[#111827]">
                 Value
                 {metricConfigs[selectedMetric].unit && (
                   <span className="text-[#6b7280] ml-2">
@@ -465,35 +475,37 @@ export default function ProgressPage() {
                 placeholder="Enter value"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="rounded-xl border-[#e5e7eb]"
+                className="rounded-xl border-[#e5e7eb] h-9 sm:h-10 text-sm"
               />
             </div>
 
             {/* Notes */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">Notes (Optional)</Label>
+              <Label className="text-xs sm:text-sm text-[#111827]">
+                Notes (Optional)
+              </Label>
               <Textarea
                 placeholder="Add any observations..."
                 value={inputNotes}
                 onChange={(e) => setInputNotes(e.target.value)}
-                className="rounded-xl border-[#e5e7eb] min-h-[80px]"
+                className="rounded-xl border-[#e5e7eb] min-h-[60px] sm:min-h-20 text-sm"
               />
             </div>
 
             {/* Log Button */}
             <Button
-              className="w-full rounded-xl bg-[#10b981] hover:bg-[#059669]"
+              className="w-full rounded-xl bg-[#10b981] hover:bg-[#059669] h-9 sm:h-10 text-sm sm:text-base"
               onClick={handleLogEntry}
               disabled={!inputValue}
             >
               {isLoading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                   Logging...
                 </>
               ) : (
                 <>
-                  <Activity className="w-4 h-4 mr-2" />
+                  <Activity className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                   Log Entry
                 </>
               )}
@@ -503,8 +515,10 @@ export default function ProgressPage() {
 
             {/* Recent Entries */}
             <div className="space-y-2">
-              <Label className="text-[#111827]">Recent Entries</Label>
-              <ScrollArea className="h-[200px] rounded-xl border border-[#e5e7eb] p-3">
+              <Label className="text-xs sm:text-sm text-[#111827]">
+                Recent Entries
+              </Label>
+              <ScrollArea className="h-[150px] sm:h-[200px] rounded-xl border border-[#e5e7eb] p-2 sm:p-3">
                 <div className="space-y-2">
                   {recentEntries.map((entry) => (
                     <div
@@ -513,11 +527,10 @@ export default function ProgressPage() {
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="text-sm text-[#111827]">
-                            {/* {metricConfigs[entry.metricType as MetricType].name} */}
+                          <div className="text-xs sm:text-sm text-[#111827]">
                             {entry.metricCode}
                           </div>
-                          <div className="text-xs text-[#6b7280]">
+                          <div className="text-[10px] sm:text-xs text-[#6b7280]">
                             {(() => {
                               const dateStr = entry.measureAt
                               if (!dateStr) return 'No date'
@@ -528,13 +541,12 @@ export default function ProgressPage() {
                             })()}
                           </div>
                         </div>
-                        <div className="text-sm text-[#111827]">
-                          {/* {entry.value} {metricConfigs[entry.metricType as MetricType].unit} */}
+                        <div className="text-xs sm:text-sm text-[#111827]">
                           {entry.value} {entry.unit}
                         </div>
                       </div>
                       {entry.note && (
-                        <div className="text-xs text-[#6b7280] mt-1 italic">
+                        <div className="text-[10px] sm:text-xs text-[#6b7280] mt-1 italic">
                           {entry.note}
                         </div>
                       )}
@@ -548,25 +560,26 @@ export default function ProgressPage() {
       </div>
 
       {/* MAIN AREA */}
-      <div className="flex-1 overflow-auto space-y-6">
+      <div className="flex-1 overflow-auto space-y-4 sm:space-y-6">
         {/* View Mode Toggle */}
         <div className="flex justify-end gap-2">
           <Button
             variant={viewMode === 'chart' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setViewMode('chart')}
-            className="rounded-xl"
+            className="rounded-xl text-xs sm:text-sm h-8 sm:h-9"
           >
-            <TrendingUp className="w-4 h-4 mr-2" />
-            Charts
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Charts</span>
+            <span className="sm:hidden">Chart</span>
           </Button>
           <Button
             variant={viewMode === 'photo' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setViewMode('photo')}
-            className="rounded-xl"
+            className="rounded-xl text-xs sm:text-sm h-8 sm:h-9"
           >
-            <Camera className="w-4 h-4 mr-2" />
+            <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             Photo
           </Button>
         </div>
@@ -580,25 +593,42 @@ export default function ProgressPage() {
                 setSelectedCategory(value as MetricCategory)
               }
             >
-              <TabsList className="inline-flex bg-[#e5e7eb]/50 rounded-xl p-1">
-                <TabsTrigger value="weight" className="rounded-xl">
+              <TabsList className="inline-flex bg-[#e5e7eb]/50 rounded-xl p-1 overflow-x-auto w-full sm:w-auto">
+                <TabsTrigger
+                  value="weight"
+                  className="rounded-xl text-xs sm:text-sm whitespace-nowrap"
+                >
                   Weight
                 </TabsTrigger>
-                <TabsTrigger value="body_composition" className="rounded-xl">
-                  Body Composition
+                <TabsTrigger
+                  value="body_composition"
+                  className="rounded-xl text-xs sm:text-sm whitespace-nowrap"
+                >
+                  <span className="hidden sm:inline">Body Composition</span>
+                  <span className="sm:hidden">Body</span>
                 </TabsTrigger>
-                <TabsTrigger value="measurements" className="rounded-xl">
-                  Measurements
+                <TabsTrigger
+                  value="measurements"
+                  className="rounded-xl text-xs sm:text-sm whitespace-nowrap"
+                >
+                  <span className="hidden sm:inline">Measurements</span>
+                  <span className="sm:hidden">Measure</span>
                 </TabsTrigger>
-                <TabsTrigger value="vitals" className="rounded-xl">
+                <TabsTrigger
+                  value="vitals"
+                  className="rounded-xl text-xs sm:text-sm whitespace-nowrap"
+                >
                   Vitals
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value={selectedCategory} className="mt-6 space-y-6">
+              <TabsContent
+                value={selectedCategory}
+                className="mt-4 sm:mt-6 space-y-4 sm:space-y-6"
+              >
                 {/* Metric Selector - Show available metrics in category */}
                 {availableMetricsInCategory.length > 1 && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 overflow-x-auto pb-2">
                     {availableMetricsInCategory.map((metricKey) => {
                       const metricConfig = metricConfigs[metricKey]
                       return (
@@ -611,7 +641,7 @@ export default function ProgressPage() {
                           }
                           size="sm"
                           onClick={() => setSelectedMetricCode(metricKey)}
-                          className="rounded-xl"
+                          className="rounded-xl text-xs sm:text-sm whitespace-nowrap shrink-0"
                           style={
                             selectedMetricCode === metricKey
                               ? {
@@ -629,19 +659,19 @@ export default function ProgressPage() {
                 )}
                 {/* Chart Card */}
                 <Card className="rounded-2xl border-[#e5e7eb] shadow-sm bg-white">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
+                  <CardHeader className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                       <div>
-                        <CardTitle className="text-[#111827]">
+                        <CardTitle className="text-base sm:text-lg text-[#111827]">
                           {config?.name} Trend
                         </CardTitle>
-                        <p className="text-sm text-[#6b7280]">
+                        <p className="text-xs sm:text-sm text-[#6b7280]">
                           {filteredEntries.length} entries in selected time
                           range
                         </p>
                       </div>
                       {/* Time Range Selector */}
-                      <div className="flex gap-1 bg-[#e5e7eb]/50 p-1 rounded-xl">
+                      <div className="flex gap-1 bg-[#e5e7eb]/50 p-1 rounded-xl overflow-x-auto">
                         {(
                           ['1W', '1M', '3M', '6M', '1Y', 'ALL'] as TimeRange[]
                         ).map((range) => (
@@ -650,7 +680,7 @@ export default function ProgressPage() {
                             variant={timeRange === range ? 'default' : 'ghost'}
                             size="sm"
                             onClick={() => setTimeRange(range)}
-                            className={`rounded-lg px-3 h-8 ${
+                            className={`rounded-lg px-2 sm:px-3 h-7 sm:h-8 text-xs whitespace-nowrap ${
                               timeRange === range
                                 ? 'bg-[#10b981] hover:bg-[#059669]'
                                 : ''
@@ -662,9 +692,13 @@ export default function ProgressPage() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-6">
                     {chartData.length > 0 ? (
-                      <ResponsiveContainer width="100%" height={400}>
+                      <ResponsiveContainer
+                        width="100%"
+                        height={300}
+                        className="sm:h-[400px]"
+                      >
                         <LineChart data={mergedChartData}>
                           <CartesianGrid
                             strokeDasharray="3 3"
@@ -673,22 +707,24 @@ export default function ProgressPage() {
                           <XAxis
                             dataKey="date"
                             stroke="#6b7280"
-                            style={{ fontSize: '12px' }}
+                            style={{ fontSize: '10px' }}
+                            className="sm:text-xs"
                           />
                           <YAxis
                             stroke="#6b7280"
-                            style={{ fontSize: '12px' }}
+                            style={{ fontSize: '10px' }}
+                            className="sm:text-xs"
                             label={{
                               value: config.unit,
                               angle: -90,
-                              position: 'ins_ideLeft',
-                              style: { fill: '#6b7280' }
+                              position: 'insideLeft',
+                              style: { fill: '#6b7280', fontSize: '10px' }
                             }}
                           />
                           <Tooltip
                             contentStyle={{
                               backgroundColor: '#ffffff',
-                              border: '1px sol_id #e5e7eb',
+                              border: '1px solid #e5e7eb',
                               borderRadius: '0.75rem',
                               padding: '8px 12px'
                             }}
@@ -696,15 +732,15 @@ export default function ProgressPage() {
                               if (active && payload && payload.length) {
                                 const data = payload[0].payload
                                 return (
-                                  <div className="bg-white border border-[#e5e7eb] rounded-xl p-3 shadow-lg">
-                                    <p className="text-sm text-[#111827]">
+                                  <div className="bg-white border border-[#e5e7eb] rounded-xl p-2 sm:p-3 shadow-lg">
+                                    <p className="text-xs sm:text-sm text-[#111827]">
                                       {data.value} {config.unit}
                                     </p>
-                                    <p className="text-xs text-[#6b7280]">
+                                    <p className="text-[10px] sm:text-xs text-[#6b7280]">
                                       {data.measureAt}
                                     </p>
                                     {data.note && (
-                                      <p className="text-xs text-[#6b7280] mt-1 italic">
+                                      <p className="text-[10px] sm:text-xs text-[#6b7280] mt-1 italic">
                                         {data.note}
                                       </p>
                                     )}
@@ -714,27 +750,32 @@ export default function ProgressPage() {
                               return null
                             }}
                           />
-                          <Legend />
+                          <Legend
+                            wrapperStyle={{ fontSize: '10px' }}
+                            className="sm:text-xs"
+                          />
                           {/* Actual data line */}
                           <Line
                             type="monotone"
                             dataKey="value"
                             stroke={trendColor}
-                            strokeWidth={3}
+                            strokeWidth={2}
+                            className="sm:stroke-3"
                             name={`${config.metricCode} (${config.unit})`}
                             dot={{
                               fill: trendColor,
-                              r: 5,
+                              r: 3,
                               cursor: 'pointer'
                             }}
-                            activeDot={{ r: 7 }}
+                            activeDot={{ r: 5 }}
                           />
                           {/* Trend line */}
                           <Line
                             type="monotone"
                             dataKey="trend"
                             stroke={trendColor}
-                            strokeWidth={2}
+                            strokeWidth={1.5}
+                            className="sm:stroke-2"
                             strokeDasharray="5 5"
                             name="Trend"
                             dot={false}
@@ -743,7 +784,7 @@ export default function ProgressPage() {
                         </LineChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-[400px] flex items-center justify-center text-[#6b7280]">
+                      <div className="h-[300px] sm:h-[400px] flex items-center justify-center text-sm sm:text-base text-[#6b7280]">
                         No data available for this time range
                       </div>
                     )}
@@ -751,17 +792,19 @@ export default function ProgressPage() {
                 </Card>
 
                 {/* Stats Cards */}
-                <div className="gr_id gr_id-cols-2 md:gr_id-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   {/* Current Value */}
                   <Card className="rounded-2xl border-[#e5e7eb] bg-white">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-[#10b981]" />
-                        <p className="text-xs text-[#6b7280]">Current</p>
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                        <Target className="w-3 h-3 sm:w-4 sm:h-4 text-[#10b981]" />
+                        <p className="text-[10px] sm:text-xs text-[#6b7280]">
+                          Current
+                        </p>
                       </div>
-                      <p className="text-2xl text-[#111827]">
+                      <p className="text-lg sm:text-2xl text-[#111827]">
                         {stats.current.toFixed(1)}
-                        <span className="text-sm text-[#6b7280] ml-1">
+                        <span className="text-xs sm:text-sm text-[#6b7280] ml-1">
                           {config?.unit}
                         </span>
                       </p>
@@ -770,14 +813,16 @@ export default function ProgressPage() {
 
                   {/* Starting Value */}
                   <Card className="rounded-2xl border-[#e5e7eb] bg-white">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Activity className="w-4 h-4 text-[#3b82f6]" />
-                        <p className="text-xs text-[#6b7280]">Starting</p>
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                        <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-[#3b82f6]" />
+                        <p className="text-[10px] sm:text-xs text-[#6b7280]">
+                          Starting
+                        </p>
                       </div>
-                      <p className="text-2xl text-[#111827]">
+                      <p className="text-lg sm:text-2xl text-[#111827]">
                         {stats.starting.toFixed(1)}
-                        <span className="text-sm text-[#6b7280] ml-1">
+                        <span className="text-xs sm:text-sm text-[#6b7280] ml-1">
                           {config?.unit}
                         </span>
                       </p>
@@ -786,28 +831,30 @@ export default function ProgressPage() {
 
                   {/* Change */}
                   <Card className="rounded-2xl border-[#e5e7eb] bg-white">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
                         {stats.change < 0 ? (
-                          <ArrowDown className="w-4 h-4 text-[#10b981]" />
+                          <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 text-[#10b981]" />
                         ) : (
-                          <ArrowUp className="w-4 h-4 text-[#ef4444]" />
+                          <ArrowUp className="w-3 h-3 sm:w-4 sm:h-4 text-[#ef4444]" />
                         )}
-                        <p className="text-xs text-[#6b7280]">Change</p>
+                        <p className="text-[10px] sm:text-xs text-[#6b7280]">
+                          Change
+                        </p>
                       </div>
                       <p
-                        className={`text-2xl ${
+                        className={`text-lg sm:text-2xl ${
                           isTrendGood ? 'text-[#10b981]' : 'text-[#ef4444]'
                         }`}
                       >
                         {stats.change > 0 ? '+' : ''}
                         {stats.change.toFixed(1)}
-                        <span className="text-sm text-[#6b7280] ml-1">
+                        <span className="text-xs sm:text-sm text-[#6b7280] ml-1">
                           {config?.unit}
                         </span>
                       </p>
                       <p
-                        className={`text-xs ${
+                        className={`text-[10px] sm:text-xs ${
                           isTrendGood ? 'text-[#10b981]' : 'text-[#ef4444]'
                         }`}
                       >
@@ -819,19 +866,19 @@ export default function ProgressPage() {
 
                   {/* Best/Worst */}
                   <Card className="rounded-2xl border-[#e5e7eb] bg-white">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <TrendingUp className="w-4 h-4 text-[#f59e0b]" />
-                        <p className="text-xs text-[#6b7280]">
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                        <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-[#f59e0b]" />
+                        <p className="text-[10px] sm:text-xs text-[#6b7280]">
                           {config?.goalDirection === 'down' ? 'Best' : 'Peak'}
                         </p>
                       </div>
-                      <p className="text-2xl text-[#111827]">
+                      <p className="text-lg sm:text-2xl text-[#111827]">
                         {(config?.goalDirection === 'down'
                           ? stats.best
                           : stats.worst
                         ).toFixed(1)}
-                        <span className="text-sm text-[#6b7280] ml-1">
+                        <span className="text-xs sm:text-sm text-[#6b7280] ml-1">
                           {config?.unit}
                         </span>
                       </p>
@@ -843,7 +890,7 @@ export default function ProgressPage() {
           </>
         ) : (
           /* PHOTO */
-            <ProgressPhotos />
+          <ProgressPhotos />
         )}
       </div>
     </div>

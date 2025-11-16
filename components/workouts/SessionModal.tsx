@@ -150,7 +150,7 @@ export default function SessionModal({
         startTime: new Date(startTimeInput.value),
         endTime: new Date(endTimeInput.value),
         mood: moodInput?.value,
-        energyLevel: energyInput?.valueAsNumber ,
+        energyLevel: energyInput?.valueAsNumber,
         note: notesInput?.value,
         exercises: formattedExercises as any
       }
@@ -194,7 +194,7 @@ export default function SessionModal({
           setNo: 1,
           reps: 1,
           weight: 0,
-          isWarmup: false,
+          isWarmup: false
         }
       ]
     }
@@ -271,25 +271,27 @@ export default function SessionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl">
+      <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-[#111827]">
+          <DialogTitle className="text-xl sm:text-2xl text-[#111827]">
             {isEditMode ? '✏️ Edit' : '➕ Create'} Workout Session
           </DialogTitle>
-          <DialogDescription className="text-[#6b7280]">
+          <DialogDescription className="text-sm sm:text-base text-[#6b7280]">
             {isEditMode
               ? 'Update your workout session'
               : 'Log your workout session'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Session Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <Label>Workout Plan (Optional)</Label>
+              <Label className="text-sm sm:text-base">
+                Workout Plan (Optional)
+              </Label>
               <Select value={selectedPlan} onValueChange={setSelectedPlan}>
-                <SelectTrigger className="rounded-xl">
+                <SelectTrigger className="rounded-xl h-10 sm:h-auto text-sm sm:text-base">
                   <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
                 <SelectContent>
@@ -304,25 +306,28 @@ export default function SessionModal({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="mood-text">Mood </Label>
+              <Label htmlFor="mood-text" className="text-sm sm:text-base">
+                Mood{' '}
+              </Label>
               <Input
                 id="mood-text"
                 type="text"
                 placeholder=" happy or neutral or sad "
-                className="rounded-xl"
+                className="rounded-xl h-10 sm:h-auto text-sm sm:text-base"
                 defaultValue={editingSession.mood}
               />
-              
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startTime">Start Time *</Label>
+              <Label htmlFor="startTime" className="text-sm sm:text-base">
+                Start Time *
+              </Label>
               <Input
                 id="startTime"
                 type="datetime-local"
-                className="rounded-xl"
+                className="rounded-xl h-10 sm:h-auto text-sm sm:text-base"
                 defaultValue={new Date(editingSession.startTime)
                   .toISOString()
                   .slice(0, 16)}
@@ -330,11 +335,13 @@ export default function SessionModal({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="endTime">End Time *</Label>
+              <Label htmlFor="endTime" className="text-sm sm:text-base">
+                End Time *
+              </Label>
               <Input
                 id="endTime"
                 type="datetime-local"
-                className="rounded-xl"
+                className="rounded-xl h-10 sm:h-auto text-sm sm:text-base"
                 defaultValue={
                   editingSession.endTime
                     ? new Date(editingSession.endTime)
@@ -346,24 +353,28 @@ export default function SessionModal({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="energy">Energy Level (1-10)</Label>
+              <Label htmlFor="energy" className="text-sm sm:text-base">
+                Energy Level (1-10)
+              </Label>
               <Input
                 id="energy"
                 type="number"
                 min="1"
                 max="10"
-                className="rounded-xl"
+                className="rounded-xl h-10 sm:h-auto text-sm sm:text-base"
                 defaultValue={editingSession.energyLevel}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes" className="text-sm sm:text-base">
+              Notes
+            </Label>
             <Textarea
               id="notes"
               placeholder="How did the workout go?"
-              className="rounded-xl min-h-[80px]"
+              className="rounded-xl min-h-20 text-sm sm:text-base"
               defaultValue={editingSession.notes}
             />
           </div>
@@ -481,9 +492,9 @@ export default function SessionModal({
           </div>
 
           {/* Save Button */}
-          <div className="flex gap-3 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#e5e7eb]">
             <Button
-              className="flex-1 bg-[#10b981] hover:bg-[#059669] rounded-xl"
+              className="flex-1 bg-[#10b981] hover:bg-[#059669] rounded-xl h-10 sm:h-auto text-sm sm:text-base"
               onClick={handleSave}
               disabled={isSaving}
             >
@@ -493,7 +504,7 @@ export default function SessionModal({
             </Button>
             <Button
               variant="ghost"
-              className="rounded-xl"
+              className="rounded-xl h-10 sm:h-auto text-sm sm:text-base sm:w-auto"
               onClick={() => onOpenChange(false)}
               disabled={isSaving}
             >
