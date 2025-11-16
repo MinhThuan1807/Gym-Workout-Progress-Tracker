@@ -97,7 +97,9 @@ export default function DashboardLayout({
                   <SidebarMenuButton
                     onClick={() => router.push(`/${item.href}`)}
                     isActive={params.tag === item.href}
-                    className="w-full rounded-xl"
+                    className={`w-full rounded-xl ${
+                      params.tag === item.href ? 'font-bold' : ''
+                    }`}
                   >
                     <item.icon className="w-5 h-5 " />
                     <span className="cursor-pointer">{item.label}</span>
@@ -267,7 +269,6 @@ export default function DashboardLayout({
           </div>
         </div>
       </div>
-      <Toaster />
     </SidebarProvider>
   )
 }
