@@ -131,6 +131,39 @@ export const viewBlogAPI = async (id: string) => {
   return response.data
 }
 
+/* User Management API */
+// TODO: Backend cần tạo các endpoints sau:
+// - GET /admins/users - Get all users (for admin)
+// - GET /admins/users/:id - Get user by ID
+// - PUT /admins/users/:id - Update user
+// - DELETE /admins/users/:id - Delete user
+// - PATCH /admins/users/:id/toggle-status - Toggle user active status
+
+export const getAllUsersAPI = async () => {
+  const response = await axios.get('admins/users')
+  return response.data
+}
+
+export const getUserByIdAPI = async (id: string) => {
+  const response = await axios.get(`admins/users/${id}`)
+  return response.data
+}
+
+export const updateUserAPI = async (id: string, data: any) => {
+  const response = await axios.put(`admins/users/${id}`, data)
+  return response.data
+}
+
+export const deleteUserAPI = async (id: string) => {
+  const response = await axios.delete(`admins/users/${id}`)
+  return response.data
+}
+
+export const toggleUserStatusAPI = async (id: string) => {
+  const response = await axios.patch(`admins/users/${id}/toggle-status`)
+  return response.data
+}
+
 // ===== Dashboard Stats =====
 export const totalUsersAPI = async () => {
   const response = await axios.get('dashboard/total-users')

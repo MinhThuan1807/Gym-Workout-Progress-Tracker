@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,21 +20,14 @@ import {
 } from "../ui/select";
 import { Switch } from "../ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-
-interface User {
-  id: number;
-  avatar: string;
-  displayName: string;
-  email: string;
-  role: string;
-  status: boolean;
-}
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface UserEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: User;
-  onSave: (user: User) => void;
+  user: any;
+  onSave: (user: any) => Promise<void>;
 }
 
 export function UserEditModal({
@@ -43,11 +36,52 @@ export function UserEditModal({
   user,
   onSave,
 }: UserEditModalProps) {
-  const [formData, setFormData] = useState(user);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    _id: "",
+    displayName: "",
+    email: "",
+    role: "user",
+    isActive: false,
+    gender: "",
+    dateOfBirth: "",
+    height: "",
+    weight: "",
+    avatar: "",
+  });
 
-  const handleSave = () => {
-    onSave(formData);
-    onOpenChange(false);
+  useEffect(() => {
+    if (open && user) {
+      setFormData({
+        _id: user._id || "",
+        displayName: user.displayName || "",
+        email: user.email || "",
+        role: user.role || "user",
+        isActive: user.isActive || false,
+        gender: user.gender || "",
+        dateOfBirth: user.dateOfBirth ? user.dateOfBirth.split('T')[0] : "",
+        height: user.height || "",
+        weight: user.weight || "",
+        avatar: user.avatar || "",
+      });
+    }
+  }, [user, open]);
+
+  const handleSave = async () => {
+    if (!formData.displayName.trim()) {
+      toast.error("Display name is required");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await onSave(formData);
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error("Error saving user:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -61,15 +95,9 @@ export function UserEditModal({
           <div className="flex justify-center">
             <div className="relative">
               <Avatar className="w-24 h-24">
-                <AvatarImage src={formData.avatar} />
-                <AvatarFallback>{formData.displayName[0]}</AvatarFallback>
+                <AvatarImage src={formData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.email}`} />
+                <AvatarFallback>{formData.displayName?.[0] || formData.email?.[0]}</AvatarFallback>
               </Avatar>
-              <Button
-                size="sm"
-                className="absolute bottom-0 right-0 rounded-full w-8 h-8 p-0"
-              >
-                +
-              </Button>
             </div>
           </div>
 
@@ -100,7 +128,10 @@ export function UserEditModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="gender">Gender</Label>
-              <Select defaultValue="male">
+              <Select 
+                value={formData.gender}
+                onValueChange={(value) => setFormData({ ...formData, gender: value })}
+              >
                 <SelectTrigger id="gender">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
@@ -114,19 +145,36 @@ export function UserEditModal({
 
             <div className="space-y-2">
               <Label htmlFor="dob">Date of Birth</Label>
-              <Input id="dob" type="date" defaultValue="1990-01-01" />
+              <Input 
+                id="dob" 
+                type="date" 
+                value={formData.dateOfBirth}
+                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="height">Height (cm)</Label>
-              <Input id="height" type="number" placeholder="175" />
+              <Input 
+                id="height" 
+                type="number" 
+                placeholder="175"
+                value={formData.height}
+                onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="weight">Weight (kg)</Label>
-              <Input id="weight" type="number" placeholder="70" />
+              <Input 
+                id="weight" 
+                type="number" 
+                placeholder="70"
+                value={formData.weight}
+                onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+              />
             </div>
           </div>
 
@@ -134,41 +182,52 @@ export function UserEditModal({
             <Label htmlFor="role">Role</Label>
             <Select
               value={formData.role}
-              onValueChange={(value: any) =>
-                setFormData({ ...formData, role: value })
-              }
+              disabled
             >
-              <SelectTrigger id="role">
+              <SelectTrigger id="role" className="bg-gray-100">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Admin">Admin</SelectItem>
-                <SelectItem value="Member">Member</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="user">User</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-gray-500">Role cannot be changed</p>
           </div>
 
           <div className="flex items-center justify-between">
             <Label htmlFor="status">Account Status</Label>
             <Switch
               id="status"
-              checked={formData.status}
+              checked={formData.isActive}
               onCheckedChange={(checked: boolean) =>
-                setFormData({ ...formData, status: checked })
+                setFormData({ ...formData, isActive: checked })
               }
             />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button
             className="bg-[#2d8cf0] hover:bg-[#2577d4]"
             onClick={handleSave}
+            disabled={isLoading || !formData.displayName.trim()}
           >
-            Save Changes
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              "Save Changes"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
