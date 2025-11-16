@@ -33,7 +33,7 @@ declare global {
 
   interface Goal {
     _id: string
-    type: GoalType
+    goalType: GoalType
     name: string
     startValue?: number
     currentValue: number
@@ -42,9 +42,8 @@ declare global {
     status: GoalStatus
     startDate: string
     targetDate?: string
-    linkedExerciseId?: number
-    linkedExerciseName?: string
-    notes?: string
+    exerciseId?: string
+    note?: string
     metricCode?: MetricType
   }
   type GoalType =

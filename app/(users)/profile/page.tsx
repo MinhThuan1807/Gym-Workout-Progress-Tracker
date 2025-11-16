@@ -311,9 +311,7 @@ export default function ProfilePage() {
     // 3. Goal achieved theo logic kiểm tra
     if (goal.status === 'active' && progress >= 100 && achieved) {
       try {
-        console.log(
-          `✅ Goal "${goal.type}" achieved! Auto-updating status...`
-        )
+        console.log(`✅ Goal "${goal.type}" achieved! Auto-updating status...`)
 
         const response = await profileAPI.updateGoal(goal._id, {
           status: 'achieved' as GoalStatus
@@ -490,7 +488,7 @@ export default function ProfilePage() {
     targetDate?: string
     note?: string
     metricCode?: MetricType
-    exerciseId?: string
+    exerciseId?: string // ✅ Thêm exerciseId
   }) => {
     try {
       const response = await profileAPI.createGoal(goalData)
@@ -543,7 +541,7 @@ export default function ProfilePage() {
       targetDate?: string
       note?: string
       metricCode?: MetricType
-      exerciseId?: string
+      exerciseId?: string // ✅ Thêm exerciseId
       status?: GoalStatus
     }
   ) => {

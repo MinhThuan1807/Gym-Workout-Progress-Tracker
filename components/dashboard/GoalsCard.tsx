@@ -26,6 +26,16 @@ export function GoalsCard({
             {goalsAchievedThisMonth} achieved this month
           </span>
         </div>
+        <div className="pt-2 space-y-1">
+              {activeGoals.slice(0, 2).map(goal => {
+                return (
+                  <div key={goal._id} className="flex items-center justify-between text-xs">
+                    <span className="text-[#6b7280] truncate flex-1">{goal.metricCode || goal.exerciseId}</span>
+                    <span className="text-[#111827] ml-2">{goal.status}</span>
+                  </div>
+                );
+              })}
+        </div>
       </CardContent>
     </Card>
   )

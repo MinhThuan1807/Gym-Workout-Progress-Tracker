@@ -43,7 +43,7 @@ export function GoalsSection({
   onDeleteGoal,
   isLoading = false
 }: GoalsSectionProps) {
-  const getGoalIcon = (type: GoalType) => {
+  const getGoalIcon = (goalType: GoalType) => {
     const icons = {
       weight: '⚖️',
       body_fat_pct: '📊', // ✅ Đổi key
@@ -53,9 +53,9 @@ export function GoalsSection({
       endurance: '🏃',
       flexibility: '🧘'
     }
-    return icons[type] || '🎯'
+    return icons[goalType] || '🎯'
   }
-
+  
   const getProgressPercentage = (goal: Goal) => {
     // ✅ Handle undefined currentValue
     const current = goal.currentValue ?? goal.startValue ?? 0
@@ -90,7 +90,7 @@ export function GoalsSection({
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-start gap-3 flex-1">
-              <div className="text-2xl">{getGoalIcon(goal.type)}</div>
+              <div className="text-2xl">{getGoalIcon(goal.goalType)}</div>
               <div className="flex-1">
                 <h4 className="font-semibold text-[#111827] mb-1">
                   {goal.name}
@@ -99,9 +99,9 @@ export function GoalsSection({
                   <span>
                     {current.toFixed(1)} / {goal.targetValue} {goal.unit}
                   </span>
-                  {goal.linkedExerciseName && (
-                    <Badge variant="outline" className="text-xs">
-                      {goal.linkedExerciseName}
+                  {goal.note && (
+                    <Badge variant="secondary" className="text-xs">
+                      {goal.note}
                     </Badge>
                   )}
                 </div>
@@ -166,15 +166,11 @@ export function GoalsSection({
             </div>
           </div>
 
-          {goal.notes && (
-            <p className="text-xs text-[#6b7280] mt-2 italic">{goal.notes}</p>
+          {goal.note && (
+            <p className="text-xs text-[#6b7280] mt-2 italic">{goal.note}</p>
           )}
 
-          {isAchieved && (
-            <Badge className="mt-2 bg-green-100 text-green-700 hover:bg-green-100">
-              ✓ Achieved
-            </Badge>
-          )}
+         
         </CardContent>
       </Card>
     )
