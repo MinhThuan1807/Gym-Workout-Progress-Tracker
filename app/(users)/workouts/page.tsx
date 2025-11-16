@@ -11,7 +11,17 @@ import SessionCard from '@/components/workouts/SessionCard'
 import PlanModal from '@/components/workouts/PlanModal'
 import SessionModal from '@/components/workouts/SessionModal'
 import SessionDetailModal from '@/components/workouts/SessionDetailModal'
-import { DateAfter } from 'react-day-picker'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel
+} from '@/components/ui/alert-dialog'
+import { toast } from 'sonner'
 
 const daysOfWeek = [
   'sunday',
@@ -98,7 +108,8 @@ export default function WorkoutsPage() {
     null
   )
   const [isSessionEditMode, setIsSessionEditMode] = useState(false)
-
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deleteTargetSession, setDeleteTargetSession] = useState<U_WorkoutSession | null>(null)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -144,6 +155,31 @@ export default function WorkoutsPage() {
     setIsEditMode(true)
     setIsPlanModalOpen(true)
   }
+    const confirmDeleteSession = (sessionOrId: U_WorkoutSession | string) => {
+    if (typeof sessionOrId === 'string') {
+      const s = sessions.find((x) => x._id === sessionOrId) || null
+      setDeleteTargetSession(s)
+    } else {
+      setDeleteTargetSession(sessionOrId)
+    }
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleDeleteSession = async (sessionId?: string) => {
+    const id = sessionId ?? deleteTargetSession?._id
+    if (!id) return
+
+    try {
+      await workoutAPI.deleteSession(id)
+      toast.success('✅ Session deleted successfully!')
+      setIsDeleteDialogOpen(false)
+      setDeleteTargetSession(null)
+      await refreshSessions()
+    } catch (error: any) {
+      console.error('Error deleting session:', error)
+      toast.error(`❌ ${error.response?.data?.message || 'Failed to delete session'}`)
+    }
+  }
 
   const refreshPlans = async () => {
     try {
@@ -175,19 +211,6 @@ export default function WorkoutsPage() {
   const openSessionDetail = (session: U_WorkoutSession) => {
     setSelectedSession(session)
     setIsSessionDetailOpen(true)
-  }
-
-  const handleDeleteSession = async (sessionId: string) => {
-    if (!confirm('Are you sure you want to delete this session?')) return
-
-    try {
-      await workoutAPI.deleteSession(sessionId)
-      alert('✅ Session deleted successfully!')
-      await refreshSessions()
-    } catch (error: any) {
-      console.error('Error deleting session:', error)
-      alert(`❌ ${error.response?.data?.message || 'Failed to delete session'}`)
-    }
   }
 
   const refreshSessions = async () => {
@@ -280,12 +303,31 @@ export default function WorkoutsPage() {
                 session={session}
                 onClick={openSessionDetail}
                 onEdit={openEditSession}
-                onDelete={handleDeleteSession}
+                onDelete={confirmDeleteSession}
                 calculateDuration={calculateDuration}
                 calculateTotalVolume={calculateTotalVolume}
               />
             ))}
           </div>
+          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xóa buổi tập</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc muốn xóa buổi tập này? Hành động này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => handleDeleteSession()}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
           <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50">
             <Button
               size="lg"
