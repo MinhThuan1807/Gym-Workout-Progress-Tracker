@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
@@ -28,52 +29,48 @@ import {
 import { CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { exerciseAPI } from '@/api/exercise' // ✅ Import exercise API
+import { toast } from 'sonner'
 
 interface CreateGoalModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: CreateGoalData) => Promise<void>
+  onSubmit: (data: {
+    goalType: GoalType
+    targetValue: number
+    unit?: string
+    startValue?: number
+    startDate?: string
+    targetDate?: string
+    note?: string
+    metricCode?: MetricType
+    exerciseId?: string
+  }) => void
   initialData?: Goal
   isEditing?: boolean
 }
 
-interface CreateGoalData {
-  goalType: GoalType
-  targetValue: number
-  unit?: string
-  startValue?: number
-  startDate?: string
-  targetDate?: string
-  note?: string
-  metricCode?: MetricType
-  exerciseId?: string
-}
-
-const GOAL_TYPES: { value: GoalType; label: string; defaultUnit: string }[] = [
-  { value: 'weight', label: 'Weight Goal', defaultUnit: 'kg' },
-  { value: 'body_fat_pct', label: 'Body Fat Goal', defaultUnit: '%' },
-  {
-    value: 'sessions_per_week',
-    label: 'Weekly Sessions',
-    defaultUnit: 'sessions'
-  },
-  { value: 'one_rm', label: 'One Rep Max', defaultUnit: 'kg' },
-  { value: 'strength', label: 'Strength Goal', defaultUnit: 'kg' },
-  { value: 'endurance', label: 'Endurance Goal', defaultUnit: 'minutes' },
-  { value: 'flexibility', label: 'Flexibility Goal', defaultUnit: 'cm' }
-]
-
-const METRIC_TYPES: { value: MetricType; label: string }[] = [
-  { value: 'weight', label: 'Weight' },
-  { value: 'height', label: 'Height' },
-  { value: 'body_fat', label: 'Body Fat' },
+const GOAL_TYPES = [
+  { value: 'weight', label: 'Weight Goal' },
+  { value: 'body_fat_pct', label: 'Body Fat %' },
   { value: 'muscle_mass', label: 'Muscle Mass' },
-  { value: 'BMI', label: 'BMI' },
-  { value: 'waist_circumference', label: 'Waist' },
-  { value: 'hip_circumference', label: 'Hip' },
-  { value: 'blood_pressure', label: 'Blood Pressure' },
-  { value: 'heart_rate', label: 'Heart Rate' }
-]
+  { value: 'strength', label: 'Strength (1RM)' },
+  { value: 'endurance', label: 'Endurance' },
+  { value: 'flexibility', label: 'Flexibility' },
+  { value: 'sessions_per_week', label: 'Sessions per Week' },
+  { value: 'custom', label: 'Custom Goal' }
+] as const
+
+const METRIC_TYPES = [
+  { value: 'weight', label: 'Weight (kg)' },
+  { value: 'body_fat_pct', label: 'Body Fat %' },
+  { value: 'muscle_mass', label: 'Muscle Mass (kg)' },
+  { value: 'waist', label: 'Waist (cm)' },
+  { value: 'hips', label: 'Hips (cm)' },
+  { value: 'thigh', label: 'Thigh (cm)' },
+  { value: 'biceps', label: 'Biceps (cm)' },
+  { value: 'custom', label: 'Custom Metric' }
+] as const
 
 export function CreateGoalModal({
   open,
@@ -82,117 +79,118 @@ export function CreateGoalModal({
   initialData,
   isEditing = false
 }: CreateGoalModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [goalType, setGoalType] = useState<GoalType>('weight')
-  const [targetValue, setTargetValue] = useState<number>(0)
-  const [unit, setUnit] = useState<string>('kg')
-  const [startValue, setStartValue] = useState<number | undefined>()
-  const [startDate, setStartDate] = useState<Date | undefined>()
-  const [targetDate, setTargetDate] = useState<Date | undefined>()
-  const [note, setNote] = useState<string>('')
-  const [metricCode, setMetricCode] = useState<MetricType | undefined>()
-  const [exerciseId, setExerciseId] = useState<string>('')
+  const [goalType, setGoalType] = useState<GoalType>(
+    initialData?.type || 'weight'
+  )
+  const [targetValue, setTargetValue] = useState(
+    initialData?.targetValue?.toString() || ''
+  )
+  const [unit, setUnit] = useState(initialData?.unit || 'kg')
+  const [startValue, setStartValue] = useState(
+    initialData?.startValue?.toString() || ''
+  )
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    initialData?.startDate ? new Date(initialData.startDate) : undefined
+  )
+  const [targetDate, setTargetDate] = useState<Date | undefined>(
+    initialData?.targetDate ? new Date(initialData.targetDate) : undefined
+  )
+  const [metricCode, setMetricCode] = useState<MetricType | undefined>(
+    initialData?.metricCode
+  )
+  const [exerciseId, setExerciseId] = useState<string | undefined>(
+    initialData?.exerciseId
+  )
+  const [note, setNote] = useState(initialData?.notes || '')
 
-  // ✅ Load initial data when editing
+  // ✅ State cho exercises
+  const [exercises, setExercises] = useState<Exercise[]>([])
+  const [isLoadingExercises, setIsLoadingExercises] = useState(false)
+
+  // ✅ Fetch exercises từ API
   useEffect(() => {
-    if (initialData && isEditing) {
-      setGoalType(initialData.type)
-      setTargetValue(initialData.targetValue)
-      setUnit(initialData.unit)
-      setStartValue(initialData.startValue)
-      setStartDate(
-        initialData.startDate ? new Date(initialData.startDate) : undefined
-      )
-      setTargetDate(
-        initialData.targetDate ? new Date(initialData.targetDate) : undefined
-      )
-      setNote(initialData.notes || '')
-      // Set metricCode and exerciseId if available in initialData
+    const fetchExercises = async () => {
+      try {
+        setIsLoadingExercises(true)
+        const response = await exerciseAPI.getAll()
+        setExercises(response.data || [])
+      } catch (error: any) {
+        console.error('Failed to fetch exercises:', error)
+        toast.error('Failed to load exercises')
+      } finally {
+        setIsLoadingExercises(false)
+      }
     }
-  }, [initialData, isEditing])
 
-  // ✅ Reset form when modal closes
-  useEffect(() => {
-    if (!open) {
-      resetForm()
+    // Chỉ fetch khi modal mở
+    if (open) {
+      fetchExercises()
     }
   }, [open])
 
-  const resetForm = () => {
-    if (!isEditing) {
-      setGoalType('weight')
-      setTargetValue(0)
-      setUnit('kg')
-      setStartValue(undefined)
-      setStartDate(undefined)
-      setTargetDate(undefined)
-      setNote('')
-      setMetricCode(undefined)
-      setExerciseId('')
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (!open) {
+      // Reset to initial or default values
+      setGoalType(initialData?.type || 'weight')
+      setTargetValue(initialData?.targetValue?.toString() || '')
+      setUnit(initialData?.unit || 'kg')
+      setStartValue(initialData?.startValue?.toString() || '')
+      setStartDate(
+        initialData?.startDate ? new Date(initialData.startDate) : undefined
+      )
+      setTargetDate(
+        initialData?.targetDate ? new Date(initialData.targetDate) : undefined
+      )
+      setMetricCode(initialData?.metricCode)
+      setExerciseId(initialData?.exerciseId)
+      setNote(initialData?.notes || '')
     }
-  }
+  }, [open, initialData])
 
-  const handleGoalTypeChange = (value: GoalType) => {
-    setGoalType(value)
-    const selected = GOAL_TYPES.find((gt) => gt.value === value)
-    if (selected) {
-      setUnit(selected.defaultUnit)
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!targetValue || targetValue <= 0) {
+  const handleSubmit = () => {
+    if (!targetValue) {
+      toast.error('Please enter target value')
       return
     }
 
-    setIsSubmitting(true)
-
-    try {
-      const data: CreateGoalData = {
-        goalType,
-        targetValue,
-        unit,
-        startValue: startValue && startValue > 0 ? startValue : undefined,
-        startDate: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
-        targetDate: targetDate ? format(targetDate, 'yyyy-MM-dd') : undefined,
-        note: note.trim() || undefined,
-        metricCode: metricCode || undefined,
-        exerciseId: exerciseId.trim() || undefined
-      }
-
-      await onSubmit(data)
-      onOpenChange(false)
-      resetForm()
-    } catch (error) {
-      console.error('Failed to submit goal:', error)
-    } finally {
-      setIsSubmitting(false)
-    }
+    onSubmit({
+      goalType,
+      targetValue: parseFloat(targetValue),
+      unit,
+      startValue: startValue ? parseFloat(startValue) : undefined,
+      startDate: startDate?.toISOString(),
+      targetDate: targetDate?.toISOString(),
+      metricCode,
+      exerciseId, // ✅ Gửi exerciseId
+      note
+    })
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? 'Edit Goal' : 'Create New Goal'}
           </DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? 'Update your fitness goal details'
-              : 'Set a new fitness goal to track your progress'}
+            Set a new fitness goal to track your progress
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4 py-4">
           {/* Goal Type */}
           <div className="space-y-2">
-            <Label htmlFor="goalType">Goal Type *</Label>
-            <Select value={goalType} onValueChange={handleGoalTypeChange}>
+            <Label htmlFor="goalType">
+              Goal Type <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={goalType}
+              onValueChange={(value: GoalType) => setGoalType(value)}
+            >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select goal type" />
               </SelectTrigger>
               <SelectContent>
                 {GOAL_TYPES.map((type) => (
@@ -205,25 +203,27 @@ export function CreateGoalModal({
           </div>
 
           {/* Target Value & Unit */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="targetValue">Target Value *</Label>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="targetValue">
+                Target Value <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="targetValue"
                 type="number"
                 step="0.1"
-                value={targetValue || ''}
-                onChange={(e) => setTargetValue(parseFloat(e.target.value))}
-                required
+                placeholder="Enter target value"
+                value={targetValue}
+                onChange={(e) => setTargetValue(e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="unit">Unit</Label>
               <Input
                 id="unit"
+                placeholder="kg"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                placeholder="kg, %, reps..."
               />
             </div>
           </div>
@@ -235,15 +235,13 @@ export function CreateGoalModal({
               id="startValue"
               type="number"
               step="0.1"
-              value={startValue || ''}
-              onChange={(e) =>
-                setStartValue(parseFloat(e.target.value) || undefined)
-              }
               placeholder="Your starting point"
+              value={startValue}
+              onChange={(e) => setStartValue(e.target.value)}
             />
           </div>
 
-          {/* Dates */}
+          {/* Start Date & Target Date */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Start Date</Label>
@@ -260,7 +258,7 @@ export function CreateGoalModal({
                     {startDate ? format(startDate, 'PPP') : 'Pick a date'}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={startDate}
@@ -286,20 +284,19 @@ export function CreateGoalModal({
                     {targetDate ? format(targetDate, 'PPP') : 'Pick a date'}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={targetDate}
                     onSelect={setTargetDate}
                     initialFocus
-                    disabled={(date) => (startDate ? date < startDate : false)}
                   />
                 </PopoverContent>
               </Popover>
             </div>
           </div>
 
-          {/* Metric Code (Optional) */}
+          {/* Link to Metric */}
           <div className="space-y-2">
             <Label htmlFor="metricCode">Link to Metric (Optional)</Label>
             <Select
@@ -324,15 +321,44 @@ export function CreateGoalModal({
             </Select>
           </div>
 
-          {/* Exercise ID (Optional) */}
+          {/* ✅ Exercise Selection */}
           <div className="space-y-2">
             <Label htmlFor="exerciseId">Exercise ID (Optional)</Label>
-            <Input
-              id="exerciseId"
-              value={exerciseId}
-              onChange={(e) => setExerciseId(e.target.value)}
-              placeholder="Link to specific exercise"
-            />
+            <Select
+              value={exerciseId || 'none'}
+              onValueChange={(value) =>
+                setExerciseId(value === 'none' ? undefined : value)
+              }
+              disabled={isLoadingExercises}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    isLoadingExercises
+                      ? 'Loading exercises...'
+                      : 'Link to specific exercise'
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {exercises.map((exercise) => (
+                  <SelectItem key={exercise._id} value={exercise._id}>
+                    <div className="flex items-center gap-2">
+                      <span>{exercise.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({exercise.type})
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {isLoadingExercises && (
+              <p className="text-xs text-muted-foreground">
+                Loading exercises...
+              </p>
+            )}
           </div>
 
           {/* Notes */}
@@ -340,38 +366,22 @@ export function CreateGoalModal({
             <Label htmlFor="note">Notes (Optional)</Label>
             <Textarea
               id="note"
+              placeholder="Add any additional notes about this goal..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Add any additional notes about this goal..."
               rows={3}
             />
           </div>
+        </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !targetValue}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-            >
-              {isSubmitting
-                ? isEditing
-                  ? 'Updating...'
-                  : 'Creating...'
-                : isEditing
-                ? 'Update Goal'
-                : 'Create Goal'}
-            </Button>
-          </div>
-        </form>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit}>
+            {isEditing ? 'Update Goal' : 'Create Goal'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

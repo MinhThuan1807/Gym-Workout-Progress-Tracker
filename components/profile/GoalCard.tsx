@@ -21,7 +21,7 @@ interface GoalCardProps {
 }
 
 export function GoalCard({ goal }: GoalCardProps) {
-  const config = goalTypeConfigs[goal.type as GoalType];
+  const config = goalTypeConfigs[goal.goalType as GoalType];
   const Icon = config.icon;
   
   const calculateProgress = () => {
@@ -131,10 +131,10 @@ export function GoalCard({ goal }: GoalCardProps) {
         </div>
 
         {/* Linked Exercise */}
-        {goal.linkedExerciseName && (
+        {goal.exerciseId && (
           <Badge variant="outline" className="rounded-lg text-xs border-[#e5e7eb]">
             <Dumbbell className="w-3 h-3 mr-1" />
-            {goal.linkedExerciseName}
+            {goal.exerciseId}
           </Badge>
         )}
 

@@ -65,12 +65,39 @@ interface Goal {
   updatedAt: string | null
 }
 
+// ✅ Add WorkoutPlan interface
+interface WorkoutPlanDay {
+  dow: number
+  note: string
+  items: Array<{
+    exerciseId: number
+    targetSets: number
+    repsMin: number
+    repsMax: number
+    targetWeight?: number
+    tempo?: string
+    restSec?: number
+    order: number
+  }>
+}
+
+interface WorkoutPlan {
+  _id: string
+  name: string
+  goalHint: string
+  isActive: boolean
+  startDate?: string
+  endDate?: string
+  days: WorkoutPlanDay[]
+}
+
 // ==================== MAIN HOOK ====================
 
 export function useDashboardData() {
   const [weightMetrics, setWeightMetrics] = useState<MetricEntry[]>([])
   const [workoutSessions, setWorkoutSessions] = useState<WorkoutSession[]>([])
   const [goals, setGoals] = useState<Goal[]>([])
+  const [workoutPlans, setWorkoutPlans] = useState<WorkoutPlan[]>([]) // ✅ Add state
   const [isLoading, setIsLoading] = useState(true)
 
   // Fetch all dashboard data
@@ -79,19 +106,21 @@ export function useDashboardData() {
       try {
         setIsLoading(true)
 
-        // Fetch data song song
-        const [weightRes, workoutsRes, goalsRes] = await Promise.all([
+        // ✅ Fetch workout plans cùng với data khác
+        const [weightRes, workoutsRes, goalsRes, plansRes] = await Promise.all([
           metricAPI.getAll({
             metricCode: 'weight' as MetricType,
-            limit: 60 // Lấy 60 ngày
+            limit: 60
           }),
           workoutAPI.getSessionAll(),
-          profileAPI.getAllGoal()
+          profileAPI.getAllGoal(),
+          workoutAPI.getAll() // ✅ Fetch workout plans
         ])
 
         setWeightMetrics(weightRes.data || [])
         setWorkoutSessions(workoutsRes.data || [])
         setGoals(goalsRes.data || [])
+        setWorkoutPlans(plansRes.data || []) // ✅ Set workout plans
       } catch (error: any) {
         console.error('Failed to fetch dashboard data:', error)
         toast.error('Failed to load dashboard data')
@@ -269,9 +298,7 @@ export function useDashboardData() {
         id: s._id,
         type: 'workout',
         date: s.startTime,
-        description: s.planId
-          ? `Completed workout plan`
-          : 'Completed workout',
+        description: s.planId ? `Completed workout plan` : 'Completed workout',
         icon: Dumbbell,
         color: '#10b981',
         details: `${s.exercises?.length || 0} exercises • ${duration} min • ${
@@ -294,9 +321,7 @@ export function useDashboardData() {
     })
 
     // Add achieved goals (2 gần nhất)
-    const achievedGoals = goals
-      .filter((g) => g.status === 'achieved')
-      .slice(-2)
+    const achievedGoals = goals.filter((g) => g.status === 'achieved').slice(-2)
 
     achievedGoals.forEach((g) => {
       activities.push({
@@ -391,10 +416,26 @@ export function useDashboardData() {
 
   // ==================== WEEKLY SCHEDULE ====================
 
+  // ✅ Get active workout plan
+  const activePlan = useMemo(() => {
+    return workoutPlans.find((plan) => plan.isActive)
+  }, [workoutPlans])
+
+  // ✅ Map day of week (0-6) to day names
+  const dowToDay: Record<number, string> = {
+    0: 'Sunday',
+    1: 'Monday',
+    2: 'Tuesday',
+    3: 'Wednesday',
+    4: 'Thursday',
+    5: 'Friday',
+    6: 'Saturday'
+  }
+
   const weekDays = useMemo(() => {
     const now = new Date()
     const weekStart = new Date(now)
-    weekStart.setDate(now.getDate() - now.getDay() + 1)
+    weekStart.setDate(now.getDate() - now.getDay() + 1) // Start from Monday
 
     const days = [
       'Monday',
@@ -410,23 +451,42 @@ export function useDashboardData() {
       const dayDate = new Date(weekStart)
       dayDate.setDate(weekStart.getDate() + index)
 
+      // ✅ Check if có session trong ngày này
       const hasSession = workoutSessions.some((s) => {
         const sessionDate = new Date(s.startTime)
         return sessionDate.toDateString() === dayDate.toDateString()
       })
 
+      // ✅ Get dow (0=Sunday, 1=Monday, ..., 6=Saturday)
+      const jsDay = dayDate.getDay() // JS: 0=Sun, 1=Mon, ..., 6=Sat
+      const dow = jsDay === 0 ? 0 : jsDay // Keep 0 for Sunday
+
+      // ✅ Get planned exercises from active plan
+      const plannedExercises: string[] = []
+      if (activePlan) {
+        const planDay = activePlan.days.find((d) => d.dow === dow)
+        if (planDay && planDay.items.length > 0) {
+          // Get exercise names (you can add exercise names mapping here)
+          plannedExercises.push(
+            ...planDay.items.map((item) => `Exercise ${item.exerciseId}`)
+          )
+        }
+      }
+
+      const isPlanned = plannedExercises.length > 0
+
       return {
         day,
         date: dayDate,
-        isPlanned: false, // TODO: Implement workout plan logic
+        isPlanned,
         hasSession,
         isToday: dayDate.toDateString() === now.toDateString(),
         isPast: dayDate < now && dayDate.toDateString() !== now.toDateString(),
         isFuture: dayDate > now,
-        exercises: [] // TODO: Load from workout plan
+        exercises: plannedExercises
       }
     })
-  }, [workoutSessions])
+  }, [workoutSessions, activePlan])
 
   return {
     isLoading,
@@ -448,6 +508,7 @@ export function useDashboardData() {
     recentActivity,
     insights,
     // Schedule
-    weekDays
+    weekDays,
+    activePlan // ✅ Export active plan (optional)
   }
 }
