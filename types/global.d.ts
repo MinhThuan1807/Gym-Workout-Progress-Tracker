@@ -45,9 +45,18 @@ declare global {
     linkedExerciseId?: number
     linkedExerciseName?: string
     notes?: string
+    metricCode?: MetricType
   }
-  type GoalType = 'weight' | 'bodyFat' | 'sessionsWeek' | 'oneRepMax' | 'strength' | 'endurance' | 'flexibility';
-  type GoalStatus = 'active' | 'achieved' | 'abandoned';
+  type GoalType =
+    | 'weight'
+    | 'body_fat_pct' // ✅ Thay vì 'bodyFat'
+    | 'sessions_per_week' // ✅ Thay vì 'sessionsWeek'
+    | 'one_rm' // ✅ Thay vì 'oneRepMax'
+    | 'strength'
+    | 'endurance'
+    | 'flexibility'
+
+  type GoalStatus = 'active' | 'achieved' | 'abandoned'
 
   interface Achievement {
     _id: string
@@ -60,11 +69,11 @@ declare global {
     color?: string
   }
   interface QuickStats {
-    totalWorkouts: number;
-    currentStreak: number;
-    goalsAchieved: number;
-    totalGoals: number;
-    totalVolume: number;
+    totalWorkouts: number
+    currentStreak: number
+    goalsAchieved: number
+    totalGoals: number
+    totalVolume: number
   }
 
   interface UserProfile {

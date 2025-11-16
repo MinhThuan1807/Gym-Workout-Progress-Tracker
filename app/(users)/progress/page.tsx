@@ -14,7 +14,6 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts'
-import { Calendar } from '@/components/ui/calendar'
 import {
   Select,
   SelectContent,
@@ -29,16 +28,13 @@ import {
   Activity,
   ArrowDown,
   ArrowUp,
-  CalendarIcon,
   Camera,
-  ImageIcon,
   Target,
   TrendingUp
 } from 'lucide-react'
 import { Separator } from '@radix-ui/react-separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { metricAPI } from '@/api/metric'
 import { useSelector } from 'react-redux'
@@ -379,10 +375,10 @@ export default function ProgressPage() {
         value: value,
         unit: config.unit,
         note: inputNotes,
-        measureAt: selectedDate
+        measureAt: selectedDate.toISOString()
       }
 
-      await metricAPI.create(data)
+      await metricAPI.logMetric(data)
 
       toast.success('Metric logged successfully!')
 
