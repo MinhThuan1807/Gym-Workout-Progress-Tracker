@@ -29,7 +29,7 @@ interface UserProfile {
   dob: Date
   heightCm: number
   weightKg: number
-  avatarUrl: string
+  avatar: string | File
   role: string
 }
 
@@ -39,7 +39,7 @@ interface UpdateProfileData {
   dob?: Date
   heightCm?: number
   weightKg?: number
-  avatar?: File
+  avatar?: string | File
 }
 
 const mockAchievements: Achievement[] = [
@@ -220,6 +220,136 @@ export default function ProfilePage() {
     fetchGoals()
   }, [user])
 
+  // ✅ Helper: Kiểm tra xem goal có đạt được chưa
+  const isGoalAchieved = (goal: Goal): boolean => {
+    if (!goal.currentValue || !goal.targetValue || !goal.startValue)
+      return false
+
+    // Xử lý các loại goal khác nhau
+    switch (goal.type) {
+      case 'body_fat_pct':
+        // Mục tiêu giảm: currentValue phải <= targetValue
+        // VÀ phải giảm từ startValue
+        return (
+          goal.currentValue <= goal.targetValue &&
+          goal.currentValue < goal.startValue
+        )
+
+      case 'weight':
+      case 'strength':
+      case 'endurance':
+        // Mục tiêu tăng: currentValue phải >= targetValue
+        // VÀ phải tăng từ startValue
+        return (
+          goal.currentValue >= goal.targetValue &&
+          goal.currentValue > goal.startValue
+        )
+
+      default:
+        // Mặc định: check based on direction
+        if (goal.targetValue > goal.startValue) {
+          // Increasing goal
+          return goal.currentValue >= goal.targetValue
+        } else {
+          // Decreasing goal
+          return goal.currentValue <= goal.targetValue
+        }
+    }
+  }
+
+  // ✅ Helper: Tính progress percentage (CHÍNH XÁC HƠN)
+  const calculateProgress = (goal: Goal): number => {
+    if (!goal.currentValue || !goal.targetValue || !goal.startValue) return 0
+
+    const start = goal.startValue
+    const target = goal.targetValue
+    const current = goal.currentValue
+
+    // Xác định hướng của goal (increase or decrease)
+    const isIncreasing = target > start
+    const isDecreasing = target < start
+
+    if (isIncreasing) {
+      // Goal tăng: weight_gain, muscle_gain, strength
+      const total = target - start
+      const progress = current - start
+
+      if (total === 0) return 0
+      const percentage = (progress / total) * 100
+      return Math.min(Math.max(percentage, 0), 100)
+    } else if (isDecreasing) {
+      // Goal giảm: weight_loss, body_fat_pct
+      const total = start - target
+      const progress = start - current
+
+      if (total === 0) return 0
+      const percentage = (progress / total) * 100
+      return Math.min(Math.max(percentage, 0), 100)
+    }
+
+    return 0
+  }
+
+  // ✅ Auto-update goal status when achieved (CẢI THIỆN LOGIC)
+  const autoUpdateGoalStatus = async (goal: Goal) => {
+    // Tính progress để kiểm tra
+    const progress = calculateProgress(goal)
+    const achieved = isGoalAchieved(goal)
+
+    console.log(`🎯 Checking goal "${goal.type}":`, {
+      startValue: goal.startValue,
+      currentValue: goal.currentValue,
+      targetValue: goal.targetValue,
+      progress: progress.toFixed(2) + '%',
+      achieved,
+      status: goal.status
+    })
+
+    // Chỉ update nếu:
+    // 1. Goal đang active
+    // 2. Progress đạt 100% (hoặc >= 100%)
+    // 3. Goal achieved theo logic kiểm tra
+    if (goal.status === 'active' && progress >= 100 && achieved) {
+      try {
+        console.log(
+          `✅ Goal "${goal.type}" achieved! Auto-updating status...`
+        )
+
+        const response = await profileAPI.updateGoal(goal._id, {
+          status: 'achieved' as GoalStatus
+        })
+
+        const updatedGoal = response.data || response
+
+        // Update local state
+        setGoals((prev) =>
+          prev.map((g) => (g._id === goal._id ? updatedGoal : g))
+        )
+
+        // Show celebration toast
+        toast.success(
+          `🎉 Congratulations! You've achieved your goal: ${goal.type}!`,
+          {
+            duration: 5000
+          }
+        )
+
+        return true
+      } catch (error: any) {
+        console.error('Failed to auto-update goal status:', error)
+        return false
+      }
+    } else if (goal.status === 'active') {
+      console.log(
+        `⏳ Goal "${goal.type}" not yet achieved (${progress.toFixed(
+          2
+        )}% complete)`
+      )
+    }
+
+    return false
+  }
+
   // ✅ Fetch goals with current values from metrics
   useEffect(() => {
     const fetchGoalsWithProgress = async () => {
@@ -238,12 +368,10 @@ export default function ProfilePage() {
             // Nếu goal có link với metric, lấy giá trị mới nhất
             if (goal.metricCode) {
               try {
-                // ✅ Sử dụng API mới
                 const metricResponse = await metricAPI.getLatestByCode(
                   goal.metricCode
                 )
 
-                // ✅ Check if data exists
                 if (metricResponse.data) {
                   currentValue = metricResponse.data.value
                 }
@@ -252,7 +380,6 @@ export default function ProfilePage() {
                   `Failed to fetch metric for goal ${goal._id}:`,
                   error
                 )
-                // Keep using startValue as fallback
               }
             }
 
@@ -264,6 +391,11 @@ export default function ProfilePage() {
         )
 
         setGoals(goalsWithProgress)
+
+        // ✅ Auto-update achieved goals
+        for (const goal of goalsWithProgress) {
+          await autoUpdateGoalStatus(goal)
+        }
       } catch (error: any) {
         console.error('Failed to fetch goals:', error)
         toast.error('Failed to load goals')
@@ -293,10 +425,10 @@ export default function ProfilePage() {
 
       console.log('✅ API Response:', response)
 
-      const avatarUrl = response?.data?.avatarUrl || response?.avatarUrl
+      const avatar = response?.data?.avatar || response?.avatar
 
-      if (avatarUrl) {
-        dispatch(updateUserAvatar(avatarUrl))
+      if (avatar) {
+        dispatch(updateUserAvatar(avatar))
         toast.success('Avatar updated successfully')
       } else {
         console.error('❌ No avatarUrl in response:', response)
@@ -331,7 +463,7 @@ export default function ProfilePage() {
           dob: response.data.dob || response.dob,
           heightCm: response.data.heightCm || response.heightCm,
           weightKg: response.data.weightKg || response.weightKg,
-          avatarUrl: response.data.avatarUrl || response.avatarUrl
+          avatar: response.data.avatar || response.avatar
         })
       )
 
@@ -364,7 +496,31 @@ export default function ProfilePage() {
       const response = await profileAPI.createGoal(goalData)
       const newGoal = response.data || response
 
-      setGoals((prev) => [...prev, newGoal])
+      // ✅ Fetch current value if metricCode exists
+      let currentValue = newGoal.startValue || 0
+      if (newGoal.metricCode) {
+        try {
+          const metricResponse = await metricAPI.getLatestByCode(
+            newGoal.metricCode
+          )
+          if (metricResponse.data) {
+            currentValue = metricResponse.data.value
+          }
+        } catch (error) {
+          console.error('Failed to fetch initial metric:', error)
+        }
+      }
+
+      const goalWithProgress = {
+        ...newGoal,
+        currentValue
+      }
+
+      setGoals((prev) => [...prev, goalWithProgress])
+
+      // ✅ Check if goal is immediately achieved
+      await autoUpdateGoalStatus(goalWithProgress)
+
       toast.success('Goal created successfully')
       setIsGoalModalOpen(false)
     } catch (error: any) {
@@ -393,11 +549,32 @@ export default function ProfilePage() {
   ) => {
     try {
       const response = await profileAPI.updateGoal(goalId, updates)
-      const updatedGoal = response.data || response
+      let updatedGoal = response.data || response
+
+      // ✅ Re-fetch current value if metricCode changed
+      if (updates.metricCode || updatedGoal.metricCode) {
+        try {
+          const metricResponse = await metricAPI.getLatestByCode(
+            updatedGoal.metricCode
+          )
+          if (metricResponse.data) {
+            updatedGoal = {
+              ...updatedGoal,
+              currentValue: metricResponse.data.value
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch updated metric:', error)
+        }
+      }
 
       setGoals((prev) =>
         prev.map((goal) => (goal._id === goalId ? updatedGoal : goal))
       )
+
+      // ✅ Check if goal is now achieved
+      await autoUpdateGoalStatus(updatedGoal)
+
       toast.success('Goal updated successfully')
       setEditingGoal(null)
     } catch (error: any) {
@@ -429,10 +606,10 @@ export default function ProfilePage() {
         displayName: user.displayName,
         email: user.email,
         gender: user.gender ?? 'other',
-        dob: user.dob ? new Date(user.dob) : new Date(), 
+        dob: user.dob ? new Date(user.dob) : new Date(),
         heightCm: user.heightCm ?? 0,
         weightKg: user.weightKg ?? 0,
-        avatarUrl: user.avatarUrl,
+        avatar: user.avatar,
         role: user.role
       }
     : null

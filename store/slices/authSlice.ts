@@ -9,7 +9,7 @@ interface User {
   email: string
   displayName: string
   role: string
-  avatarUrl?: string
+  avatar?: string
   gender?: 'male' | 'female' | 'other'
   dob?: Date
   heightCm?: number
@@ -110,7 +110,7 @@ const userSlice = createSlice({
     // ✅ Thêm action để update avatar
     updateUserAvatar: (state, action: PayloadAction<string>) => {
       if (state.currentUser) {
-        state.currentUser.avatarUrl = action.payload
+        state.currentUser.avatar = action.payload
       }
     }
   },
@@ -132,7 +132,7 @@ const userSlice = createSlice({
           email: userData.email,
           displayName: userData.displayName,
           role: userData.role,
-          avatarUrl: userData.avatarUrl,
+          avatar: userData.avatar,
           gender: userData.gender,
           dob: userData.dob,
           heightCm: userData.heightCm,

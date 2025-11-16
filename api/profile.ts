@@ -6,7 +6,7 @@ interface UpdateProfileData {
   dob?: Date
   heightCm?: number
   weightKg?: number
-  avatar?: File
+  avatar?: string | File
 }
 
 interface CreateGoalData {

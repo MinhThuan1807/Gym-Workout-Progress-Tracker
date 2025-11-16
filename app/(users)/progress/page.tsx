@@ -267,8 +267,8 @@ export default function ProgressPage() {
     console.log(filteredEntries)
     const change = current - starting
     const changePercent = starting !== 0 ? (change / starting) * 100 : 0
-    const best = Math.max(...values)
-    const worst = Math.min(...values)
+    const best = Math.min(...values)
+    const worst = Math.max(...values)
 
     return { current, starting, change, changePercent, best, worst }
   }, [filteredEntries])

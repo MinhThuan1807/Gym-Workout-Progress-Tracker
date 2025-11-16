@@ -80,7 +80,7 @@ export default function DashboardLayout({children}: {children: React.ReactNode})
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="border-t p-4">
+          <SidebarFooter className="border-t p-4">  
             <div className="flex items-center gap-3 mb-3">
               <Avatar className="w-10 h-10">
                 <AvatarImage src={user?.avatar} />

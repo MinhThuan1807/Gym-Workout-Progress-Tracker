@@ -184,11 +184,11 @@ declare global {
     email: string
     displayName?: string
     role: string
-    gender?: string
+    gender?: 'male' | 'female' | 'other'
     dob: Date
     heightCm?: number
     weightKg?: number
-    avatar?: string
+    avatar?: string | File
   }
 
   interface AuthUser {
