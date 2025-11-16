@@ -6,11 +6,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Edit, CheckCircle2, X, MoreVertical, Clock } from "lucide-react";
 import { Scale, Percent, Calendar, Dumbbell, Activity, Heart, Zap } from "lucide-react";
 import { LucideIcon } from 'lucide-react';
+
 export const goalTypeConfigs: Record<GoalType, { icon: LucideIcon; label: string; unit: string; color: string; higherIsBetter: boolean }> = {
   weight: { icon: Scale, label: 'Weight Goal', unit: 'kg', color: '#10b981', higherIsBetter: false },
-  bodyFat: { icon: Percent, label: 'Body Fat %', unit: '%', color: '#f59e0b', higherIsBetter: false },
-  sessionsWeek: { icon: Calendar, label: 'Sessions/Week', unit: 'sessions', color: '#3b82f6', higherIsBetter: true },
-  oneRepMax: { icon: Dumbbell, label: 'One Rep Max', unit: 'kg', color: '#8b5cf6', higherIsBetter: true },
+  body_fat_pct: { icon: Percent, label: 'Body Fat %', unit: '%', color: '#f59e0b', higherIsBetter: false },
+  sessions_per_week: { icon: Calendar, label: 'Sessions/Week', unit: 'sessions', color: '#3b82f6', higherIsBetter: true },
+  one_rm: { icon: Dumbbell, label: 'One Rep Max', unit: 'kg', color: '#8b5cf6', higherIsBetter: true },
   strength: { icon: Activity, label: 'Strength', unit: 'points', color: '#ec4899', higherIsBetter: true },
   endurance: { icon: Heart, label: 'Endurance', unit: 'min', color: '#14b8a6', higherIsBetter: true },
   flexibility: { icon: Zap, label: 'Flexibility', unit: 'cm', color: '#f97316', higherIsBetter: true },

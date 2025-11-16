@@ -804,7 +804,7 @@ export default function ProgressPhotos() {
             <div className="space-y-4">
               <div className="relative bg-[#f9fafb] rounded-2xl overflow-hidden">
                 <Image
-                  src={selectedPhotoForView.imageUrl || ''}
+                  src={selectedPhotoForView.imageUrl ?? null}
                   alt={`Progress photo - ${
                     viewLabels[selectedPhotoForView.view]
                   }`}
