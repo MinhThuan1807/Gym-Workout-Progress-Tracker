@@ -46,6 +46,8 @@ declare global {
     linkedExerciseName?: string
     notes?: string
   }
+  type GoalType = 'weight' | 'bodyFat' | 'sessionsWeek' | 'oneRepMax' | 'strength' | 'endurance' | 'flexibility';
+  type GoalStatus = 'active' | 'achieved' | 'abandoned';
 
   interface Achievement {
     _id: string
@@ -57,12 +59,19 @@ declare global {
     requirement?: number
     color?: string
   }
+  interface QuickStats {
+    totalWorkouts: number;
+    currentStreak: number;
+    goalsAchieved: number;
+    totalGoals: number;
+    totalVolume: number;
+  }
 
   interface UserProfile {
     displayName: string
     email: string
     gender?: 'male' | 'female' | 'other'
-    dob?: string
+    dob: string
     heightCm?: number
     weightKg?: number
     avatarUrl?: string
@@ -167,12 +176,10 @@ declare global {
     displayName?: string
     role: string
     gender?: string
-    dob?: Date
+    dob: Date
     heightCm?: number
     weightKg?: number
     avatar?: string
-    createAt: Date
-    updateAt: Date
   }
 
   interface AuthUser {
@@ -194,32 +201,6 @@ declare global {
     description: string
     mediaImageUrl: string
     mediaVideoUrl?: string
-  }
-  interface Goal {
-    id: string
-    type: GoalType
-    name: string
-    startValue?: number
-    currentValue: number
-    targetValue: number
-    unit: string
-    status: GoalStatus
-    startDate: string
-    targetDate?: string
-    linkedExerciseId?: number
-    linkedExerciseName?: string
-    notes?: string
-  }
-
-  interface Achievement {
-    id: string
-    name: string
-    description: string
-    icon: string
-    unlocked: boolean
-    progress?: number
-    requirement?: number
-    color?: string
   }
 
   interface UserProfile {

@@ -2,20 +2,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import axiosInstance from '@/api/axios'
-import { de } from 'zod/v4/locales'
+
+
+interface User {
+  _id: string
+  email: string
+  displayName: string
+  role: string
+  avatarUrl?: string
+  gender?: 'male' | 'female' | 'other'
+  dob?: Date
+  heightCm?: number
+  weightKg?: number
+}
 
 interface AuthState {
-  currentUser: Partial<User> | null
+  user: User | null
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
+  currentUser: User | null
 }
 
 const initialState: AuthState = {
-  currentUser: null,
+  user: null,
   isAuthenticated: false,
   isLoading: false,
-  error: null
+  error: null,
+  currentUser: null
 }
 
 export const loginUserAPI = createAsyncThunk(
@@ -83,6 +97,21 @@ const userSlice = createSlice({
         state.currentUser = null
         state.isAuthenticated = false
       }
+    },
+    // ✅ Thêm action để update user profile
+    updateUserProfile: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.currentUser) {
+        state.currentUser = {
+          ...state.currentUser,
+          ...action.payload
+        }
+      }
+    },
+    // ✅ Thêm action để update avatar
+    updateUserAvatar: (state, action: PayloadAction<string>) => {
+      if (state.currentUser) {
+        state.currentUser.avatarUrl = action.payload
+      }
     }
   },
 
@@ -103,13 +132,11 @@ const userSlice = createSlice({
           email: userData.email,
           displayName: userData.displayName,
           role: userData.role,
-          avatar: userData.avatar,
+          avatarUrl: userData.avatarUrl,
           gender: userData.gender,
           dob: userData.dob,
           heightCm: userData.heightCm,
           weightKg: userData.weightKg,
-          createAt: userData.createdAt,
-          updateAt: userData.updatedAt
         }
         state.isAuthenticated = true
         state.error = null
@@ -153,7 +180,13 @@ const userSlice = createSlice({
   }
 })
 
-export const { resetAuth, clearError, checkAuth } = userSlice.actions
+export const {
+  resetAuth,
+  clearError,
+  checkAuth,
+  updateUserProfile,
+  updateUserAvatar
+} = userSlice.actions
 export const selectCurrentUser = (state: { user: AuthState }) =>
   state.user.currentUser
 export const selectIsAuthenticated = (state: { user: AuthState }) =>

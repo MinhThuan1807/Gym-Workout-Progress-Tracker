@@ -23,14 +23,14 @@ const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/v1/',
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
-  timeout: 30000
+  timeout: 120000
 })
 
 const refreshToken = async () => {
   const response = await axios.post(
     `${
       process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/v1/'
-    }auth/refresh-token`,
+    }/auth/refresh-token`,
     {},
     {
       withCredentials: true,
