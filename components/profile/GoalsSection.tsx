@@ -99,9 +99,9 @@ export function GoalsSection({
                   <span>
                     {current.toFixed(1)} / {goal.targetValue} {goal.unit}
                   </span>
-                  {goal.note && (
+                  {goal.goalType && (
                     <Badge variant="secondary" className="text-xs">
-                      {goal.note}
+                      {goal.goalType.replace(/_/g, ' ')}
                     </Badge>
                   )}
                 </div>

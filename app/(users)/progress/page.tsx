@@ -303,6 +303,7 @@ export default function ProgressPage() {
         notes: entry.note
       }
     })
+    .reverse()
   }, [filteredEntries])
 
   // Calculate trend line using linear regression
@@ -340,18 +341,6 @@ export default function ProgressPage() {
           new Date(b.measureAt).getTime() - new Date(a.measureAt).getTime()
       )
       .slice(0, 10)
-  }, [entries])
-
-  // Get dates with logged metrics for calendar
-  const loggedDates = useMemo(() => {
-    return entries
-      .map((e) => {
-        const dateStr = e.measureAt
-        if (!dateStr) return null
-        const date = new Date(dateStr)
-        return isNaN(date.getTime()) ? null : date
-      })
-      .filter((date): date is Date => date !== null)
   }, [entries])
 
   const handleLogEntry = async () => {
