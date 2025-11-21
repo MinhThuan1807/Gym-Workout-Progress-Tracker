@@ -30,7 +30,7 @@ const refreshToken = async () => {
   const response = await axios.post(
     `${
       process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/v1/'
-    }/auth/refresh-token`,
+    }auth/refresh-token`,
     {},
     {
       withCredentials: true,
