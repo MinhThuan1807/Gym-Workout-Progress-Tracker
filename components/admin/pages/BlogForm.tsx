@@ -20,10 +20,10 @@ import {
 } from '../ui/select'
 import { FileUpload } from '../shared/FileUpload'
 
-export function BlogForm() {
+export function BlogForm({ blogId }: { blogId?: string }) {
   const router = useRouter()
   const params = useParams()
-  const id = params?.id
+  const id = blogId || params?.id
   const isEdit = !!id
 
   const [isLoading, setIsLoading] = useState(false)
