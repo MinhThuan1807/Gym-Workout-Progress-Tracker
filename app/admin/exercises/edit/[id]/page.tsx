@@ -1,14 +1,14 @@
-import { ExerciseForm } from "@/components/admin/pages/ExerciseForm";
+import { ExerciseForm } from '@/components/admin/pages/ExerciseForm'
 
 export const metadata = {
-  title: "Edit Exercise | FitTrack Admin",
-  description: "Edit exercise details",
-};
+  title: 'Edit Exercise | FitTrack Admin',
+  description: 'Edit exercise details'
+}
 
 export default function EditExercisePage({
-  params,
+  params
 }: {
-  params: { id: string };
+  params: { id: string }
 }) {
-  return <ExerciseForm />;
+  return <ExerciseForm exerciseId={params.id} />
 }
