@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function EditBlogPage({ params }: { params: { id: string } }) {
-  return <BlogForm blogId={params.id} />
+  return <BlogForm />
 }

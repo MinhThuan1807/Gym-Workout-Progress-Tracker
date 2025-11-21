@@ -10,5 +10,5 @@ export default function EditExercisePage({
 }: {
   params: { id: string }
 }) {
-  return <ExerciseForm exerciseId={params.id} />
+  return <ExerciseForm />
 }
