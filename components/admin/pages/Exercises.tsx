@@ -30,9 +30,19 @@ import {
 } from '@/api'
 import { toast } from 'sonner'
 import { UploadVideoExerciseModal } from '../modals/UploadVideoExerciseModal'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '../ui/pagination'
 
 export function Exercises() {
   const router = useRouter()
+  const itemsPerPage = 6
+  const [currentPage, setCurrentPage] = useState(1)
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [muscleGroupsMap, setMuscleGroupsMap] = useState<
     Record<string, string>
@@ -110,6 +120,21 @@ export function Exercises() {
 
     return matchesSearch && matchesType && matchesDifficulty && matchesPublic
   })
+
+  const totalPages = Math.ceil(filteredExercises.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedExercises = filteredExercises.slice(startIndex, endIndex)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, typeFilter, difficultyFilter, publicOnly])
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+    }
+  }
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
@@ -269,7 +294,7 @@ export function Exercises() {
         </div>
 
         {/* Exercise Grid */}
-        {filteredExercises.length === 0 ? (
+        {paginatedExercises.length === 0 ? (
           <div className="text-center py-16 space-y-4">
             <div className="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
               <Search className="w-12 h-12 text-gray-400" />
@@ -290,7 +315,7 @@ export function Exercises() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-            {filteredExercises.map((exercise) => (
+            {paginatedExercises.map((exercise) => (
               <div
                 key={exercise._id}
                 className="bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md"
@@ -612,6 +637,58 @@ export function Exercises() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {paginatedExercises.length > 0 && (
+          <div className="p-4 ">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                Showing {startIndex + 1} to{' '}
+                {Math.min(endIndex, filteredExercises.length)} of{' '}
+                {filteredExercises.length} exercises
+              </p>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className={
+                        currentPage === 1
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
+                      size="default"
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                          size="default"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className={
+                        currentPage === totalPages
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
+                      size="default"
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
         )}
 
