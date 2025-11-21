@@ -26,10 +26,10 @@ import {
 import { toast } from 'sonner'
 import { createExerciseAPI, updateExerciseAPI } from '@/api'
 
-export function ExerciseForm({ exerciseId }: { exerciseId?: string }) {
+export function ExerciseForm() {
   const router = useRouter()
   const params = useParams()
-  const id = exerciseId || (params?.id as string | undefined)
+  const id = params?.id as string | undefined
   const isEdit = !!id
 
   const [formData, setFormData] = useState({
