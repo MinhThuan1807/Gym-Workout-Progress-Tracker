@@ -1,9 +1,14 @@
 'use client'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import InputField from '@/components/forms/InputField'
+import { Button } from '@/components/user/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/user/ui/card'
+import InputField from '@/components/user/forms/InputField'
 import { useForm } from 'react-hook-form'
-import FooterLink from '@/components/forms/FooterLink'
+import FooterLink from '@/components/user/forms/FooterLink'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'

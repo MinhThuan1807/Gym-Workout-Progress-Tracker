@@ -29,19 +29,19 @@ interface GetAllMetricsParams {
 }
 
 export const metricAPI = {
-  // ✅ Log metric mới
+  // Log new metric
   logMetric: async (data: LogMetricData) => {
     const response = await axiosInstance.post('/metric-entries', data)
     return response.data
   },
 
-  // ✅ Lấy tất cả metrics (có filter)
+  // Get all metrics with filters
   getAll: async (params?: GetAllMetricsParams) => {
     const response = await axiosInstance.get('/metric-entries', { params })
     return response.data
   },
 
-  // ✅ Lấy metric mới nhất theo code (cho Goal tracking)
+  // Get latest metric by code for goal tracking
   getLatestByCode: async (metricCode: MetricType) => {
     const response = await axiosInstance.get(
       `/metric-entries/latest/${metricCode}`
@@ -49,7 +49,7 @@ export const metricAPI = {
     return response.data
   },
 
-  // ✅ Lấy lịch sử để vẽ chart
+  // Get history for chart rendering
   getHistory: async (metricCode: MetricType, params?: MetricHistoryParams) => {
     const response = await axiosInstance.get(
       `/metric-entries/history/${metricCode}`,
@@ -58,7 +58,7 @@ export const metricAPI = {
     return response.data
   },
 
-  // ✅ Lấy thống kê
+  // Get statistics
   getStats: async (metricCode: MetricType, params?: MetricStatsParams) => {
     const response = await axiosInstance.get(
       `/metric-entries/stats/${metricCode}`,
@@ -67,25 +67,25 @@ export const metricAPI = {
     return response.data
   },
 
-  // ✅ Get metric by ID
+  // Get metric by ID
   getById: async (id: string) => {
     const response = await axiosInstance.get(`/metric-entries/${id}`)
     return response.data
   },
 
-  // ✅ Update metric
+  // Update metric
   update: async (id: string, data: Partial<LogMetricData>) => {
     const response = await axiosInstance.put(`/metric-entries/${id}`, data)
     return response.data
   },
 
-  // ✅ Delete metric
+  // Delete metric
   delete: async (id: string) => {
     const response = await axiosInstance.delete(`/metric-entries/${id}`)
     return response.data
   },
 
-  // ⚠️ Deprecated - Giữ lại để tương thích ngược
+  // Deprecated - Keep for backward compatibility
   getMetricsByCode: async (metricCode: MetricType) => {
     console.warn('getMetricsByCode is deprecated. Use getAll() instead.')
     const response = await axiosInstance.get('/metric-entries', {
@@ -94,7 +94,7 @@ export const metricAPI = {
     return response.data
   },
 
-  // ⚠️ Deprecated - Giữ lại để tương thích ngược
+  // Deprecated - Keep for backward compatibility
   getLatestMetric: async (metricCode: MetricType) => {
     console.warn(
       'getLatestMetric is deprecated. Use getLatestByCode() instead.'

@@ -3,8 +3,8 @@
 import { Button } from '@/components/admin/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
-import Header from '@/components/page/layout/Header'
-import Footer from '@/components/page/layout/Footer'
+import Header from '@/components/user/page/layout/Header'
+import Footer from '@/components/user/page/layout/Footer'
 import { useRouter } from 'next/navigation'
 
 const LandingPage = () => {

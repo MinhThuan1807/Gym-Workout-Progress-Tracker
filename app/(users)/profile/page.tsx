@@ -1,15 +1,15 @@
 'use client'
 
 import { useMemo, useState, useEffect } from 'react'
-import { ProfileHeader } from '@/components/profile/ProfileHeader'
-import { PersonalInfoForm } from '@/components/profile/PersonalInfoForm'
-import { GoalsSection } from '@/components/profile/GoalsSection'
-import { QuickStatsCard } from '@/components/profile/QuickStatsCard'
-import { AchievementsCard } from '@/components/profile/AchievementCard'
-import { CreateGoalModal } from '@/components/profile/CreateGoalModal'
-import { EditProfileModal } from '@/components/profile/EditProfileModal'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent } from '@/components/ui/card'
+import { ProfileHeader } from '@/components/user/profile/ProfileHeader'
+import { PersonalInfoForm } from '@/components/user/profile/PersonalInfoForm'
+import { GoalsSection } from '@/components/user/profile/GoalsSection'
+import { QuickStatsCard } from '@/components/user/profile/QuickStatsCard'
+import { AchievementsCard } from '@/components/user/profile/AchievementCard'
+import { CreateGoalModal } from '@/components/user/profile/CreateGoalModal'
+import { EditProfileModal } from '@/components/user/profile/EditProfileModal'
+import { Skeleton } from '@/components/user/ui/skeleton'
+import { Card, CardContent } from '@/components/user/ui/card'
 import { AlertCircle } from 'lucide-react'
 import { profileAPI } from '@/api/profile'
 import { metricAPI } from '@/api/metric'
@@ -311,7 +311,9 @@ export default function ProfilePage() {
     // 3. Goal achieved theo logic kiểm tra
     if (goal.status === 'active' && progress >= 100 && achieved) {
       try {
-        console.log(`✅ Goal "${goal.goalType}" achieved! Auto-updating status...`)
+        console.log(
+          `✅ Goal "${goal.goalType}" achieved! Auto-updating status...`
+        )
 
         const response = await profileAPI.updateGoal(goal._id, {
           status: 'achieved' as GoalStatus

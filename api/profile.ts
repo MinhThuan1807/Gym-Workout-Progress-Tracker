@@ -43,7 +43,7 @@ export const profileAPI = {
   updateProfile: async (profileData: UpdateProfileData) => {
     const formData = new FormData()
 
-    // ✅ Only append fields that are provided and not undefined
+    // Only append fields that are provided and not undefined
     if (profileData.displayName !== undefined) {
       formData.append('displayName', profileData.displayName)
     }
@@ -51,7 +51,7 @@ export const profileAPI = {
       formData.append('gender', profileData.gender)
     }
     if (profileData.dob !== undefined) {
-      // ✅ Format date properly (YYYY-MM-DD)
+      // Format date properly (YYYY-MM-DD)
       const dateStr =
         profileData.dob instanceof Date
           ? profileData.dob.toISOString().split('T')[0]
@@ -68,7 +68,7 @@ export const profileAPI = {
       formData.append('avatar', profileData.avatar)
     }
 
-    console.log('📤 Sending FormData:', Array.from(formData.entries()))
+    console.log('Sending FormData:', Array.from(formData.entries()))
 
     const response = await axiosInstance.put('/users/profile', formData, {
       headers: {
