@@ -1,6 +1,5 @@
 'use client'
 
-import { Toaster } from '@/components/ui/sonner'
 import {
   SidebarProvider,
   Sidebar,
@@ -10,7 +9,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter
-} from '@/components/ui/sidebar'
+} from '@/components/user/ui/sidebar'
 import {
   LayoutDashboard,
   Dumbbell,
@@ -19,7 +18,7 @@ import {
   User,
   LogOut
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/user/ui/button'
 import { useParams, useRouter } from 'next/navigation'
 import {
   getCurrentUserAPI,
@@ -29,14 +28,19 @@ import {
 } from '@/store/slices/authSlice'
 import { useAppDispatch, useAppSelector } from '@/store/hook'
 import { useEffect } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage
+} from '@/components/user/ui/avatar'
+import { toast } from 'sonner'
 
 const menuItems = [
-  { href: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: 'workouts', label: 'Workouts', icon: Dumbbell },
-  { href: 'progress', label: 'Progress', icon: TrendingUp },
-  { href: 'exercises', label: 'Exercises', icon: BookOpen },
-  { href: 'profile', label: 'Profile', icon: User }
+  { href: 'dashboard', label: 'Dashboard' },
+  { href: 'workouts', label: 'Workouts' },
+  { href: 'progress', label: 'Progress' },
+  { href: 'exercises', label: 'Exercises' },
+  { href: 'profile', label: 'Profile' }
 ]
 
 export default function DashboardLayout({
@@ -48,9 +52,9 @@ export default function DashboardLayout({
   const params = useParams<{ tag: string }>()
   const user = useAppSelector(selectCurrentUser)
   const dispatch = useAppDispatch()
-  const isLoading = useAppSelector(selectIsLoading)
+  // const isLoading = useAppSelector(selectIsLoading)
 
-  // ✅ Fetch user data khi mount (nếu chưa có user)
+  // Fetch user data on mount (if user data is not available)
   useEffect(() => {
     if (!user) {
       dispatch(getCurrentUserAPI())
@@ -60,13 +64,12 @@ export default function DashboardLayout({
   // Handle logout
   const handleLogout = async () => {
     try {
-      // Đợi logout API complete
-      await dispatch(logoutUserAPI()).unwrap()
-      // Redirect về login page
+      const res = await dispatch(logoutUserAPI()).unwrap()
+      toast.success(res.message)
       router.push('/user/login')
     } catch (error) {
       console.error('Logout failed:', error)
-      // Vẫn redirect về login dù có lỗi
+      // Still redirect to login even if error occurs
       router.push('/user/login')
     }
   }
@@ -101,7 +104,6 @@ export default function DashboardLayout({
                       params.tag === item.href ? 'font-bold' : ''
                     }`}
                   >
-                    <item.icon className="w-5 h-5 " />
                     <span className="cursor-pointer">{item.label}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -235,7 +237,6 @@ export default function DashboardLayout({
                         : 'hover:bg-muted'
                     }`}
                   >
-                    <item.icon className="w-5 h-5" />
                     <span className="font-medium">{item.label}</span>
                   </button>
                 </label>

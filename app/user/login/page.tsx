@@ -1,9 +1,14 @@
 'use client'
 import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import InputField from '@/components/forms/InputField'
-import FooterLink from '@/components/forms/FooterLink'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/user/ui/button'
+import InputField from '@/components/user/forms/InputField'
+import FooterLink from '@/components/user/forms/FooterLink'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/user/ui/card'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { loginUserAPI } from '@/store/slices/authSlice'

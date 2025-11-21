@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/user/ui/card'
+import { Input } from '@/components/user/ui/input'
+import { Button } from '@/components/user/ui/button'
 import {
   Search,
   Filter,
@@ -15,25 +15,25 @@ import {
   X,
   Play
 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/user/ui/badge'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle
-} from '@/components/ui/dialog'
+} from '@/components/user/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from '@/components/user/ui/select'
+import { ScrollArea } from '@/components/user/ui/scroll-area'
 import Image from 'next/image'
-import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { AspectRatio } from '@/components/user/ui/aspect-ratio'
 import { Suspense } from 'react'
-import { SkeletonExercises } from '@/components/skeleton/SkeletonExcercises'
+import { SkeletonExercises } from '@/components/user/skeleton/SkeletonExcercises'
 import { exerciseAPI } from '@/api/exercise'
 import { muscleAPI } from '@/api/muscle'
 

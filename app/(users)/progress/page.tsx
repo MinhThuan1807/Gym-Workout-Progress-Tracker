@@ -1,9 +1,14 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/user/ui/card'
+import { Button } from '@/components/user/ui/button'
+import { Input } from '@/components/user/ui/input'
+import { Label } from '@/components/user/ui/label'
 import {
   LineChart,
   Line,
@@ -20,10 +25,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@/components/user/ui/select'
 import { Suspense, useEffect, useMemo, useState } from 'react'
-import { SkeletonProgress } from '@/components/skeleton/SkeletonProgress'
-import { Textarea } from '@/components/ui/textarea'
+import { SkeletonProgress } from '@/components/user/skeleton/SkeletonProgress'
+import { Textarea } from '@/components/user/ui/textarea'
 import {
   Activity,
   ArrowDown,
@@ -33,8 +38,13 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { Separator } from '@radix-ui/react-separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScrollArea } from '@/components/user/ui/scroll-area'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/user/ui/tabs'
 import { toast } from 'sonner'
 import { metricAPI } from '@/api/metric'
 import { useSelector } from 'react-redux'
@@ -42,7 +52,7 @@ import {
   selectIsAuthenticated,
   selectCurrentUser
 } from '@/store/slices/authSlice'
-import ProgressPhotos from '@/components/progress/ProgressPhoto'
+import ProgressPhotos from '@/components/user/progress/ProgressPhoto'
 
 type TimeRange = '1W' | '1M' | '3M' | '6M' | '1Y' | 'ALL'
 
@@ -289,21 +299,22 @@ export default function ProgressPage() {
 
   // Format chart data
   const chartData = useMemo(() => {
-    return filteredEntries.map((entry) => {
-      const dateStr = entry.measureAt
-      const date = dateStr ? new Date(dateStr) : new Date()
+    return filteredEntries
+      .map((entry) => {
+        const dateStr = entry.measureAt
+        const date = dateStr ? new Date(dateStr) : new Date()
 
-      return {
-        date: date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric'
-        }),
-        value: entry.value,
-        fullDate: dateStr,
-        notes: entry.note
-      }
-    })
-    .reverse()
+        return {
+          date: date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+          }),
+          value: entry.value,
+          fullDate: dateStr,
+          notes: entry.note
+        }
+      })
+      .reverse()
   }, [filteredEntries])
 
   // Calculate trend line using linear regression
