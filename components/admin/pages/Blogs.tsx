@@ -17,9 +17,19 @@ import {
 import { DeleteConfirmModal } from '../modals/DeleteConfirmModal'
 import { getAllBlogsAPI, deleteBlogAPI } from '@/api'
 import { toast } from 'sonner'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '../ui/pagination'
 
 export function Blogs() {
   const router = useRouter()
+  const itemsPerPage = 6
+  const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [blogPosts, setBlogPosts] = useState<any[]>([])
   const [deleteModal, setDeleteModal] = useState<{
@@ -29,8 +39,6 @@ export function Blogs() {
     open: false,
     post: null
   })
-
-  // console.log(blogPosts)
 
   useEffect(() => {
     const fetchBlogPosts = async () => {
@@ -53,6 +61,29 @@ export function Blogs() {
 
     fetchBlogPosts()
   }, [])
+
+  // Pagination, Search, and Sorting can be added here
+  const filteredBlogPosts = blogPosts.filter((post) => {
+    const matchSearch =
+      post?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post?.description.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchSearch
+  })
+
+  const totalPages = Math.ceil(filteredBlogPosts.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedBlogPosts = filteredBlogPosts.slice(startIndex, endIndex)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+    }
+  }
 
   const handleDeleteBlog = async (post: any) => {
     try {
@@ -101,7 +132,7 @@ export function Blogs() {
 
         {/* Mobile Card Layout */}
         <div className="block lg:hidden">
-          {blogPosts.map((post: any) => (
+          {paginatedBlogPosts.map((post: any) => (
             <div
               key={post.id}
               className="p-4 border-b border-gray-100 last:border-0"
@@ -167,7 +198,7 @@ export function Blogs() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {blogPosts.map((post) => (
+              {paginatedBlogPosts.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell className="max-w-xs">
                     <div className="truncate font-medium">{post.name}</div>
@@ -211,6 +242,58 @@ export function Blogs() {
             </TableBody>
           </Table>
         </div>
+
+        {paginatedBlogPosts.length > 0 && (
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                Showing {startIndex + 1} to{' '}
+                {Math.min(endIndex, filteredBlogPosts.length)} of{' '}
+                {filteredBlogPosts.length} blog posts
+              </p>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className={
+                        currentPage === 1
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
+                      size="default"
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                          size="default"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className={
+                        currentPage === totalPages
+                          ? 'pointer-events-none opacity-50'
+                          : 'cursor-pointer'
+                      }
+                      size="default"
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          </div>
+        )}
       </div>
 
       {deleteModal.post && (
