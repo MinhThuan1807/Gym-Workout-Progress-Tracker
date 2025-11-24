@@ -124,7 +124,6 @@ export default function SessionCard({
             >
               <Trash2 className="w-4 h-4" />
             </Button>
-            <ChevronRight className="w-5 h-5 text-[#6b7280] mt-auto" />
           </div>
         </div>
       </CardContent>

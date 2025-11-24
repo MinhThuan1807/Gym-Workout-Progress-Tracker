@@ -39,5 +39,9 @@ export const progressPhoToAPI = {
     getAll: async () => {
         const response = await axiosInstance.get('/progress-photos')
         return response.data
+    },
+    delete: async(id: string) => {
+        const response = await axiosInstance.delete(`/progress-photos/${id}`)
+        return response.data;
     }
 }

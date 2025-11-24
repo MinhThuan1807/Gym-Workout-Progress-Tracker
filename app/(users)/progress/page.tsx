@@ -187,14 +187,12 @@ export default function ProgressPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [inputValue, setInputValue] = useState('')
   const [inputNotes, setInputNotes] = useState('')
-  const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date())
   const [viewMode, setViewMode] = useState<'chart' | 'calendar' | 'photo'>(
     'chart'
   )
   const [isLoading, setIsLoading] = useState(false)
 
   const isAuthenticated = useSelector(selectIsAuthenticated)
-  const user = useSelector(selectCurrentUser)
 
   // Fetch all metrics on mount
   useEffect(() => {
