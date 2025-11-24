@@ -1,16 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/user/ui/button'
 import { Plus, Calendar, Dumbbell } from 'lucide-react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/user/ui/tabs'
 import { exerciseAPI } from '@/api/exercise'
 import { workoutAPI } from '@/api/workouts'
-import WorkoutPlanCard from '@/components/workouts/WorkoutPlanCard'
-import SessionCard from '@/components/workouts/SessionCard'
-import PlanModal from '@/components/workouts/PlanModal'
-import SessionModal from '@/components/workouts/SessionModal'
-import SessionDetailModal from '@/components/workouts/SessionDetailModal'
+import WorkoutPlanCard from '@/components/user/workouts/WorkoutPlanCard'
+import SessionCard from '@/components/user/workouts/SessionCard'
+import PlanModal from '@/components/user/workouts/PlanModal'
+import SessionModal from '@/components/user/workouts/SessionModal'
+import SessionDetailModal from '@/components/user/workouts/SessionDetailModal'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -20,7 +25,7 @@ import {
   AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel
-} from '@/components/ui/alert-dialog'
+} from '@/components/user/ui/alert-dialog'
 import { toast } from 'sonner'
 
 const daysOfWeek = [
@@ -109,7 +114,8 @@ export default function WorkoutsPage() {
   )
   const [isSessionEditMode, setIsSessionEditMode] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [deleteTargetSession, setDeleteTargetSession] = useState<U_WorkoutSession | null>(null)
+  const [deleteTargetSession, setDeleteTargetSession] =
+    useState<U_WorkoutSession | null>(null)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -155,7 +161,7 @@ export default function WorkoutsPage() {
     setIsEditMode(true)
     setIsPlanModalOpen(true)
   }
-    const confirmDeleteSession = (sessionOrId: U_WorkoutSession | string) => {
+  const confirmDeleteSession = (sessionOrId: U_WorkoutSession | string) => {
     if (typeof sessionOrId === 'string') {
       const s = sessions.find((x) => x._id === sessionOrId) || null
       setDeleteTargetSession(s)
@@ -177,7 +183,9 @@ export default function WorkoutsPage() {
       await refreshSessions()
     } catch (error: any) {
       console.error('Error deleting session:', error)
-      toast.error(`❌ ${error.response?.data?.message || 'Failed to delete session'}`)
+      toast.error(
+        `❌ ${error.response?.data?.message || 'Failed to delete session'}`
+      )
     }
   }
 
@@ -309,25 +317,29 @@ export default function WorkoutsPage() {
               />
             ))}
           </div>
-          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Xóa buổi tập</AlertDialogTitle>
-              <AlertDialogDescription>
-                Bạn có chắc muốn xóa buổi tập này? Hành động này không thể hoàn tác.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Hủy</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => handleDeleteSession()}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Xóa
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          <AlertDialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Xóa buổi tập</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Bạn có chắc muốn xóa buổi tập này? Hành động này không thể
+                  hoàn tác.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Hủy</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => handleDeleteSession()}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Xóa
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50">
             <Button
               size="lg"

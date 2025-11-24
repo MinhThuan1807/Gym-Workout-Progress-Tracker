@@ -17,13 +17,13 @@ interface IWorkoutPlanItem {
   order?: number
 }
 
-// ⚠️ FIX: Đổi interface theo đúng format backend
+// FIX: Change interface to match backend format
 interface IWorkoutSessionExercise {
   exerciseId: string
   order: number
   note?: string
   sets: {
-    setNo: number // Backend dùng setNo thay vì setNumber
+    setNo: number // Backend uses setNo instead of setNumber
     reps: number
     weight: number
     distanceM?: number
@@ -78,9 +78,9 @@ export const workoutAPI = {
     planId?: string
     startTime: Date
     endTime?: Date
-    mood?: string // Backend nhận string, không phải enum
+    mood?: string // Backend accepts string, not enum
     energyLevel?: number
-    note?: string // Backend dùng note thay vì notes
+    note?: string // Backend uses note instead of notes
     exercises: IWorkoutSessionExercise[]
   }) => {
     const response = await axiosInstance.post('/workout-sessions', data)

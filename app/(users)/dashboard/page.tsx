@@ -1,13 +1,13 @@
 'use client'
 
-import { WeightCard } from '@/components/dashboard/WeightCard'
-import { WorkoutsCard } from '@/components/dashboard/WorkoutsCard'
-import { GoalsCard } from '@/components/dashboard/GoalsCard'
-import { WeightChart } from '@/components/dashboard/WeightChart'
-import { WorkoutFrequencyChart } from '@/components/dashboard/WorkoutFrequencyChart'
-import { RecentActivity } from '@/components/dashboard/RecentActivity'
-import { InsightsCard } from '@/components/dashboard/InsightsCard'
-import { WeeklySchedule } from '@/components/dashboard/WeeklySchedule'
+import { WeightCard } from '@/components/user/dashboard/WeightCard'
+import { WorkoutsCard } from '@/components/user/dashboard/WorkoutsCard'
+import { GoalsCard } from '@/components/user/dashboard/GoalsCard'
+import { WeightChart } from '@/components/user/dashboard/WeightChart'
+import { WorkoutFrequencyChart } from '@/components/user/dashboard/WorkoutFrequencyChart'
+import { RecentActivity } from '@/components/user/dashboard/RecentActivity'
+import { InsightsCard } from '@/components/user/dashboard/InsightsCard'
+import { WeeklySchedule } from '@/components/user/dashboard/WeeklySchedule'
 import { useDashboardData } from '@/hooks/useDashboardData'
 
 const Dashboard = () => {

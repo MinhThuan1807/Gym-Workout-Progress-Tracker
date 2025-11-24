@@ -1,4 +1,4 @@
-import ExercisesLibrary from '@/components/page/exercises/ExercisesLibrary'
+import ExercisesLibrary from '@/components/user/page/exercises/ExercisesLibrary'
 
 export const metadata = {
   title: 'Library Exercises | FitTrack',

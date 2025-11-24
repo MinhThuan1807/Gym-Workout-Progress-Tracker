@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Plus, Edit, Trash2, Activity } from 'lucide-react'
+import { Plus, Edit, Trash2, Activity, Search } from 'lucide-react'
 import { PageHeader } from '../shared/PageHeader'
 import { Button } from '../ui/button'
 import { EmptyState } from '../shared/EmptyState'
@@ -14,11 +14,23 @@ import {
   deleteMuscleGroupAPI
 } from '@/api'
 import { toast } from 'sonner'
+import { Input } from '../ui/input'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '../ui/pagination'
 
 export function MuscleGroups() {
+  const itemsPerPage = 8
+  const [currentPage, setCurrentPage] = useState(1)
   const [muscleGroups, setMuscleGroups] = useState<any[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [editingGroup, setEditingGroup] = useState<any | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
   const [deleteModal, setDeleteModal] = useState({
     open: false,
     group: null as any | null
@@ -36,6 +48,28 @@ export function MuscleGroups() {
     }
     fetchMuscleGroups()
   }, [])
+
+  const filteredMuscleGroups = muscleGroups.filter((group) => {
+    const matchSearch =
+      group?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      group?.description.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchSearch
+  })
+
+  const totalPages = Math.ceil(filteredMuscleGroups.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedMuscleGroups = filteredMuscleGroups.slice(startIndex, endIndex)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+    }
+  }
 
   const handleEdit = (group: any) => {
     setEditingGroup(group)
@@ -110,7 +144,21 @@ export function MuscleGroups() {
         }
       />
 
-      {muscleGroups.length === 0 ? (
+      <div className="bg-white rounded-lg shadow-sm p-1 mb-4 lg:mb-6">
+        <div className="p-4 lg:p-6 border-gray-200">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Input
+              placeholder="Search muscle groups..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+      </div>
+
+      {paginatedMuscleGroups.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm">
           <EmptyState
             icon={Activity}
@@ -122,7 +170,7 @@ export function MuscleGroups() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-          {muscleGroups.map((group: any) => (
+          {paginatedMuscleGroups.map((group: any) => (
             <div
               key={group._id}
               className="bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md"
@@ -163,6 +211,58 @@ export function MuscleGroups() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {paginatedMuscleGroups.length > 0 && (
+        <div className="p-4 ">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-600">
+              Showing {startIndex + 1} to{' '}
+              {Math.min(endIndex, filteredMuscleGroups.length)} of{' '}
+              {filteredMuscleGroups.length} muscle groups
+            </p>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className={
+                      currentPage === 1
+                        ? 'pointer-events-none opacity-50'
+                        : 'cursor-pointer'
+                    }
+                    size="default"
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => handlePageChange(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                        size="default"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className={
+                      currentPage === totalPages
+                        ? 'pointer-events-none opacity-50'
+                        : 'cursor-pointer'
+                    }
+                    size="default"
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </div>
       )}
 
