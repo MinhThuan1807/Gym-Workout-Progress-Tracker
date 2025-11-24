@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation'
 import { Dumbbell, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
+import Link from 'next/link'
 
 function Header() {
   const router = useRouter()
@@ -23,10 +24,12 @@ function Header() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center gap-2">
-              <Dumbbell className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-              <span className="text-lg sm:text-xl font-semibold">FitTrack</span>
-            </div>
+            <Link href='/'>
+             <div  className="flex items-center gap-2 cursor-pointer">
+                  <Dumbbell className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                  <span className="text-lg sm:text-xl font-semibold">FitTrack</span>
+             </div>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">

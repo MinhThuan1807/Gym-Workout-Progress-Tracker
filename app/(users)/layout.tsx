@@ -30,6 +30,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@/store/hook'
 import { useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import Link from 'next/link'
 
 const menuItems = [
   { href: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -78,9 +79,11 @@ export default function DashboardLayout({
         <Sidebar className="border-r bg-white hidden md:flex">
           <SidebarHeader className="border-b p-4">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <Dumbbell className="w-6 h-6 text-white" />
-              </div>
+              <Link href="/">
+                  <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                    <Dumbbell className="w-6 h-6 text-white" />
+                  </div>
+              </Link>
               <div>
                 <h2 className="font-semibold">FitTrack</h2>
                 <p className="text-xs text-muted-foreground">
@@ -141,9 +144,11 @@ export default function DashboardLayout({
           <header className="md:hidden sticky top-0 z-40 w-full border-b bg-white">
             <div className="flex h-16 items-center justify-between px-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-white" />
-                </div>
+                <Link href='/'>
+                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                      <Dumbbell className="w-5 h-5 text-white" />
+                    </div>
+                </Link>
                 <h2 className="font-semibold text-lg">FitTrack</h2>
               </div>
               <Button

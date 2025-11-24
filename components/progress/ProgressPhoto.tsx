@@ -41,9 +41,20 @@ import {
   Calendar,
   Check
 } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel
+} from '@/components/ui/alert-dialog'
 import Image from 'next/image'
 import { useState, useMemo, useEffect } from 'react'
 import { progressPhoToAPI } from '@/api/progressPhoto'
+import { toast } from 'sonner'
 
 // ===== TYPES =====
 type PhotoView = 'front' | 'back' | 'side'
@@ -80,6 +91,7 @@ export default function ProgressPhotos() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
   const [selectedPhotoForView, setSelectedPhotoForView] =
     useState<ProgressPhoto | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   // Upload form state
   const [uploadView, setUploadView] = useState<PhotoView>('front')
@@ -96,18 +108,7 @@ export default function ProgressPhotos() {
       try {
         setIsLoading(true)
         const data = await progressPhoToAPI.getAll()
-        // Kiểm tra và đảm bảo data là array
-        if (Array.isArray(data)) {
-          console.log('Fetched photos:', data)
-          setPhotos(data)
-        } else if (data && Array.isArray(data.data)) {
-          // Nếu API trả về { data: [...] }
-          console.log('Fetched photos:', data.data)
-          setPhotos(data.data)
-        } else {
-          console.error('Invalid data format from API:', data)
-          setPhotos([])
-        }
+        setPhotos(data.data)
       } catch (err) {
         console.error('Failed to fetch photos:', err)
       } finally {
@@ -143,14 +144,23 @@ export default function ProgressPhotos() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setUploadFile(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setUploadPreview(reader.result as string)
+      if(uploadPreview) {
+        URL.revokeObjectURL(uploadPreview)
       }
-      reader.readAsDataURL(file)
+
+      const objectUrl = URL.createObjectURL(file)
+      setUploadPreview(objectUrl)
+      setUploadFile(file)
     }
   }
+  
+    useEffect(() => {
+    return () => {
+        if (uploadPreview) {
+        URL.revokeObjectURL(uploadPreview)
+        }
+    }
+    }, [uploadPreview])
 
   const handleUpload = async () => {
     if (!uploadFile) return
@@ -178,8 +188,16 @@ export default function ProgressPhotos() {
     }
   }
 
-  const handleDelete = (photoId: string) => {
-    setPhotos(photos.filter((p) => p._id !== photoId))
+  const handleDeletePhoto = async (photoId: string) => {
+    setIsDeleteDialogOpen(true);
+    const previousPhotos = [...photos];
+    setPhotos(photos.filter(photo => photo._id !== photoId));
+    try {
+        await progressPhoToAPI.delete(photoId);
+    } catch(error) {
+        setPhotos(previousPhotos);
+        toast.error( 'Failed to delete photo');
+    }
   }
 
   const timeAgo = (dateStr: string) => {
@@ -487,7 +505,7 @@ export default function ProgressPhotos() {
             >
               <div className="relative aspect-[3/4] bg-[#f9fafb]">
                 <Image
-                  src={photo.imageUrl || ''}
+                  src={photo.imageUrl ?? ''}
                   alt={`Progress photo - ${viewLabels[photo.view]}`}
                   className="w-full h-full object-cover"
                   width={300}
@@ -528,7 +546,8 @@ export default function ProgressPhotos() {
                         className="text-red-500"
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleDelete(photo._id)
+                          setIsDeleteDialogOpen(true)
+                        //   handleDeletePhoto(photo._id)
                         }}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
@@ -537,6 +556,25 @@ export default function ProgressPhotos() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+                <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Photo</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Are you sure you want to delete this photo? This action cannot be undone.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                        onClick={() => handleDeletePhoto(photo._id)}
+                        className="bg-red-600 hover:bg-red-700"
+                    >
+                        Delete
+                    </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+                </AlertDialog>
               </div>
               <CardContent className="p-3">
                 <p className="text-xs text-[#6b7280] mb-1">
