@@ -55,7 +55,7 @@ import {
   AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel
-} from '@/components/ui/alert-dialog'
+} from '@/components/user/ui/alert-dialog'
 import Image from 'next/image'
 import { useState, useMemo, useEffect } from 'react'
 import { progressPhoToAPI } from '@/api/progressPhoto'
