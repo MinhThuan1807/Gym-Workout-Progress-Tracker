@@ -1,4 +1,25 @@
 declare global {
+  interface IAdmin {
+    _id: string
+    email: string
+    password: string
+    displayName: string
+    phoneNumber: string | null
+    bio: string | null
+    location: string | null
+    dob: Date | null
+    gender: string | null
+    heightCm: number | null
+    weightKg: number | null
+    role: string
+    isActive: boolean
+    verifyToken?: string | null
+    avatar?: string | null
+    avatarPublicId?: string | null
+    createdAt?: Date
+    updatedAt?: Date
+  }
+
   interface RegisterAdminParams {
     secretKey: string
     email: string

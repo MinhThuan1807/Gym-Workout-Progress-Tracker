@@ -8,6 +8,7 @@ import { QuickStatsCard } from '@/components/user/profile/QuickStatsCard'
 import { AchievementsCard } from '@/components/user/profile/AchievementCard'
 import { CreateGoalModal } from '@/components/user/profile/CreateGoalModal'
 import { EditProfileModal } from '@/components/user/profile/EditProfileModal'
+import { ChangePasswordModal } from '@/components/user/profile/ChangePasswordModal'
 import { Skeleton } from '@/components/user/ui/skeleton'
 import { Card, CardContent } from '@/components/user/ui/card'
 import { AlertCircle } from 'lucide-react'
@@ -198,6 +199,7 @@ export default function ProfilePage() {
   const [achievements] = useState<Achievement[]>(mockAchievements)
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false)
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
 
   // ✅ Fetch goals from API
@@ -652,6 +654,7 @@ export default function ProfilePage() {
       <ProfileHeader
         profile={profile}
         onEditClick={() => setIsEditProfileOpen(true)}
+        onSecurityClick={() => setIsChangePasswordOpen(true)}
         onAvatarChange={handleAvatarChange}
         isUpdating={isUpdating}
       />
@@ -702,6 +705,11 @@ export default function ProfilePage() {
         profile={profile}
         onSave={handleUpdateProfile}
         isUpdating={isUpdating}
+      />
+
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
       />
     </div>
   )

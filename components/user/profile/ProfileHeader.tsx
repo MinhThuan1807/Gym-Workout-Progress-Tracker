@@ -6,12 +6,13 @@ import {
 } from '@/components/user/ui/avatar'
 import { Button } from '@/components/user/ui/button'
 import { Badge } from '@/components/user/ui/badge'
-import { Edit, Camera, Loader2 } from 'lucide-react'
+import { Edit, Camera, Loader2, Shield } from 'lucide-react'
 import { useRef } from 'react'
 
 interface ProfileHeaderProps {
   profile: User
   onEditClick: () => void
+  onSecurityClick?: () => void
   onAvatarChange?: (file: File) => void
   isUpdating?: boolean
 }
@@ -19,6 +20,7 @@ interface ProfileHeaderProps {
 export function ProfileHeader({
   profile,
   onEditClick,
+  onSecurityClick,
   onAvatarChange,
   isUpdating
 }: ProfileHeaderProps) {
@@ -82,16 +84,29 @@ export function ProfileHeader({
             </div>
           </div>
 
-          {/* Edit Profile Button */}
-          <Button
-            variant="outline"
-            className="rounded-xl border-[#e5e7eb] w-full sm:w-auto"
-            onClick={onEditClick}
-            disabled={isUpdating}
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Profile
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              className="rounded-xl border-[#e5e7eb] w-full sm:w-auto"
+              onClick={onEditClick}
+              disabled={isUpdating}
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit Profile
+            </Button>
+            {onSecurityClick && (
+              <Button
+                variant="outline"
+                className="rounded-xl border-[#e5e7eb] w-full sm:w-auto"
+                onClick={onSecurityClick}
+                disabled={isUpdating}
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Account Security
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
