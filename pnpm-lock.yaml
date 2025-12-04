@@ -3834,8 +3834,6 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.2.0
       '@ckeditor/ckeditor5-utils': 47.2.0
       ckeditor5: 47.2.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-bookmark@44.3.0':
     dependencies:
@@ -4015,8 +4013,6 @@ snapshots:
       '@ckeditor/ckeditor5-upload': 47.2.0
       '@ckeditor/ckeditor5-utils': 47.2.0
       ckeditor5: 47.2.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-editor-balloon@44.3.0':
     dependencies:
@@ -4146,8 +4142,6 @@ snapshots:
     dependencies:
       '@ckeditor/ckeditor5-utils': 47.2.0
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-enter@44.3.0':
     dependencies:
@@ -4160,8 +4154,6 @@ snapshots:
       '@ckeditor/ckeditor5-core': 47.2.0
       '@ckeditor/ckeditor5-engine': 47.2.0
       '@ckeditor/ckeditor5-utils': 47.2.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-essentials@44.3.0':
     dependencies:
@@ -4232,8 +4224,6 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.2.0
       '@ckeditor/ckeditor5-utils': 47.2.0
       ckeditor5: 47.2.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-heading@44.3.0':
     dependencies:
@@ -4532,8 +4522,6 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.2.0
       '@ckeditor/ckeditor5-widget': 47.2.0
       ckeditor5: 47.2.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-mention@44.3.0':
     dependencies:
@@ -4641,6 +4629,8 @@ snapshots:
       '@ckeditor/ckeditor5-ui': 47.2.0
       '@ckeditor/ckeditor5-utils': 47.2.0
       ckeditor5: 47.2.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ckeditor/ckeditor5-restricted-editing@44.3.0':
     dependencies:
@@ -4839,8 +4829,6 @@ snapshots:
       '@ckeditor/ckeditor5-icons': 47.2.0
       '@ckeditor/ckeditor5-ui': 47.2.0
       '@ckeditor/ckeditor5-utils': 47.2.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@ckeditor/ckeditor5-upload@44.3.0':
     dependencies:
@@ -4919,8 +4907,6 @@ snapshots:
       '@ckeditor/ckeditor5-utils': 47.2.0
       ckeditor5: 47.2.0
       es-toolkit: 1.39.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@date-fns/tz@1.4.1': {}
 

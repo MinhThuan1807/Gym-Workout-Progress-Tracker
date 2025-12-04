@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Shield, Key, Smartphone, Clock, AlertCircle } from "lucide-react";
+import { changespasswordAPI } from "@/api";
 import { PageHeader } from "../shared/PageHeader";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -68,8 +69,9 @@ export function Account() {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [loginAlerts, setLoginAlerts] = useState(true);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error("Please fill in all password fields");
       return;
@@ -82,11 +84,26 @@ export function Account() {
       toast.error("Password must be at least 8 characters");
       return;
     }
-    // In a real app, this would call the backend
-    toast.success("Password changed successfully!");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+
+    setIsChangingPassword(true);
+    try {
+      await changespasswordAPI({
+        oldPassword: currentPassword,
+        newPassword,
+      });
+      toast.success("Password changed successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to change password. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const handleEnable2FA = () => {
@@ -177,8 +194,9 @@ export function Account() {
               <Button
                 className="bg-[#2d8cf0] hover:bg-[#2577d4]"
                 onClick={handlePasswordChange}
+                disabled={isChangingPassword}
               >
-                Update Password
+                {isChangingPassword ? "Updating..." : "Update Password"}
               </Button>
             </CardContent>
           </Card>

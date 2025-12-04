@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Camera, Mail, Phone, MapPin, Calendar, Save } from 'lucide-react'
 import { PageHeader } from '../shared/PageHeader'
 import { Button } from '../ui/button'
@@ -25,52 +25,165 @@ import {
 import { toast } from 'sonner'
 import { useAppSelector } from '@/store/hook'
 import { selectCurrentUser } from '@/store/slices/authSlice'
+import { getAdminProfileAPI, updateAdminProfileAPI } from '@/api'
+import { LoadingSpinner } from '../shared/LoadingSpinner'
 
 export function Profile() {
   const currentUser = useAppSelector(selectCurrentUser)
 
   const [isEditing, setIsEditing] = useState(false)
-  const [profileImage, setProfileImage] = useState(
-    currentUser?.avatar ||
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [adminData, setAdminData] = useState<IAdmin | null>(null)
+  const [profileImage, setProfileImage] = useState<string>(
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
   )
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [formData, setFormData] = useState({
-    firstName: 'Admin',
-    lastName: 'User',
-    email: currentUser?.email || '',
-    phone: '+1 (555) 123-4567',
-    bio: 'Passionate fitness enthusiast and platform administrator. Dedicated to helping users achieve their fitness goals.',
-    location: 'New York, USA',
-    dateOfBirth: '1990-01-15',
+    displayName: '',
+    email: '',
+    phone: '',
+    bio: '',
+    location: '',
+    dateOfBirth: '',
     gender: 'male',
-    height: '175',
-    weight: '75',
+    height: '',
+    weight: '',
     role: 'Administrator',
     department: 'Operations',
-    joinDate: '2023-01-15'
+    joinDate: ''
   })
+
+  useEffect(() => {
+    fetchAdminProfile()
+  }, [])
+
+  const fetchAdminProfile = async () => {
+    try {
+      setIsLoading(true)
+      const response = await getAdminProfileAPI()
+      const admin: IAdmin = response.data
+      setAdminData(admin)
+      
+      // Set profile image
+      if (admin.avatar) {
+        setProfileImage(admin.avatar)
+      }
+      
+      // Populate form data
+      setFormData({
+        displayName: admin.displayName || '',
+        email: admin.email || '',
+        phone: admin.phoneNumber || '',
+        bio: admin.bio || '',
+        location: admin.location || '',
+        dateOfBirth: admin.dob ? new Date(admin.dob).toISOString().split('T')[0] : '',
+        gender: admin.gender || 'male',
+        height: admin.heightCm?.toString() || '',
+        weight: admin.weightKg?.toString() || '',
+        role: admin.role || 'Administrator',
+        department: 'Operations',
+        joinDate: admin.createdAt ? new Date(admin.createdAt).toISOString().split('T')[0] : ''
+      })
+    } catch (error: any) {
+      console.error('Error fetching admin profile:', error)
+      toast.error(error.response?.data?.message || 'Failed to load profile')
+    } finally {
+      setIsLoading(false)
+    }
+  } 
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setAvatarFile(file)
       const reader = new FileReader()
       reader.onloadend = () => {
         setProfileImage(reader.result as string)
-        toast.success('Profile image updated successfully!')
       }
       reader.readAsDataURL(file)
     }
   }
 
-  const handleSave = () => {
-    // In a real app, this would save to backend
-    toast.success('Profile updated successfully!')
-    setIsEditing(false)
+  const handleSave = async () => {
+    try {
+      setIsSaving(true)
+      const formDataToSend = new FormData()
+      
+      // Only append changed fields
+      if (formData.displayName !== adminData?.displayName) {
+        formDataToSend.append('displayName', formData.displayName)
+      }
+      if (formData.phone !== (adminData?.phoneNumber || '')) {
+        formDataToSend.append('phoneNumber', formData.phone)
+      }
+      if (formData.bio !== (adminData?.bio || '')) {
+        formDataToSend.append('bio', formData.bio)
+      }
+      if (formData.location !== (adminData?.location || '')) {
+        formDataToSend.append('location', formData.location)
+      }
+      if (formData.dateOfBirth && formData.dateOfBirth !== (adminData?.dob ? new Date(adminData.dob).toISOString().split('T')[0] : '')) {
+        formDataToSend.append('dob', formData.dateOfBirth)
+      }
+      if (formData.gender !== (adminData?.gender || 'male')) {
+        formDataToSend.append('gender', formData.gender)
+      }
+      if (formData.height && parseFloat(formData.height) !== (adminData?.heightCm || 0)) {
+        formDataToSend.append('heightCm', formData.height)
+      }
+      if (formData.weight && parseFloat(formData.weight) !== (adminData?.weightKg || 0)) {
+        formDataToSend.append('weightKg', formData.weight)
+      }
+      if (avatarFile) {
+        formDataToSend.append('avatar', avatarFile)
+      }
+
+      await updateAdminProfileAPI(formDataToSend)
+      toast.success('Profile updated successfully!')
+      setIsEditing(false)
+      setAvatarFile(null)
+      
+      // Refresh profile data
+      await fetchAdminProfile()
+    } catch (error: any) {
+      console.error('Error updating profile:', error)
+      toast.error(error.response?.data?.message || 'Failed to update profile')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleCancel = () => {
+    // Reset form data to original admin data
+    if (adminData) {
+      setFormData({
+        displayName: adminData.displayName || '',
+        email: adminData.email || '',
+        phone: adminData.phoneNumber || '',
+        bio: adminData.bio || '',
+        location: adminData.location || '',
+        dateOfBirth: adminData.dob ? new Date(adminData.dob).toISOString().split('T')[0] : '',
+        gender: adminData.gender || 'male',
+        height: adminData.heightCm?.toString() || '',
+        weight: adminData.weightKg?.toString() || '',
+        role: adminData.role || 'Administrator',
+        department: 'Operations',
+        joinDate: adminData.createdAt ? new Date(adminData.createdAt).toISOString().split('T')[0] : ''
+      })
+      setProfileImage(adminData.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin')
+    }
+    setAvatarFile(null)
     setIsEditing(false)
     toast.info('Changes discarded')
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    )
   }
 
   return (
@@ -105,11 +218,12 @@ export function Profile() {
                 className="bg-[#2d8cf0] hover:bg-[#2577d4] text-xs lg:text-sm"
                 size="sm"
                 onClick={handleSave}
+                disabled={isSaving}
               >
                 <Save className="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" />
-                <span className="hidden sm:inline">Save</span>
-                <span className="hidden md:inline ml-1">Changes</span>
-                <span className="sm:hidden">Save</span>
+                <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save'}</span>
+                <span className="hidden md:inline ml-1">{!isSaving && 'Changes'}</span>
+                <span className="sm:hidden">{isSaving ? 'Saving...' : 'Save'}</span>
               </Button>
             </div>
           )
@@ -126,8 +240,7 @@ export function Profile() {
                   <Avatar className="w-24 h-24 lg:w-32 lg:h-32">
                     <AvatarImage src={profileImage} />
                     <AvatarFallback className="text-lg lg:text-2xl">
-                      {formData.firstName[0]}
-                      {formData.lastName[0]}
+                      {formData.displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   {isEditing && (
@@ -147,7 +260,7 @@ export function Profile() {
                   )}
                 </div>
                 <h2 className="mt-4 text-lg lg:text-2xl text-gray-900 text-center">
-                  {formData.firstName} {formData.lastName}
+                  {formData.displayName}
                 </h2>
                 <p className="text-gray-500 text-sm lg:text-base">
                   {formData.role}
@@ -239,35 +352,20 @@ export function Profile() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 p-4 lg:p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-xs lg:text-sm">
-                    First Name
-                  </Label>
-                  <Input
-                    id="firstName"
-                    value={formData.firstName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, firstName: e.target.value })
-                    }
-                    disabled={!isEditing}
-                    className="text-sm lg:text-base"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-xs lg:text-sm">
-                    Last Name
-                  </Label>
-                  <Input
-                    id="lastName"
-                    value={formData.lastName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, lastName: e.target.value })
-                    }
-                    disabled={!isEditing}
-                    className="text-sm lg:text-base"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="displayName" className="text-xs lg:text-sm">
+                  Display Name
+                </Label>
+                <Input
+                  id="displayName"
+                  value={formData.displayName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, displayName: e.target.value })
+                  }
+                  disabled={!isEditing}
+                  className="text-sm lg:text-base"
+                  placeholder="Enter your display name"
+                />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

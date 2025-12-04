@@ -178,3 +178,24 @@ export const totalWorkoutPlansAPI = async () => {
   const response = await axios.get('dashboard/total-workout-plans')
   return response.data
 }
+
+export const changespasswordAPI = async (data: {
+  oldPassword: string
+  newPassword: string
+}) => {
+  const response = await axios.put('auth/change-password', data)
+  return response.data
+}
+
+export const getAdminProfileAPI = async () => {
+  const response = await axios.get('admins/profile')
+  return response.data
+}
+
+export const updateAdminProfileAPI = async (data: FormData) => {
+  const response = await axios.put('admins/profile', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
