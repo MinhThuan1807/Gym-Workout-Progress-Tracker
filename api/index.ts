@@ -19,6 +19,26 @@ export const registerAdminAPI = async (data: RegisterAdminParams) => {
   return response.data
 }
 
+export const changespasswordAPI = async (data: {
+  oldPassword: string
+  newPassword: string
+}) => {
+  const response = await axios.put('auth/change-password', data)
+  return response.data
+}
+
+export const getAdminProfileAPI = async () => {
+  const response = await axios.get('admins/profile')
+  return response.data
+}
+
+export const updateAdminProfileAPI = async (data: FormData) => {
+  const response = await axios.put('admins/profile', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return response.data
+}
+
 /* Muscle Group API */
 export const getAllMuscleGroupsAPI = async () => {
   const response = await axios.get('muscle-groups')
@@ -179,23 +199,13 @@ export const totalWorkoutPlansAPI = async () => {
   return response.data
 }
 
-export const changespasswordAPI = async (data: {
-  oldPassword: string
-  newPassword: string
-}) => {
-  const response = await axios.put('auth/change-password', data)
+export const totalUserByMonthAPI = async () => {
+  const response = await axios.get('dashboard/total-users-by-month')
   return response.data
 }
 
-export const getAdminProfileAPI = async () => {
-  const response = await axios.get('admins/profile')
-  return response.data
-}
-
-export const updateAdminProfileAPI = async (data: FormData) => {
-  const response = await axios.put('admins/profile', data, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+export const totalExerciseByTypeAPI = async () => {
+  const response = await axios.get('dashboard/total-exercises-by-type')
   return response.data
 }
 

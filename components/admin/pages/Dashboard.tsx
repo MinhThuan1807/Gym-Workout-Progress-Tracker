@@ -9,10 +9,14 @@ import {
   totalUsersAPI,
   totalExercisesAPI,
   totalMuscleGroupsAPI,
-  totalWorkoutPlansAPI
+  totalWorkoutPlansAPI,
+  totalUserByMonthAPI,
+  totalExerciseByTypeAPI
 } from '@/api'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export function Dashboard() {
   const router = useRouter()
@@ -20,6 +24,8 @@ export function Dashboard() {
   const [totalExercises, setTotalExercises] = useState<number>(0)
   const [totalMuscleGroups, setTotalMuscleGroups] = useState<number>(0)
   const [totalWorkoutPlans, setTotalWorkoutPlans] = useState<number>(0)
+  const [userRegistrationData, setUserRegistrationData] = useState([])
+  const [exerciseTypeData, setExerciseTypeData] = useState([])
 
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -32,7 +38,9 @@ export function Dashboard() {
         totalUsersAPI(),
         totalExercisesAPI(),
         totalMuscleGroupsAPI(),
-        totalWorkoutPlansAPI()
+        totalWorkoutPlansAPI(),
+        totalUserByMonthAPI(),
+        totalExerciseByTypeAPI()
       ])
       setTotalUsers(
         formatNumber(fetchData[0].total as number) as unknown as number
@@ -46,6 +54,8 @@ export function Dashboard() {
       setTotalWorkoutPlans(
         formatNumber(fetchData[3].total as number) as unknown as number
       )
+      setUserRegistrationData(fetchData[4].totalByMonth)
+      setExerciseTypeData(fetchData[5].total)
     }
     fetchStats()
   }, [])
@@ -108,7 +118,41 @@ export function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* User Registration Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle>User Registration Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={userRegistrationData}>
+                {/* data={userRegistrationData} */}
+                <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
+                <XAxis dataKey="month" stroke="#888888" />
+                <YAxis stroke="#888888" />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #e8e8e8',
+                    borderRadius: '6px'
+                  }}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="users" 
+                  stroke="#2d8cf0" 
+                  strokeWidth={3}
+                  name="New Users"
+                  dot={{ fill: '#2d8cf0', r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6">
           <h3 className="text-lg lg:text-xl text-gray-900 mb-4 font-medium">
             Quick Actions
@@ -176,6 +220,41 @@ export function Dashboard() {
             </Link>
           </div>
         </div>
+
+        {/* Exercise Types Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Exercise Types Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={exerciseTypeData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  {exerciseTypeData.map((entry: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #e8e8e8',
+                    borderRadius: '6px'
+                  }}
+                />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
       </div>
     </div>
   )
