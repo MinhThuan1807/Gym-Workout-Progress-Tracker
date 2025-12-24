@@ -162,7 +162,7 @@ export default function ProgressPhotos() {
     useEffect(() => {
     return () => {
         if (uploadPreview) {
-        URL.revokeObjectURL(uploadPreview)
+          URL.revokeObjectURL(uploadPreview)
         }
     }
     }, [uploadPreview])

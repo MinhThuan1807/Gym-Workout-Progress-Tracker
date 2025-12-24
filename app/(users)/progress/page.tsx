@@ -194,13 +194,11 @@ export default function ProgressPage() {
 
   const isAuthenticated = useSelector(selectIsAuthenticated)
 
-  // Fetch all metrics on mount
   useEffect(() => {
     const fetchMetrics = async () => {
       setIsLoading(true)
       try {
         const response = await metricAPI.getAll()
-        // Normalize response to an array: some API clients return { data: [...] }, others return [...]
         const data = Array.isArray(response) ? response : response?.data ?? []
         setEntries(data)
       } catch (error: any) {
@@ -212,15 +210,13 @@ export default function ProgressPage() {
     }
 
     fetchMetrics()
-  }, [isAuthenticated]) // ✅ Thêm dependency
-  // Get available metrics for selected category
+  }, [isAuthenticated]) 
   const availableMetricsInCategory = useMemo(() => {
     return Object.entries(metricConfigs)
       .filter(([_, config]) => config.category === selectedCategory)
       .map(([key]) => key as MetricType)
   }, [selectedCategory])
 
-  // Auto-select first metric in category when category changes
   useEffect(() => {
     if (availableMetricsInCategory.length > 0) {
       setSelectedMetricCode(availableMetricsInCategory[0])
@@ -229,7 +225,6 @@ export default function ProgressPage() {
 
   const primaryMetric = selectedMetricCode
 
-  // Filter entries by time range
   const filteredEntries = useMemo(() => {
     const now = new Date()
     const entriesForMetric = entries.filter(
@@ -283,7 +278,6 @@ export default function ProgressPage() {
     return { current, starting, change, changePercent, best, worst }
   }, [filteredEntries])
 
-  // Determine if trend is good based on goal direction
   const isTrendGood = useMemo(() => {
     const config = metricConfigs[primaryMetric]
     if (!config?.goalDirection) return null
@@ -295,7 +289,7 @@ export default function ProgressPage() {
     }
   }, [primaryMetric, stats.change])
 
-  // Format chart data
+  
   const chartData = useMemo(() => {
     return filteredEntries
       .map((entry) => {
@@ -315,7 +309,6 @@ export default function ProgressPage() {
       .reverse()
   }, [filteredEntries])
 
-  // Calculate trend line using linear regression
   const trendLine = useMemo(() => {
     if (chartData.length < 2) return []
 
@@ -334,7 +327,6 @@ export default function ProgressPage() {
     }))
   }, [chartData])
 
-  // Merge chart data with trend line
   const mergedChartData = useMemo(() => {
     return chartData.map((d, i) => ({
       ...d,
@@ -342,7 +334,6 @@ export default function ProgressPage() {
     }))
   }, [chartData, trendLine])
 
-  // Get recent entries for s_idebar
   const recentEntries = useMemo(() => {
     return [...entries]
       .sort(
@@ -353,7 +344,6 @@ export default function ProgressPage() {
   }, [entries])
 
   const handleLogEntry = async () => {
-    // ✅ Check auth trước
     if (!isAuthenticated) {
       toast.error('Please login first')
       return
@@ -382,11 +372,9 @@ export default function ProgressPage() {
 
       toast.success('Metric logged successfully!')
 
-      // ✅ Refresh data sau khi log
       const response = await metricAPI.getAll()
       setEntries(response.data)
 
-      // Reset form
       setInputValue('')
       setInputNotes('')
     } catch (error: any) {

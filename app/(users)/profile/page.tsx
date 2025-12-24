@@ -158,7 +158,6 @@ const quickStats: QuickStats = {
   totalVolume: 28500
 }
 
-// Loading skeleton component
 function ProfileSkeleton() {
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
@@ -202,7 +201,6 @@ export default function ProfilePage() {
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
 
-  // ✅ Fetch goals from API
   useEffect(() => {
     const fetchGoals = async () => {
       if (!user) return
@@ -222,7 +220,7 @@ export default function ProfilePage() {
     fetchGoals()
   }, [user])
 
-  // ✅ Helper: Kiểm tra xem goal có đạt được chưa
+  // Kiểm tra xem goal có đạt được chưa
   const isGoalAchieved = (goal: Goal): boolean => {
     if (!goal.currentValue || !goal.targetValue || !goal.startValue)
       return false
@@ -259,7 +257,6 @@ export default function ProfilePage() {
     }
   }
 
-  // ✅ Helper: Tính progress percentage (CHÍNH XÁC HƠN)
   const calculateProgress = (goal: Goal): number => {
     if (!goal.currentValue || !goal.targetValue || !goal.startValue) return 0
 
@@ -292,7 +289,6 @@ export default function ProfilePage() {
     return 0
   }
 
-  // ✅ Auto-update goal status when achieved (CẢI THIỆN LOGIC)
   const autoUpdateGoalStatus = async (goal: Goal) => {
     // Tính progress để kiểm tra
     const progress = calculateProgress(goal)
@@ -323,12 +319,10 @@ export default function ProfilePage() {
 
         const updatedGoal = response.data || response
 
-        // Update local state
         setGoals((prev) =>
           prev.map((g) => (g._id === goal._id ? updatedGoal : g))
         )
 
-        // Show celebration toast
         toast.success(
           `🎉 Congratulations! You've achieved your goal: ${goal.goalType}!`,
           {
@@ -352,7 +346,6 @@ export default function ProfilePage() {
     return false
   }
 
-  // ✅ Fetch goals with current values from metrics
   useEffect(() => {
     const fetchGoalsWithProgress = async () => {
       if (!user) return
@@ -362,7 +355,6 @@ export default function ProfilePage() {
         const goalsResponse = await profileAPI.getAllGoal()
         const goalsData = goalsResponse.data || goalsResponse
 
-        // ✅ Fetch current values from metrics for each goal
         const goalsWithProgress = await Promise.all(
           goalsData.map(async (goal: Goal) => {
             let currentValue = goal.startValue || 0
@@ -394,7 +386,6 @@ export default function ProfilePage() {
 
         setGoals(goalsWithProgress)
 
-        // ✅ Auto-update achieved goals
         for (const goal of goalsWithProgress) {
           await autoUpdateGoalStatus(goal)
         }
@@ -410,7 +401,6 @@ export default function ProfilePage() {
     fetchGoalsWithProgress()
   }, [user])
 
-  // ✅ Handle avatar change với Redux update
   const handleAvatarChange = async (file: File) => {
     if (!profile) return
 
@@ -420,7 +410,6 @@ export default function ProfilePage() {
     try {
       setIsUpdating(true)
 
-      // ✅ Chỉ gửi avatar, không gửi các field khác
       const response = await profileAPI.updateProfile({
         avatar: file
       })
@@ -446,7 +435,6 @@ export default function ProfilePage() {
     }
   }
 
-  // ✅ Handle profile update with better error handling
   const handleUpdateProfile = async (updates: UpdateProfileData) => {
     if (!profile) return
 
@@ -457,7 +445,6 @@ export default function ProfilePage() {
       const response = await profileAPI.updateProfile(updates)
       console.log('✅ Update response:', response)
 
-      // ✅ Update Redux state with complete response
       dispatch(
         updateUserProfile({
           displayName: response.data.displayName || response.displayName,
@@ -482,7 +469,6 @@ export default function ProfilePage() {
     }
   }
 
-  // ✅ Handle create goal
   const handleCreateGoal = async (goalData: {
     goalType: GoalType
     targetValue: number
@@ -492,13 +478,12 @@ export default function ProfilePage() {
     targetDate?: string
     note?: string
     metricCode?: MetricType
-    exerciseId?: string // ✅ Thêm exerciseId
+    exerciseId?: string 
   }) => {
     try {
       const response = await profileAPI.createGoal(goalData)
       const newGoal = response.data || response
 
-      // ✅ Fetch current value if metricCode exists
       let currentValue = newGoal.startValue || 0
       if (newGoal.metricCode) {
         try {
@@ -520,7 +505,6 @@ export default function ProfilePage() {
 
       setGoals((prev) => [...prev, goalWithProgress])
 
-      // ✅ Check if goal is immediately achieved
       await autoUpdateGoalStatus(goalWithProgress)
 
       toast.success('Goal created successfully')
@@ -533,7 +517,6 @@ export default function ProfilePage() {
     }
   }
 
-  // ✅ Handle update goal
   const handleUpdateGoal = async (
     goalId: string,
     updates: {
@@ -545,7 +528,7 @@ export default function ProfilePage() {
       targetDate?: string
       note?: string
       metricCode?: MetricType
-      exerciseId?: string // ✅ Thêm exerciseId
+      exerciseId?: string 
       status?: GoalStatus
     }
   ) => {
@@ -574,7 +557,6 @@ export default function ProfilePage() {
         prev.map((goal) => (goal._id === goalId ? updatedGoal : goal))
       )
 
-      // ✅ Check if goal is now achieved
       await autoUpdateGoalStatus(updatedGoal)
 
       toast.success('Goal updated successfully')
@@ -587,7 +569,6 @@ export default function ProfilePage() {
     }
   }
 
-  // ✅ Handle delete goal
   const handleDeleteGoal = async (goalId: string) => {
     try {
       await profileAPI.deleteGoal(goalId)
@@ -601,7 +582,6 @@ export default function ProfilePage() {
     }
   }
 
-  // ✅ Convert user to UserProfile format
   const profile: UserProfile | null = user
     ? {
         _id: user._id,

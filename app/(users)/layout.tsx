@@ -114,7 +114,7 @@ export default function DashboardLayout({
           <SidebarFooter className="border-t p-4">
             <div className="flex items-center gap-3 mb-3">
               <Avatar className="w-10 h-10">
-                <AvatarImage src={user?.avatar} />
+                <AvatarImage src={user?.avatar} alt="avatar" />
                 <AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
